@@ -1,150 +1,146 @@
-title: Ship Your [SaaS]{class="text-primary"} at light speed
-description: Build production-ready SaaS applications with Nuxt UI's powerful components, authentication flows, and enterprise features. The same component library trusted by the entire Nuxt ecosystem.
+title: Ứng dụng [Y tế]{class="text-primary"} Thông minh cho Tương lai
+description: Nền tảng quản lý y tế toàn diện với các tính năng hiện đại, bảo mật cao và trải nghiệm người dùng tuyệt vời. Giải pháp tin cậy cho các cơ sở y tế và bệnh viện.
 seo:
-  title: Nuxt UI SaaS Template
-  description: Create stunning, fast and production-ready SaaS applications with Nuxt UI. 100+ Vue components, authentication, dark mode, and enterprise features built on Tailwind CSS.
+  title: Ứng dụng Y tế Thông minh - Học viện MEDUNI
+  description: Nền tảng quản lý y tế toàn diện với các tính năng hiện đại, bảo mật cao và trải nghiệm người dùng tuyệt vời. Giải pháp tin cậy cho các cơ sở y tế.
 navigation: false
 hero:
   links:
-    - label: Get started
+    - label: Bắt đầu ngay
       icon: i-lucide-arrow-right
       trailing: true
-      to: https://ui.nuxt.com/docs/getting-started/installation/nuxt
-      target: _blank
+      to: /signup
       size: xl
-    - label: Use this template
-      icon: i-simple-icons-github
+    - label: Tìm hiểu thêm
+      icon: i-lucide-info
       size: xl
       color: neutral
       variant: subtle
-      to: https://github.com/nuxt-ui-templates/saas
-      target: _blank
+      to: #features
 sections:
-  - title: Powered by Nuxt UI Components
-    description: Access the complete Nuxt UI component library with 100+ beautifully styled, accessible, and customizable Vue components. Everything you need to build professional SaaS applications.
+  - title: Được xây dựng cho Ngành Y tế
+    description: Nền tảng quản lý y tế toàn diện với hơn 100 tính năng được thiết kế chuyên biệt, giao diện trực quan và dễ sử dụng. Tất cả những gì bạn cần để vận hành cơ sở y tế hiệu quả.
     id: features
     orientation: horizontal
     features:
-      - name: 100+ UI Components
-        description: From buttons to modals, data tables to forms - all styled with Tailwind CSS and accessible out of the box.
-        icon: i-lucide-package
-      - name: Authentication Ready
-        description: Pre-built login, signup, and password reset flows. Just connect your backend and start onboarding users.
-        icon: i-lucide-shield
-      - name: TypeScript First
-        description: Full TypeScript support with auto-completion, type safety, and IntelliSense for every component and composable.
-        icon: i-lucide-code-2
-  - title: Built for Modern SaaS
-    description: Everything you need to launch and scale your SaaS. From beautiful marketing pages to complex dashboards, ship faster with production-ready patterns.
+      - name: Quản lý Bệnh nhân
+        description: Hệ thống quản lý hồ sơ bệnh nhân điện tử (EMR) hoàn chỉnh với lịch sử khám bệnh, kết quả xét nghiệm và đơn thuốc.
+        icon: i-lucide-users
+      - name: Bảo mật Tuyệt đối
+        description: Tuân thủ các tiêu chuẩn bảo mật y tế quốc tế với mã hóa dữ liệu, xác thực đa yếu tố và kiểm soát truy cập nghiêm ngặt.
+        icon: i-lucide-shield-check
+      - name: Hỗ trợ Đa nền tảng
+        description: Hoạt động mượt mà trên mọi thiết bị - máy tính, tablet và điện thoại. Đồng bộ dữ liệu real-time.
+        icon: i-lucide-smartphone
+  - title: Công nghệ Hiện đại cho Y tế
+    description: Mọi thứ bạn cần để vận hành và mở rộng cơ sở y tế. Từ quản lý lịch hẹn đến phân tích dữ liệu, triển khai nhanh chóng với các mẫu sẵn sàng sử dụng.
     orientation: horizontal
     reverse: true
     features:
-      - name: Edge Performance
-        description: Optimized for Core Web Vitals with automatic code splitting, lazy loading, and SSR/SSG support.
+      - name: Hiệu suất Cao
+        description: Tối ưu hóa tốc độ với tự động phân chia mã, tải lười và hỗ trợ SSR/SSG. Đảm bảo trải nghiệm mượt mà.
         icon: i-lucide-zap
-      - name: Dark Mode Ready
-        description: Automatic theme switching with smooth transitions. Respects system preferences and remembers user choice.
+      - name: Giao diện Tối giản
+        description: Chuyển đổi giao diện sáng/tối tự động với hiệu ứng mượt mà. Tôn trọng tùy chọn hệ thống và ghi nhớ lựa chọn người dùng.
         icon: i-lucide-moon
-      - name: Global Ready
-        description: Built-in i18n support for 50+ languages with RTL/LTR layouts and @nuxt/fonts integration.
+      - name: Đa ngôn ngữ
+        description: Hỗ trợ đa ngôn ngữ tích hợp cho 50+ ngôn ngữ với bố cục RTL/LTR và tích hợp @nuxt/fonts.
         icon: i-lucide-globe
 features:
-  title: Everything You Need to Ship
-  description: Stop building from scratch. Focus on your unique features while Nuxt UI handles the foundations with battle-tested components and patterns.
+  title: Tất cả Tính năng Bạn Cần
+  description: Dừng việc xây dựng từ đầu. Tập trung vào các tính năng độc đáo của bạn trong khi nền tảng xử lý nền tảng với các thành phần và mẫu đã được kiểm chứng.
   items:
-    - title: Beautiful Design System
-      description: Semantic color aliases, comprehensive design tokens, and Tailwind Variants for consistent, customizable styling.
+    - title: Hệ thống Thiết kế Đẹp mắt
+      description: Bí danh màu sắc ngữ nghĩa, token thiết kế toàn diện và Tailwind Variants để tạo kiểu nhất quán, có thể tùy chỉnh.
       icon: i-lucide-palette
-    - title: Accessible by Default
-      description: Built on Reka UI for robust accessibility. WCAG compliant components that work for everyone, everywhere.
+    - title: Tiếp cận Mặc định
+      description: Xây dựng trên Reka UI để tiếp cận mạnh mẽ. Các thành phần tuân thủ WCAG hoạt động cho mọi người, mọi nơi.
       icon: i-lucide-accessibility
-    - title: Developer Experience
-      description: Auto-imports, hot module replacement, and comprehensive documentation. Build faster with less friction.
+    - title: Trải nghiệm Nhà phát triển
+      description: Tự động nhập, thay thế mô-đun nóng và tài liệu toàn diện. Xây dựng nhanh hơn với ít ma sát hơn.
       icon: i-lucide-terminal
-    - title: SEO Optimized
-      description: Server-side rendering, automatic meta tags, sitemap generation, and Open Graph images out of the box.
+    - title: Tối ưu SEO
+      description: Kết xuất phía máy chủ, thẻ meta tự động, tạo sơ đồ trang web và hình ảnh Open Graph sẵn sàng sử dụng.
       icon: i-lucide-search
-    - title: Production Ready
-      description: Error handling, loading states, form validation, and security best practices built into every component.
+    - title: Sẵn sàng Sản xuất
+      description: Xử lý lỗi, trạng thái tải, xác thực biểu mẫu và các phương pháp bảo mật tốt nhất được tích hợp vào mọi thành phần.
       icon: i-lucide-check-circle
-    - title: Infinitely Customizable
-      description: Override any style with the ui prop, customize globally with AppConfig, or use Tailwind classes directly.
+    - title: Tùy chỉnh Vô hạn
+      description: Ghi đè bất kỳ kiểu nào với prop ui, tùy chỉnh toàn cục với AppConfig hoặc sử dụng các lớp Tailwind trực tiếp.
       icon: i-lucide-settings
 testimonials:
-  headline: Trusted by Developers
-  title: Join Thousands Building with Nuxt UI
-  description: See why developers choose Nuxt UI to ship their SaaS applications faster and with more confidence.
+  headline: Được tin tưởng bởi các Chuyên gia Y tế
+  title: Tham gia cùng Hàng nghìn Người dùng trong Ngành Y tế
+  description: Xem tại sao các cơ sở y tế chọn nền tảng của chúng tôi để vận hành hiệu quả hơn và với sự tự tin cao hơn.
   items:
-    - quote: Nuxt UI transformed how we build. The component quality is exceptional - everything just works with perfect TypeScript support, accessibility, and dark mode built in.
+    - quote: Nền tảng này đã thay đổi cách chúng tôi vận hành. Chất lượng tính năng là đặc biệt - mọi thứ hoạt động hoàn hảo với hỗ trợ TypeScript, khả năng tiếp cận và chế độ tối được tích hợp sẵn.
       user:
-        name: Sarah Chen
-        description: CTO at TechScale Solutions
+        name: Bác sĩ Nguyễn Thị Lan
+        description: Giám đốc Y khoa tại Bệnh viện Đa khoa Trung ương
         avatar:
           src: https://i.pravatar.cc/120?img=1
-    - quote: We shipped our MVP in 2 weeks instead of 2 months. The authentication flows and form components saved us countless hours of development time.
+    - quote: Chúng tôi triển khai hệ thống trong 2 tuần thay vì 2 tháng. Các luồng xác thực và thành phần biểu mẫu đã tiết kiệm cho chúng tôi vô số giờ phát triển.
       user:
-        name: Marcus Rodriguez
-        description: VP of Engineering at DataFlow
+        name: Thạc sĩ Trần Văn Minh
+        description: Phó Giám đốc Công nghệ tại Trung tâm Y tế Quốc gia
         avatar:
           src: https://i.pravatar.cc/120?img=7
-    - quote: The design system with AppConfig is brilliant. We maintain brand consistency across all our products while leveraging the full component library.
+    - quote: Hệ thống thiết kế với AppConfig rất xuất sắc. Chúng tôi duy trì tính nhất quán thương hiệu trên tất cả sản phẩm của mình trong khi tận dụng toàn bộ thư viện thành phần.
       user:
-        name: David Kumar
-        description: Security Director at SecureStack
+        name: Bác sĩ Lê Hoàng Nam
+        description: Giám đốc An ninh tại Hệ thống Y tế An toàn
         avatar:
           src: https://i.pravatar.cc/120?img=3
-    - quote: Perfect Lighthouse scores out of the box. Our Core Web Vitals improved dramatically just by switching to Nuxt UI components.
+    - quote: Điểm Lighthouse hoàn hảo ngay từ đầu. Các chỉ số Core Web Vitals của chúng tôi được cải thiện đáng kể chỉ bằng cách chuyển sang các thành phần của nền tảng.
       user:
-        name: Emily Zhang
-        description: Lead Architect at ScaleForce
+        name: Tiến sĩ Phạm Thị Hương
+        description: Kiến trúc sư Trưởng tại Lực lượng Quy mô
         avatar:
           src: https://i.pravatar.cc/120?img=5
-    - quote: The Tailwind Variants system makes customization so intuitive. We can override any component style while keeping the functionality intact.
+    - quote: Hệ thống Tailwind Variants làm cho việc tùy chỉnh trở nên rất trực quan. Chúng tôi có thể ghi đè bất kỳ kiểu thành phần nào trong khi giữ nguyên chức năng.
       user:
-        name: James Wilson
-        description: DevOps Lead at CloudPro
+        name: Bác sĩ Đỗ Văn Hùng
+        description: Trưởng nhóm DevOps tại CloudPro Y tế
         avatar:
           src: https://i.pravatar.cc/120?img=8
-    - quote: From the SaaS template to production in days. The pre-built layouts, navigation, and content structure accelerated our launch.
+    - quote: Từ mẫu đến sản xuất trong vài ngày. Các bố cục, điều hướng và cấu trúc nội dung được xây dựng sẵn đã đẩy nhanh việc ra mắt của chúng tôi.
       user:
-        name: Lisa Patel
-        description: CEO at AutoScale
+        name: Bác sĩ Vũ Thị Mai
+        description: Giám đốc Điều hành tại Tự động Hóa Y tế
         avatar:
           src: https://i.pravatar.cc/120?img=9
-    - quote: Reka UI foundation means accessibility is never an afterthought. We achieved WCAG compliance without any custom work.
+    - quote: Nền tảng Reka UI có nghĩa là khả năng tiếp cận không bao giờ là suy nghĩ sau. Chúng tôi đạt được tuân thủ WCAG mà không cần bất kỳ công việc tùy chỉnh nào.
       user:
-        name: Michael Torres
-        description: Frontend Lead at AccessFirst
+        name: Thạc sĩ Hoàng Văn Tuấn
+        description: Trưởng nhóm Frontend tại Tiếp cận Đầu tiên
         avatar:
           src: https://i.pravatar.cc/120?img=11
-    - quote: The documentation is outstanding. Every component has clear examples, and the community on Discord is incredibly helpful.
+    - quote: Tài liệu rất xuất sắc. Mọi thành phần đều có ví dụ rõ ràng và cộng đồng trên Discord cực kỳ hữu ích.
       user:
-        name: Rachel Kim
-        description: Performance Engineer at APIHub
+        name: Bác sĩ Nguyễn Thị Hoa
+        description: Kỹ sư Hiệu suất tại APIHub Y tế
         avatar:
           src: https://i.pravatar.cc/120?img=10
-    - quote: We replaced three different UI libraries with Nuxt UI. The consistency and quality across all components is unmatched.
+    - quote: Chúng tôi đã thay thế ba thư viện UI khác nhau bằng nền tảng này. Tính nhất quán và chất lượng trên tất cả các thành phần là không thể so sánh được.
       user:
-        name: Thomas Weber
-        description: UI Architecture Lead at DesignScale
+        name: Tiến sĩ Trần Văn Đức
+        description: Trưởng Kiến trúc UI tại Thiết kế Quy mô
         avatar:
           src: https://i.pravatar.cc/120?img=12
-    - quote: The integration with Nuxt modules is seamless. Color mode, fonts, icons - everything works together perfectly.
+    - quote: Tích hợp với các mô-đun Nuxt là liền mạch. Chế độ màu, phông chữ, biểu tượng - mọi thứ hoạt động cùng nhau hoàn hảo.
       user:
-        name: Sophia Martinez
-        description: Integration Specialist at TechFlow
+        name: Bác sĩ Phạm Thị Linh
+        description: Chuyên gia Tích hợp tại TechFlow Y tế
         avatar:
           src: https://i.pravatar.cc/120?img=14
 cta:
-  title: Ready to build an amazing SaaS?
-  description: Join thousands of developers building with Nuxt and Nuxt UI. Get this template and start shipping today.
+  title: Sẵn sàng xây dựng một ứng dụng y tế tuyệt vời?
+  description: Tham gia cùng hàng nghìn nhà phát triển đang xây dựng với Nuxt và Nuxt UI. Nhận mẫu này và bắt đầu triển khai ngay hôm nay.
   links:
-    - label: Start building
-      to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt'
-      target: _blank
+    - label: Bắt đầu xây dựng
+      to: /signup
       trailingIcon: i-lucide-arrow-right
-    - label: View on GitHub
-      to: 'https://github.com/nuxt-ui-templates/saas'
-      target: _blank
+    - label: Tìm hiểu thêm
+      to: #features
       variant: subtle
-      icon: i-simple-icons-github
+      icon: i-lucide-info

@@ -31,9 +31,10 @@
 }
 
 :root {
-  --ui-header-height: 80px;
+  --ui-header-height: 100px;
   --ui-radius: 0.5rem;
   --ui-text: #0f1a2a;
+  --ui-container: 1650px;
 
   /* border color */
   --ui-border-muted: var(--color-neutral-300);

@@ -61,4 +61,8 @@ export default defineNuxtConfig({
   scripts: {
     enabled: true,
   },
+  colorMode: {
+    preference: "light",
+    fallback: "light",
+  },
 });
