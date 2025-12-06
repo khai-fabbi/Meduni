@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@source "../../../content/**/*";
+
+@theme static {
+  --font-sans: "Inter", sans-serif;
+
+  --color-primary-50: #e6f4fd;
+  --color-primary-100: #cce9fb;
+  --color-primary-200: #99d3f7;
+  --color-primary-300: #66bdf3;
+  --color-primary-400: #33a7ef;
+  --color-primary-500: #1b8ff3;
+  --color-primary-600: #1672c2;
+  --color-primary-700: #105592;
+  --color-primary-800: #0b3861;
+  --color-primary-900: #051b31;
+  --color-primary-950: #030e18;
+
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f6f8fc;
+  --color-neutral-200: #f1f4f9;
+  --color-neutral-300: #e2e8f0;
+  --color-neutral-400: #cbd4e1;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #64748b;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+}
+
+:root {
+  --ui-header-height: 80px;
+  --ui-radius: 0.5rem;
+  --ui-text: #0f1a2a;
+
+  /* border color */
+  --ui-border-muted: var(--color-neutral-300);
+  --ui-border: var(--color-neutral-400);
+  --ui-border-accented: var(--color-neutral-400);
+}
+
+.dark {
+  --ui-bg: var(--ui-color-neutral-950);
+  --ui-bg-muted: var(--ui-color-neutral-900);
+  --ui-bg-elevated: var(--ui-color-neutral-900);
+  --ui-bg-accented: var(--ui-color-neutral-800);
+}
+html,
+body {
+  scroll-behavior: smooth;
+}
+
+@keyframes stroke-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@theme {
+  --animate-stroke-draw: stroke-draw 2s ease-in-out forwards;
+  --animation-link-underline: link-underline 0.3s ease-in-out forwards;
+}
+
+.animate-stroke-draw {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: stroke-draw 2s ease-in-out forwards;
+}
+
+.animate-link-underline {
+  display: inline-flex;
+  position: relative;
+  cursor: pointer;
+}
+.animate-link-underline:hover {
+  color: var(--ui-color-primary-500);
+}
+.animate-link-underline::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  transform-origin: bottom right;
+  background-color: var(--ui-color-primary-500);
+  transition: transform 0.25s ease-out;
+}
+.animate-link-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
