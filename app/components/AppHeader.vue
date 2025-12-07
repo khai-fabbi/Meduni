@@ -55,7 +55,7 @@ const userMenuItems = [
 ];
 
 const userInitials = computed(() => {
-  if (!user.value?.name) return "U";
+  if (!user.value?.name) return "A";
   const names = user.value.name.split(" ").filter((n) => n.length > 0);
   if (names.length >= 2) {
     const first = names[0]?.[0];
@@ -68,7 +68,7 @@ const userInitials = computed(() => {
   if (first) {
     return first.toUpperCase();
   }
-  return "U";
+  return "A";
 });
 </script>
 

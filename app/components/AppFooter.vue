@@ -18,36 +18,39 @@ const columns = [
     ],
   },
   {
-    label: "Features",
+    label: "Liên kết nhanh",
     children: [
       {
-        label: "Affiliates",
+        label: "Trang chủ",
       },
       {
-        label: "Portal",
+        label: "Về chúng tôi",
       },
       {
-        label: "Jobs",
+        label: "Danh sách chương trình",
       },
       {
-        label: "Sponsors",
+        label: "Chương trình của tôi",
+      },
+      {
+        label: "Liên hệ",
       },
     ],
   },
   {
-    label: "Company",
+    label: "Về chúng tôi",
     children: [
       {
-        label: "About",
+        label: "Điều khoản sử dụng",
       },
       {
-        label: "Pricing",
+        label: "Chính sách riêng tư",
       },
       {
-        label: "Careers",
+        label: "Chính sách thanh toán",
       },
       {
-        label: "Blog",
+        label: "Hồ sơ năng lực",
       },
     ],
   },
@@ -79,22 +82,16 @@ function onSubmit() {
             <form @submit.prevent="onSubmit">
               <UFormField
                 name="email"
-                label="Subscribe to our newsletter"
-                size="lg"
+                label="Đăng ký Học viện của chúng tôi để nhận thêm các bản cập nhật trong tương lai"
               >
                 <UInput
                   v-model="email"
                   type="email"
                   class="w-full"
-                  placeholder="Enter your email"
+                  placeholder="Nhập email của bạn"
                 >
                   <template #trailing>
-                    <UButton
-                      type="submit"
-                      size="xs"
-                      color="neutral"
-                      label="Subscribe"
-                    />
+                    <UIcon name="i-lucide-send" class="size-5 text-primary" />
                   </template>
                 </UInput>
               </UFormField>
@@ -106,7 +103,8 @@ function onSubmit() {
 
     <template #left>
       <p class="text-muted text-sm">
-        Built with Nuxt UI • © {{ new Date().getFullYear() }}
+        © 2023 Học viện MEDUNI. All rights reserved. MST: 0111091161 - Cấp tại
+        Sở tài chính thành phố Hà Nội
       </p>
     </template>
 

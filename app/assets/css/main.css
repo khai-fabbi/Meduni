@@ -31,11 +31,12 @@
 }
 
 :root {
-  --ui-header-height: 100px;
+  --ui-header-height: 4rem;
   --ui-radius: 0.5rem;
-  --ui-text: #0f1a2a;
   --ui-container: 1650px;
+  --ui-bg: #f6f8fc;
 
+  --ui-text: #0f1a2a;
   /* border color */
   --ui-border-muted: var(--color-neutral-300);
   --ui-border: var(--color-neutral-400);
