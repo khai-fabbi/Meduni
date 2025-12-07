@@ -195,7 +195,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
       </UButton>
     </UForm>
 
-    <div class="text-center">
+    <div class="text-center block md:hidden">
       <p class="text-default">
         Đã có tài khoản?
         <ULink

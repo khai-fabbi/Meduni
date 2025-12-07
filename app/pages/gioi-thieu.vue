@@ -5,7 +5,10 @@ definePageMeta({
 </script>
 
 <template>
-  <UContainer>
-    <h1>Giới thiệu</h1>
-  </UContainer>
+  <main>
+    <IntroBanner />
+    <UContainer class="py-6 md:py-20">
+      <IntroAbout />
+    </UContainer>
+  </main>
 </template>
