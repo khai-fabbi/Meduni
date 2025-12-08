@@ -13,7 +13,9 @@
       <div
         class="flex flex-col gap-2 p-5 bg-white/80 rounded-lg md:rounded-2xl text-center backdrop-blur-[2px]"
       >
-        <h1 class="text-2xl md:text-4xl font-bold text-primary">MEDUNI</h1>
+        <h1 class="text-2xl md:text-4xl font-bold text-primary">
+          MEDUNI
+        </h1>
         <p class="text-base md:text-2xl">
           AI Universal - AI University - AI Unicorn
         </p>

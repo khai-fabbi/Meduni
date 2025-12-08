@@ -1,62 +1,62 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
-import IconLock from "~/assets/icons/lock.svg";
+import type { FormSubmitEvent } from '@nuxt/ui'
+import IconLock from '~/assets/icons/lock.svg'
 import {
   changePasswordWithOldSchema,
-  type ChangePasswordWithOldSchema,
-} from "~/utils/schema/profile";
+  type ChangePasswordWithOldSchema
+} from '~/utils/schema/profile'
 
-const props = defineProps<{
-  loading: boolean;
-}>();
+defineProps<{
+  loading: boolean
+}>()
 
-const open = defineModel<boolean>("open", { default: false });
+const open = defineModel<boolean>('open', { default: false })
 const emit = defineEmits<{
-  submit: [payload: FormSubmitEvent<ChangePasswordWithOldSchema>];
-}>();
+  submit: [payload: FormSubmitEvent<ChangePasswordWithOldSchema>]
+}>()
 
 const changePasswordForm = reactive({
-  oldPassword: "",
-  newPassword: "",
-  confirmPassword: "",
-});
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
 
 function handleSubmit(payload: FormSubmitEvent<ChangePasswordWithOldSchema>) {
-  emit("submit", payload);
+  emit('submit', payload)
 }
 
 watch(open, (newValue) => {
   if (!newValue) {
-    changePasswordForm.oldPassword = "";
-    changePasswordForm.newPassword = "";
-    changePasswordForm.confirmPassword = "";
+    changePasswordForm.oldPassword = ''
+    changePasswordForm.newPassword = ''
+    changePasswordForm.confirmPassword = ''
   }
-});
+})
 
 function checkStrength(str: string) {
   const requirements = [
-    { regex: /.{8,}/, text: "Ít nhất 8 ký tự" },
-    { regex: /\d/, text: "Ít nhất 1 số" },
-    { regex: /[a-z]/, text: "Ít nhất 1 chữ thường" },
-    { regex: /[A-Z]/, text: "Ít nhất 1 chữ hoa" },
-  ];
+    { regex: /.{8,}/, text: 'Ít nhất 8 ký tự' },
+    { regex: /\d/, text: 'Ít nhất 1 số' },
+    { regex: /[a-z]/, text: 'Ít nhất 1 chữ thường' },
+    { regex: /[A-Z]/, text: 'Ít nhất 1 chữ hoa' }
+  ]
 
-  return requirements.map((req) => ({
+  return requirements.map(req => ({
     met: req.regex.test(str),
-    text: req.text,
-  }));
+    text: req.text
+  }))
 }
 
-const strength = computed(() => checkStrength(changePasswordForm.newPassword));
-const score = computed(() => strength.value.filter((req) => req.met).length);
+const strength = computed(() => checkStrength(changePasswordForm.newPassword))
+const score = computed(() => strength.value.filter(req => req.met).length)
 
 const color = computed(() => {
-  if (score.value === 0) return "neutral";
-  if (score.value <= 1) return "error";
-  if (score.value <= 2) return "warning";
-  if (score.value === 3) return "warning";
-  return "success";
-});
+  if (score.value === 0) return 'neutral'
+  if (score.value <= 1) return 'error'
+  if (score.value <= 2) return 'warning'
+  if (score.value === 3) return 'warning'
+  return 'success'
+})
 </script>
 
 <template>
@@ -66,10 +66,10 @@ const color = computed(() => {
       content: 'sm:max-w-lg text-center',
       header: 'hidden',
       footer: 'gap-6',
-      overlay: 'bg-black/40 backdrop-blur-[2px]',
+      overlay: 'bg-black/40 backdrop-blur-[2px]'
     }"
     :close="{
-      class: 'hidden',
+      class: 'hidden'
     }"
     title="Đổi mật khẩu"
     description="Đổi mật khẩu"
@@ -84,7 +84,9 @@ const color = computed(() => {
       </div>
       <div class="space-y-6">
         <div class="space-y-3">
-          <h4 class="text-xl font-bold">Đổi mật khẩu</h4>
+          <h4 class="text-xl font-bold">
+            Đổi mật khẩu
+          </h4>
           <p class="">
             Vui lòng nhập mật khẩu cũ và mật khẩu mới cho tài khoản của bạn
           </p>
@@ -94,10 +96,14 @@ const color = computed(() => {
           :schema="changePasswordWithOldSchema"
           :state="changePasswordForm"
           class="space-y-4 text-left"
-          @submit="handleSubmit"
           :disabled="loading"
+          @submit="handleSubmit"
         >
-          <UFormField label="Mật khẩu cũ" name="oldPassword" required>
+          <UFormField
+            label="Mật khẩu cũ"
+            name="oldPassword"
+            required
+          >
             <SharedInputPassword
               v-model="changePasswordForm.oldPassword"
               class="w-full"
@@ -107,7 +113,11 @@ const color = computed(() => {
             />
           </UFormField>
 
-          <UFormField label="Mật khẩu mới" name="newPassword" required>
+          <UFormField
+            label="Mật khẩu mới"
+            name="newPassword"
+            required
+          >
             <SharedInputPassword
               v-model="changePasswordForm.newPassword"
               class="w-full"
@@ -132,11 +142,22 @@ const color = computed(() => {
           </UFormField>
 
           <div class="space-y-3">
-            <UProgress :color="color" :model-value="score" :max="4" size="sm" />
-            <p id="password-strength" class="text-sm font-medium">
+            <UProgress
+              :color="color"
+              :model-value="score"
+              :max="4"
+              size="sm"
+            />
+            <p
+              id="password-strength"
+              class="text-sm font-medium"
+            >
               Mật khẩu bao gồm:
             </p>
-            <ul class="space-y-1.5" aria-label="Password requirements">
+            <ul
+              class="space-y-1.5"
+              aria-label="Password requirements"
+            >
               <li
                 v-for="(req, index) in strength"
                 :key="index"
@@ -165,12 +186,12 @@ const color = computed(() => {
           <div class="space-x-4 mt-4 md:mt-8 flex">
             <UButton
               variant="outline"
-              @click="open = false"
               class="w-full min-h-14 text-lg"
               size="xl"
               block
               type="button"
               :disabled="loading"
+              @click="open = false"
             >
               Quay lại
             </UButton>

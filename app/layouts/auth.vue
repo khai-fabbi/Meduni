@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { motion } from "motion-v";
-const route = useRoute();
-const isSignupPage = computed(() => route.path === "/signup");
+import { motion } from 'motion-v'
 
-const greetingText = "Xin chào!";
-const greetingChars = greetingText.split("");
+const route = useRoute()
+const isSignupPage = computed(() => route.path === '/signup')
+
+const greetingText = 'Xin chào!'
+const greetingChars = greetingText.split('')
 </script>
 
 <template>
@@ -27,14 +28,20 @@ const greetingChars = greetingText.split("");
           :animate="{ opacity: 1, scale: 1, y: 0 }"
           :transition="{ duration: 0.8, ease: 'easeOut' }"
         >
-          <NuxtImg src="/Robot.png" class="w-100 h-auto mx-auto" />
+          <NuxtImg
+            src="/Robot.png"
+            class="w-100 h-auto mx-auto"
+          />
         </motion.div>
 
         <div class="space-y-4">
           <h1
             class="text-5xl font-bold dark:text-white flex justify-center gap-0.5"
           >
-            <template v-for="(char, index) in greetingChars" :key="index">
+            <template
+              v-for="(char, index) in greetingChars"
+              :key="index"
+            >
               <motion.span
                 v-if="char !== ' '"
                 :initial="{ opacity: 0, y: 30, scale: 0.5 }"
@@ -42,13 +49,16 @@ const greetingChars = greetingText.split("");
                 :transition="{
                   duration: 0.5,
                   delay: index * 0.1,
-                  ease: 'easeOut',
+                  ease: 'easeOut'
                 }"
                 class="inline-block"
               >
                 {{ char }}
               </motion.span>
-              <span v-else class="inline-block w-2"></span>
+              <span
+                v-else
+                class="inline-block w-2"
+              />
             </template>
           </h1>
           <motion.p
@@ -57,7 +67,7 @@ const greetingChars = greetingText.split("");
             :transition="{ duration: 0.6, delay: 0.2, ease: 'easeOut' }"
             class="text-lg text-default dark:text-gray-400"
           >
-            Chào mừng bạn đến với Học viện MEDUNI. <br />
+            Chào mừng bạn đến với Học viện MEDUNI. <br>
 
             <span v-if="isSignupPage">
               Nếu bạn đã có tài khoản hãy nhấp đăng nhập

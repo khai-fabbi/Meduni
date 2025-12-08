@@ -1,106 +1,104 @@
 <script setup lang="ts">
-import * as z from "zod";
-import type { FormSubmitEvent } from "@nuxt/ui";
+import * as z from 'zod'
+import type { FormSubmitEvent, TabsItem } from '@nuxt/ui'
 
 definePageMeta({
-  layout: "auth",
-});
+  layout: 'auth'
+})
 
 useSeoMeta({
-  title: "Login",
-  description: "Login to your account to continue",
-});
+  title: 'Login',
+  description: 'Login to your account to continue'
+})
 
-import type { TabsItem } from "@nuxt/ui";
-
-const router = useRouter();
-const toast = useToast();
-const authStore = useAuthStore();
+const router = useRouter()
+const toast = useToast()
+const authStore = useAuthStore()
 
 const emailSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-  password: z.string().regex(PASSWORD_REGEX, "Mật khẩu không hợp lệ"),
-});
+  email: z.string().email('Email không hợp lệ'),
+  password: z.string().regex(PASSWORD_REGEX, 'Mật khẩu không hợp lệ')
+})
 
 const phoneSchema = z.object({
-  phone: z.string().regex(/^[0-9]{8,11}$/, "Số điện thoại không hợp lệ"),
-  password: z.string().regex(PASSWORD_REGEX, "Mật khẩu không hợp lệ"),
-});
+  phone: z.string().regex(/^[0-9]{8,11}$/, 'Số điện thoại không hợp lệ'),
+  password: z.string().regex(PASSWORD_REGEX, 'Mật khẩu không hợp lệ')
+})
 
 const loginItems = [
   {
-    label: "Số điện thoại",
+    label: 'Số điện thoại',
     value: LoginType.PHONE,
-    icon: "i-lucide-phone",
-    slot: "phone" as const,
+    icon: 'i-lucide-phone',
+    slot: 'phone' as const
   },
   {
-    label: "Email",
+    label: 'Email',
     value: LoginType.EMAIL,
-    icon: "i-lucide-mail",
-    slot: "email" as const,
-  },
-] satisfies TabsItem[];
+    icon: 'i-lucide-mail',
+    slot: 'email' as const
+  }
+] satisfies TabsItem[]
 
-const loginType = ref<LoginType>(LoginType.PHONE);
+const loginType = ref<LoginType>(LoginType.PHONE)
 
 const emailForm = reactive({
-  email: "test@example.com",
-  password: "Fabbi@123",
-});
+  email: 'test@example.com',
+  password: 'Fabbi@123'
+})
 
 const phoneForm = reactive({
-  phone: "033132123",
-  password: "Fabbi@123",
-});
+  phone: '033132123',
+  password: 'Fabbi@123'
+})
 
 async function onSubmitEmail(
-  payload: FormSubmitEvent<z.output<typeof emailSchema>>,
+  payload: FormSubmitEvent<z.output<typeof emailSchema>>
 ) {
   try {
     await authStore.loginByEmail({
       email: payload.data.email,
-      password: payload.data.password,
-    });
+      password: payload.data.password
+    })
 
     toast.add({
-      title: "Đăng nhập thành công",
-      description: "Bạn đã đăng nhập thành công",
-      color: "success",
-    });
+      title: 'Đăng nhập thành công',
+      description: 'Bạn đã đăng nhập thành công',
+      color: 'success'
+    })
 
-    await router.push("/");
+    await router.push('/')
   } catch (error) {
     toast.add({
-      title: "Đăng nhập thất bại",
-      description: error instanceof Error ? error.message : "Có lỗi xảy ra",
-      color: "error",
-    });
+      title: 'Đăng nhập thất bại',
+      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      color: 'error'
+    })
   }
 }
 
 async function onSubmitPhone(
-  payload: FormSubmitEvent<z.output<typeof phoneSchema>>,
+  payload: FormSubmitEvent<z.output<typeof phoneSchema>>
 ) {
   try {
     await authStore.loginByPhone({
       phone: payload.data.phone,
-      password: payload.data.password,
-    });
+      password: payload.data.password
+    })
 
     toast.add({
-      title: "Đăng nhập thành công",
-      description: "Bạn đã đăng nhập thành công",
-      color: "success",
-    });
+      title: 'Đăng nhập thành công',
+      description: 'Bạn đã đăng nhập thành công',
+      color: 'success'
+    })
 
-    await router.push("/");
+    await router.push('/')
   } catch (error) {
     toast.add({
-      title: "Đăng nhập thất bại",
-      description: error instanceof Error ? error.message : "Có lỗi xảy ra",
-      color: "error",
-    });
+      title: 'Đăng nhập thất bại',
+      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      color: 'error'
+    })
   }
 }
 </script>
@@ -125,7 +123,7 @@ async function onSubmitPhone(
       v-model="loginType"
       :ui="{
         trigger: 'flex-1 text-lg',
-        indicator: 'h-0.5',
+        indicator: 'h-0.5'
       }"
       default-value="phone"
       :items="loginItems"
@@ -137,8 +135,8 @@ async function onSubmitPhone(
           :schema="phoneSchema"
           :state="phoneForm"
           class="flex flex-col gap-4 flex-1"
-          @submit="onSubmitPhone"
           :disabled="authStore.isLoading"
+          @submit="onSubmitPhone"
         >
           <UFormField
             label="Số điện thoại"
@@ -154,7 +152,10 @@ async function onSubmitPhone(
             />
           </UFormField>
 
-          <UFormField label="Mật khẩu" name="password">
+          <UFormField
+            label="Mật khẩu"
+            name="password"
+          >
             <SharedInputPassword
               v-model="phoneForm.password"
               class="w-full"
@@ -180,10 +181,13 @@ async function onSubmitPhone(
           :schema="emailSchema"
           :state="emailForm"
           class="flex flex-col gap-4 flex-1"
-          @submit="onSubmitEmail"
           :disabled="authStore.isLoading"
+          @submit="onSubmitEmail"
         >
-          <UFormField label="Email" name="email">
+          <UFormField
+            label="Email"
+            name="email"
+          >
             <UInput
               v-model="emailForm.email"
               class="w-full"
@@ -192,7 +196,10 @@ async function onSubmitPhone(
               icon="i-lucide-mail"
             />
           </UFormField>
-          <UFormField label="Mật khẩu" name="password">
+          <UFormField
+            label="Mật khẩu"
+            name="password"
+          >
             <UInput
               v-model="emailForm.password"
               class="w-full"
@@ -219,15 +226,13 @@ async function onSubmitPhone(
       <ULink
         to="/forgot-password"
         class="text-primary font-semibold animate-link-underline"
-        >Quên mật khẩu?</ULink
-      >
+      >Quên mật khẩu?</ULink>
       <p class="text-default">
         Bạn chưa có tài khoản?
         <ULink
           to="/signup"
           class="text-primary font-semibold animate-link-underline"
-          >Đăng ký</ULink
-        >
+        >Đăng ký</ULink>
       </p>
     </div>
   </div>

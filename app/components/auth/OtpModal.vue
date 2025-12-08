@@ -1,56 +1,56 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
-import IconSmsCode from "~/assets/icons/sms-code.svg";
+import type { FormSubmitEvent } from '@nuxt/ui'
+import IconSmsCode from '~/assets/icons/sms-code.svg'
 
 interface Props {
-  contactInfo: string;
-  contactType: "email" | "phone";
-  loading: boolean;
+  contactInfo: string
+  contactType: 'email' | 'phone'
+  loading: boolean
 }
 
-const props = defineProps<Props>();
+defineProps<Props>()
 
-const open = defineModel<boolean>("open", { default: false });
+const open = defineModel<boolean>('open', { default: false })
 const emit = defineEmits<{
-  submit: [payload: FormSubmitEvent<{ otp: number[] }>];
-  resend: [];
-}>();
+  submit: [payload: FormSubmitEvent<{ otp: number[] }>]
+  resend: []
+}>()
 
-const otpValue = ref<number[]>([]);
+const otpValue = ref<number[]>([])
 
-const countdownSeconds = shallowRef(20);
+const countdownSeconds = shallowRef(20)
 const {
   remaining: remainingSeconds,
   start,
-  reset,
+  reset
 } = useCountdown(countdownSeconds, {
-  interval: 1000,
-});
+  interval: 1000
+})
 
 function resendOTP() {
-  if (remainingSeconds.value > 0) return;
-  emit("resend");
-  start();
+  if (remainingSeconds.value > 0) return
+  emit('resend')
+  start()
 }
 
 function handleFormSubmit() {
-  if (otpValue.value.length !== 6) return;
+  if (otpValue.value.length !== 6) return
   const payload: FormSubmitEvent<{ otp: number[] }> = {
-    data: { otp: otpValue.value },
-  } as FormSubmitEvent<{ otp: number[] }>;
-  emit("submit", payload);
+    data: { otp: otpValue.value }
+  } as FormSubmitEvent<{ otp: number[] }>
+  emit('submit', payload)
 }
 
 watch(open, (newValue) => {
   if (newValue) {
-    otpValue.value = [];
-    start(countdownSeconds.value);
+    otpValue.value = []
+    start(countdownSeconds.value)
   }
-});
+})
 
 onUnmounted(() => {
-  reset(countdownSeconds.value);
-});
+  reset(countdownSeconds.value)
+})
 </script>
 
 <template>
@@ -59,10 +59,10 @@ onUnmounted(() => {
     :ui="{
       content: 'sm:max-w-lg text-center',
       header: 'hidden',
-      overlay: 'bg-black/40 backdrop-blur-[2px]',
+      overlay: 'bg-black/40 backdrop-blur-[2px]'
     }"
     :close="{
-      class: 'hidden',
+      class: 'hidden'
     }"
     title="OTP"
     description="OTP"
@@ -76,32 +76,32 @@ onUnmounted(() => {
         </div>
       </div>
       <div class="space-y-3">
-        <h4 class="text-xl font-bold">Vui lòng kiểm tra điện thoại</h4>
+        <h4 class="text-xl font-bold">
+          Vui lòng kiểm tra điện thoại
+        </h4>
         <p>
           Chúng tôi đã gửi một mã OTP tới
           {{ contactType === "email" ? "email" : "số điện thoại" }}:
           <span class="font-medium text-primary">{{ contactInfo }}</span>
-          <br />
+          <br>
           Mã này hết hiệu lực sau
-          <span class="font-medium text-primary"
-            >{{ remainingSeconds }} giây</span
-          >
+          <span class="font-medium text-primary">{{ remainingSeconds }} giây</span>
         </p>
 
         <UForm
           :state="{ otp: otpValue }"
-          @submit="handleFormSubmit"
           class="space-y-4"
           :disabled="loading"
+          @submit="handleFormSubmit"
         >
           <UFormField name="otp">
             <UPinInput
-              size="xl"
               v-model="otpValue"
+              size="xl"
               :length="6"
               type="number"
               :ui="{
-                base: 'md:w-16 md:h-16 w-12 h-12 text-2xl md:text-3xl font-bold text-primary border-primary',
+                base: 'md:w-16 md:h-16 w-12 h-12 text-2xl md:text-3xl font-bold text-primary border-primary'
               }"
               :disabled="loading"
             />
@@ -112,9 +112,9 @@ onUnmounted(() => {
             <UButton
               variant="link"
               :disabled="countdownSeconds > 0 || loading"
-              @click="resendOTP"
               class="pl-1"
               type="button"
+              @click="resendOTP"
             >
               Gửi lại mã
             </UButton>
@@ -123,12 +123,12 @@ onUnmounted(() => {
           <div class="space-x-4 mt-4 md:mt-8 flex">
             <UButton
               variant="outline"
-              @click="open = false"
               class="w-full min-h-14 text-lg"
               size="xl"
               block
               type="button"
               :disabled="loading"
+              @click="open = false"
             >
               Quay lại
             </UButton>
@@ -138,8 +138,8 @@ onUnmounted(() => {
               class="w-full min-h-14 text-lg"
               block
               :disabled="otpValue.length !== 6"
-              @click="handleFormSubmit"
               :loading="loading"
+              @click="handleFormSubmit"
             >
               Xác nhận
             </UButton>

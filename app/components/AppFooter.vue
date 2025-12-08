@@ -1,78 +1,81 @@
 <script setup lang="ts">
 const columns = [
   {
-    label: "Resources",
+    label: 'Resources',
     children: [
       {
-        label: "Help center",
+        label: 'Help center'
       },
       {
-        label: "Docs",
+        label: 'Docs'
       },
       {
-        label: "Roadmap",
+        label: 'Roadmap'
       },
       {
-        label: "Changelog",
-      },
-    ],
+        label: 'Changelog'
+      }
+    ]
   },
   {
-    label: "Liên kết nhanh",
+    label: 'Liên kết nhanh',
     children: [
       {
-        label: "Trang chủ",
+        label: 'Trang chủ'
       },
       {
-        label: "Về chúng tôi",
+        label: 'Về chúng tôi'
       },
       {
-        label: "Danh sách chương trình",
+        label: 'Danh sách chương trình'
       },
       {
-        label: "Chương trình của tôi",
+        label: 'Chương trình của tôi'
       },
       {
-        label: "Liên hệ",
-      },
-    ],
+        label: 'Liên hệ'
+      }
+    ]
   },
   {
-    label: "Về chúng tôi",
+    label: 'Về chúng tôi',
     children: [
       {
-        label: "Điều khoản sử dụng",
+        label: 'Điều khoản sử dụng'
       },
       {
-        label: "Chính sách riêng tư",
+        label: 'Chính sách riêng tư'
       },
       {
-        label: "Chính sách thanh toán",
+        label: 'Chính sách thanh toán'
       },
       {
-        label: "Hồ sơ năng lực",
-      },
-    ],
-  },
-];
+        label: 'Hồ sơ năng lực'
+      }
+    ]
+  }
+]
 
-const toast = useToast();
+const toast = useToast()
 
-const email = ref("");
-const loading = ref(false);
+const email = ref('')
+const loading = ref(false)
 
 function onSubmit() {
-  loading.value = true;
+  loading.value = true
 
   toast.add({
-    title: "Subscribed!",
-    description: "You've been subscribed to our newsletter.",
-  });
+    title: 'Subscribed!',
+    description: 'You\'ve been subscribed to our newsletter.'
+  })
 }
 </script>
 
 <template>
-  <USeparator icon="i-simple-icons-nuxtdotjs" class="h-px" />
+  <USeparator
+    icon="i-simple-icons-nuxtdotjs"
+    class="h-px"
+  />
 
   <UFooter :ui="{ top: 'border-b border-default' }">
     <template #top>
@@ -91,7 +94,10 @@ function onSubmit() {
                   placeholder="Nhập email của bạn"
                 >
                   <template #trailing>
-                    <UIcon name="i-lucide-send" class="size-5 text-primary" />
+                    <UIcon
+                      name="i-lucide-send"
+                      class="size-5 text-primary"
+                    />
                   </template>
                 </UInput>
               </UFormField>

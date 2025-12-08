@@ -1,96 +1,97 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
-import { signupSchema, type SignupSchema } from "~/utils/schema/signup";
+import type { FormSubmitEvent } from '@nuxt/ui'
+import { signupSchema, type SignupSchema } from '~/utils/schema/signup'
 
 export interface JSConfettiApi {
   JSConfetti: {
     new (): {
       addConfetti: (options?: {
-        emojis?: string[];
-        confettiColors?: string[];
-        confettiRadius?: number;
-        confettiNumber?: number;
-        confettiWind?: number;
-      }) => void;
-    };
-  };
+        emojis?: string[]
+        confettiColors?: string[]
+        confettiRadius?: number
+        confettiNumber?: number
+        confettiWind?: number
+      }) => void
+    }
+  }
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Window extends JSConfettiApi {}
 }
 
 definePageMeta({
-  layout: "auth",
-});
+  layout: 'auth'
+})
 
 useSeoMeta({
-  title: "Đăng ký",
-  description: "Tạo tài khoản mới để bắt đầu",
-});
+  title: 'Đăng ký',
+  description: 'Tạo tài khoản mới để bắt đầu'
+})
 
 const { onLoaded } = useScriptNpm<JSConfettiApi>({
-  packageName: "js-confetti",
-  file: "dist/js-confetti.browser.js",
-  version: "0.12.0",
+  packageName: 'js-confetti',
+  file: 'dist/js-confetti.browser.js',
+  version: '0.12.0',
   scriptOptions: {
     use() {
-      return { JSConfetti: window.JSConfetti };
+      return { JSConfetti: window.JSConfetti }
     },
-    bundle: true,
-  },
-});
+    bundle: true
+  }
+})
 
-const toast = useToast();
+const toast = useToast()
 
 const signupForm = reactive({
-  fullName: "",
-  phone: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  referralCode: "",
-});
+  fullName: '',
+  phone: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  referralCode: ''
+})
 
-const isLoading = ref(false);
+const isLoading = ref(false)
 
 async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
   try {
-    isLoading.value = true;
-    console.log("Submitted", payload.data);
+    isLoading.value = true
+    console.log('Submitted', payload.data)
 
     onLoaded(({ JSConfetti }) => {
-      const confetti = new JSConfetti();
+      const confetti = new JSConfetti()
       // fully typed!
       confetti.addConfetti({
         confettiColors: [
-          "#ff0a54",
-          "#ff477e",
-          "#ff7096",
-          "#ff85a1",
-          "#fbb1bd",
-          "#f9bec7",
+          '#ff0a54',
+          '#ff477e',
+          '#ff7096',
+          '#ff85a1',
+          '#fbb1bd',
+          '#f9bec7'
         ],
         confettiRadius: 6,
         confettiNumber: 100,
-        confettiWind: 10,
-      });
-    });
+        confettiWind: 10
+      })
+    })
 
     toast.add({
-      title: "Đăng ký thành công",
+      title: 'Đăng ký thành công',
       description:
-        "Bạn đã đăng ký thành công! Vui lòng kiểm tra email để tiếp tục",
-      color: "success",
-    });
+        'Bạn đã đăng ký thành công! Vui lòng kiểm tra email để tiếp tục',
+      color: 'success'
+    })
   } catch (error) {
     toast.add({
-      title: "Đăng ký thất bại",
-      description: error instanceof Error ? error.message : "Có lỗi xảy ra",
-      color: "error",
-    });
+      title: 'Đăng ký thất bại',
+      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      color: 'error'
+    })
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 </script>
@@ -115,11 +116,15 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
       :schema="signupSchema"
       :state="signupForm"
       class="flex flex-col gap-3 flex-1"
-      @submit="onSubmit"
       :disabled="isLoading"
       autocomplete="off"
+      @submit="onSubmit"
     >
-      <UFormField label="Họ và tên" name="fullName" required>
+      <UFormField
+        label="Họ và tên"
+        name="fullName"
+        required
+      >
         <UInput
           v-model="signupForm.fullName"
           class="w-full"
@@ -130,7 +135,11 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         />
       </UFormField>
 
-      <UFormField label="Số điện thoại" name="phone" required>
+      <UFormField
+        label="Số điện thoại"
+        name="phone"
+        required
+      >
         <UInput
           v-model="signupForm.phone"
           class="w-full"
@@ -141,7 +150,11 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         />
       </UFormField>
 
-      <UFormField label="Email" name="email" required>
+      <UFormField
+        label="Email"
+        name="email"
+        required
+      >
         <UInput
           v-model="signupForm.email"
           class="w-full"
@@ -152,7 +165,11 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         />
       </UFormField>
 
-      <UFormField label="Mật khẩu" name="password" required>
+      <UFormField
+        label="Mật khẩu"
+        name="password"
+        required
+      >
         <SharedInputPassword
           v-model="signupForm.password"
           class="w-full"
@@ -162,7 +179,11 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         />
       </UFormField>
 
-      <UFormField label="Nhập lại mật khẩu" name="confirmPassword" required>
+      <UFormField
+        label="Nhập lại mật khẩu"
+        name="confirmPassword"
+        required
+      >
         <SharedInputPassword
           v-model="signupForm.confirmPassword"
           class="w-full"
@@ -172,7 +193,10 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         />
       </UFormField>
 
-      <UFormField label="Mã giới thiệu" name="referralCode">
+      <UFormField
+        label="Mã giới thiệu"
+        name="referralCode"
+      >
         <UInput
           v-model="signupForm.referralCode"
           class="w-full"
@@ -201,8 +225,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         <ULink
           to="/login"
           class="text-primary font-semibold animate-link-underline"
-          >Đăng nhập</ULink
-        >
+        >Đăng nhập</ULink>
       </p>
     </div>
   </div>
