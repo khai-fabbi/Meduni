@@ -2,6 +2,7 @@ export default defineAppConfig({
   ui: {
     colors: {
       primary: 'primary',
+      secondary: 'brown',
       neutral: 'neutral'
     },
     button: {
@@ -20,6 +21,12 @@ export default defineAppConfig({
     formField: {
       slots: {
         label: 'text-base'
+      }
+    },
+    checkbox: {
+      slots: {
+        base: 'rounded cursor-pointer',
+        indicator: 'rounded',
       }
     }
   }

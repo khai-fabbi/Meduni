@@ -155,102 +155,103 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
 </script>
 
 <template>
-  <div class="bg-white rounded-sm p-6">
-    <h1 class="text-2xl font-bold mb-6">
+  <div>
+    <h1 class="text-[2rem] font-extrabold mb-6">
       Danh sách thông báo
     </h1>
-
-    <UTabs
-      v-model="activeTab"
-      :items="tabItems"
-      variant="link"
-      :ui="{
-        list: 'justify-start border-b-0 cursor-pointer',
-        trigger: 'text-sm font-medium rounded-none border-none data-[active]:text-primary cursor-pointer',
-        indicator: 'h-0.5 bg-primary'
-      }"
-      class="mb-6"
-    />
-
-    <div class="space-y-0">
-      <template v-if="isLoading">
-        <div
-          v-for="i in 6"
-          :key="i"
-          class="flex items-start gap-4 py-4 border-b border-neutral-300 last:border-b-0"
-        >
-          <div class="shrink-0 mt-1">
-            <USkeleton
-              class="size-5 rounded-full"
-            />
-          </div>
-
-          <div class="flex-1 min-w-0 space-y-2">
-            <div class="flex items-start justify-between gap-4">
-              <USkeleton
-                class="h-5 w-48"
-              />
-              <USkeleton
-                class="h-4 w-32"
-              />
-            </div>
-            <USkeleton
-              class="h-4 w-full"
-            />
-            <USkeleton
-              class="h-4 w-3/4"
-            />
-          </div>
-        </div>
-      </template>
-
-      <template v-else>
-        <NuxtLink
-          v-for="notification in notifications"
-          :key="notification.id"
-          :to="getNotificationUrl(notification)"
-          class="flex items-center gap-4 py-4 border-b border-neutral-300 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
-        >
-          <div class="shrink-0 flex items-center">
-            <Ring class="w-8 h-8 text-orange-300" />
-          </div>
-
-          <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between gap-4 mb-1">
-              <h3
-                class="text-base"
-                :class="!notification.isRead ? 'text-primary-500 font-bold' : 'text-default'"
-              >
-                {{ notification.title }}
-              </h3>
-              <div class="flex items-center gap-2 shrink-0">
-                <span
-                  v-if="!notification.isRead"
-                  class="w-2 h-2 bg-red-500 rounded-full"
-                />
-                <span class="text-sm text-gray-500 whitespace-nowrap">
-                  {{ formatNotificationDate(notification.createdAt) }}
-                </span>
-              </div>
-            </div>
-            <p
-              class="text-base"
-              :class="!notification.isRead ? 'text-default' : 'text-gray-500'"
-            >
-              {{ notification.message }}
-            </p>
-          </div>
-        </NuxtLink>
-      </template>
-    </div>
-
-    <div class="mt-6 mx-auto flex">
-      <UPagination
-        v-model:page="page"
-        class="mx-auto"
-        :total="notifications.length"
-        :page-size="PAGE_DEFAULT"
+    <div class="bg-white rounded-sm p-6">
+      <UTabs
+        v-model="activeTab"
+        :items="tabItems"
+        variant="link"
+        :ui="{
+          list: 'justify-start border-b-0 cursor-pointer',
+          trigger: 'text-base font-medium rounded-none border-none data-[active]:text-primary cursor-pointer',
+          indicator: 'h-0.5 bg-primary'
+        }"
+        class="mb-6"
       />
+
+      <div class="space-y-0">
+        <template v-if="isLoading">
+          <div
+            v-for="i in 6"
+            :key="i"
+            class="flex items-start gap-4 py-4 border-b border-neutral-300 last:border-b-0"
+          >
+            <div class="shrink-0 mt-1">
+              <USkeleton
+                class="size-5 rounded-full"
+              />
+            </div>
+
+            <div class="flex-1 min-w-0 space-y-2">
+              <div class="flex items-start justify-between gap-4">
+                <USkeleton
+                  class="h-5 w-48"
+                />
+                <USkeleton
+                  class="h-4 w-32"
+                />
+              </div>
+              <USkeleton
+                class="h-4 w-full"
+              />
+              <USkeleton
+                class="h-4 w-3/4"
+              />
+            </div>
+          </div>
+        </template>
+
+        <template v-else>
+          <NuxtLink
+            v-for="notification in notifications"
+            :key="notification.id"
+            :to="getNotificationUrl(notification)"
+            class="flex items-center gap-4 py-4 border-b border-neutral-300 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            <div class="shrink-0 flex items-center">
+              <Ring class="w-8 h-8 text-orange-300" />
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-4 mb-1">
+                <h3
+                  class="text-base"
+                  :class="!notification.isRead ? 'text-primary font-bold' : 'text-default'"
+                >
+                  {{ notification.title }}
+                </h3>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span
+                    v-if="!notification.isRead"
+                    class="w-2 h-2 bg-red-500 rounded-full"
+                  />
+                  <span class="text-sm text-neutral-500 whitespace-nowrap">
+                    {{ formatNotificationDate(notification.createdAt) }}
+                  </span>
+                </div>
+              </div>
+              <p
+                class="text-base"
+                :class="!notification.isRead ? 'text-default' : 'text-neutral-500'"
+              >
+                {{ notification.message }}
+              </p>
+            </div>
+          </NuxtLink>
+        </template>
+      </div>
+
+      <div class="mt-6 mx-auto flex">
+        <UPagination
+          v-model:page="page"
+          class="mx-auto"
+          :total="notifications.length"
+          :page-size="PAGE_DEFAULT"
+        />
+      </div>
     </div>
   </div>
 </template>
