@@ -55,9 +55,9 @@ const coreValues = [
         spotlight
       >
         <template #title>
-          <h2 class="text-3xl md:text-[40px] leading-none font-bold">
+          <Heading>
             Về chúng tôi
-          </h2>
+          </Heading>
         </template>
         <p class="text-base md:text-lg">
           <strong>MedUni.ai</strong> là nền tảng đào tạo y khoa số tiên phong,
@@ -82,9 +82,9 @@ const coreValues = [
         spotlight
       >
         <template #title>
-          <h2 class="text-3xl md:text-[40px] leading-none font-bold">
+          <Heading>
             Sứ mệnh
-          </h2>
+          </Heading>
         </template>
         <div class="flex gap-6">
           <ul class="list-disc list-inside text-base md:text-lg flex-1 text-justify shrink-0">
@@ -124,9 +124,9 @@ const coreValues = [
         spotlight
       >
         <template #title>
-          <h2 class="text-3xl md:text-[40px] leading-none font-bold">
+          <Heading>
             Tầm nhìn
-          </h2>
+          </Heading>
         </template>
         <div class="p-4 bg-intro-card rounded-lg overflow-hidden relative flex items-center gap-2.5">
           <p class="text-base md:text-lg text-white relative z-10 text-justify">
@@ -152,9 +152,9 @@ const coreValues = [
         spotlight
       >
         <template #title>
-          <h2 class="text-3xl md:text-[40px] leading-none font-bold">
+          <Heading>
             Giá trị cốt lõi
-          </h2>
+          </Heading>
         </template>
         <ul class="text-base md:text-lg space-y-6 md:space-y-4">
           <li
@@ -182,19 +182,10 @@ const coreValues = [
 <style scoped>
 .bg-intro-card {
   position: relative;
-}
-
-.bg-intro-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('/images/intro/bg-card.png') no-repeat center center;
+  background-image: url('/images/intro/bg-card.png');
   background-size: cover;
   background-position: center;
-  opacity: 0.9;
-  z-index: 0;
+  /* #1B8FF3 */
+  box-shadow: inset 0 0 0 2000px rgba(27, 143, 243, 0.3);
 }
 </style>

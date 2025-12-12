@@ -26,7 +26,7 @@ export default defineAppConfig({
     checkbox: {
       slots: {
         base: 'rounded cursor-pointer',
-        indicator: 'rounded',
+        indicator: 'rounded'
       }
     }
   }

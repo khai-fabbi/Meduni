@@ -36,9 +36,9 @@ const developmentOrientations = [
 
 <template>
   <div class="flex flex-col items-center gap-6 md:gap-7.5">
-    <h2 class="text-3xl md:text-[40px] leading-tight font-bold text-center">
+    <Heading>
       Định hướng phát triển
-    </h2>
+    </Heading>
     <ul class="flex flex-wrap justify-center">
       <li
         v-for="(orientation, idx) in developmentOrientations"
