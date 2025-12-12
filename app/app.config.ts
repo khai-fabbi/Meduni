@@ -1,26 +1,33 @@
 export default defineAppConfig({
   ui: {
     colors: {
-      primary: "primary",
-      neutral: "neutral",
+      primary: 'primary',
+      secondary: 'brown',
+      neutral: 'neutral'
     },
     button: {
       defaultVariants: {
-        size: "lg",
+        size: 'lg'
       },
       slots: {
-        base: "font-semibold cursor-pointer",
-      },
+        base: 'font-semibold cursor-pointer'
+      }
     },
     input: {
       slots: {
-        base: "h-12 placeholder:text-neutral-400",
-      },
+        base: 'h-12 placeholder:text-neutral-400'
+      }
     },
     formField: {
       slots: {
-        label: "text-base",
-      },
+        label: 'text-base'
+      }
     },
-  },
-});
+    checkbox: {
+      slots: {
+        base: 'rounded cursor-pointer',
+        indicator: 'rounded',
+      }
+    }
+  }
+})
