@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import type { TabsItem } from '@nuxt/ui'
+import { formatDate } from '~/utils/date'
+import Ring from '~/assets/icons/ring.svg'
+import { PAGE_DEFAULT } from '~/utils/constants'
+
 useSeoMeta({
-  title: 'Thông báo',
+  title: 'Danh sách thông báo',
   description: 'Thông báo của bạn'
 })
 
@@ -8,104 +13,244 @@ definePageMeta({
   layout: 'profile'
 })
 
+enum NotificationTab {
+  GENERAL = 'general',
+  PERSONAL = 'personal'
+}
+
+const tabItems = [
+  {
+    label: 'Thông báo chung',
+    value: NotificationTab.GENERAL
+  },
+  {
+    label: 'Thông báo cá nhân',
+    value: NotificationTab.PERSONAL
+  }
+] satisfies TabsItem[]
+
+const activeTab = ref<NotificationTab>(NotificationTab.GENERAL)
+const isLoading = ref(true)
+const page = ref(1)
+
 const notifications = ref([
   {
     id: 1,
-    title: 'Khoá học mới đã được thêm vào',
-    message: 'Khoá học \'AI trong Y tế\' đã được thêm vào danh sách khoá học của bạn',
-    time: '2 giờ trước',
-    read: false,
+    title: 'Khóa học đã mua',
+    message: 'Bạn đã mua Khóa học 1 thành công! Học ngay cùng Minh Trí Thành nào!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: false,
+    courseId: 1,
     type: 'course'
   },
   {
     id: 2,
-    title: 'Chứng nhận đã sẵn sàng',
-    message: 'Chứng nhận hoàn thành khoá học \'Y tế cộng đồng\' đã sẵn sàng để tải xuống',
-    time: '1 ngày trước',
-    read: false,
-    type: 'certificate'
+    title: 'Sắp đến hạn thanh toán',
+    message: 'Chỉ còn 7 ngày nữa là đến hạn thanh toán chương trình Đường Đến Tim Con, vui lòng hoàn thành thanh toán đúng hạn!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 2,
+    type: 'payment'
   },
   {
     id: 3,
-    title: 'Nhắc nhở học tập',
-    message: 'Bạn có bài học mới chưa hoàn thành trong khoá học \'Lộ trình học tập\'',
-    time: '2 ngày trước',
-    read: true,
-    type: 'reminder'
+    title: 'Sắp đến hạn thanh toán',
+    message: 'Chỉ còn 3 ngày nữa là đến hạn thanh toán chương trình Đường Đến Tim Con, vui lòng hoàn thành thanh toán đúng hạn!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 3,
+    type: 'payment'
   },
   {
     id: 4,
-    title: 'Thanh toán thành công',
-    message: 'Thanh toán cho khoá học \'AI trong Y tế\' đã được xử lý thành công',
-    time: '3 ngày trước',
-    read: true,
+    title: 'Sắp đến hạn thanh toán',
+    message: 'Hôm nay là hạn thanh toán của chương trình Đường Đến Tim Con, vui lòng hoàn thành thanh toán trong hôm nay để tiếp tục học!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 4,
     type: 'payment'
   },
   {
     id: 5,
-    title: 'Cập nhật hệ thống',
-    message: 'Hệ thống đã được cập nhật với nhiều tính năng mới. Hãy khám phá ngay!',
-    time: '5 ngày trước',
-    read: true,
-    type: 'system'
+    title: 'Sắp đến hạn thanh toán',
+    message: 'Hôm nay là hạn thanh toán của chương trình Đường Đến Tim Con, vui lòng hoàn thành thanh toán trong hôm nay để tiếp tục học!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 5,
+    type: 'payment'
+  },
+  {
+    id: 6,
+    title: 'Thanh toán trả góp đã quá hạn',
+    message: 'Ngày đến hạn thanh toán đã qua, và bạn có 15 ngày để thanh toán trước khi khóa học Đường Đến Tim Con bị vô hiệu hóa!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 6,
+    type: 'payment'
+  },
+  {
+    id: 7,
+    title: 'Sắp đến hạn thanh toán',
+    message: 'Hôm nay là hạn thanh toán của chương trình Đường Đến Tim Con, vui lòng hoàn thành thanh toán trong hôm nay để tiếp tục học!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 7,
+    type: 'payment'
+  },
+  {
+    id: 8,
+    title: 'Sắp đến hạn thanh toán',
+    message: 'Hôm nay là hạn thanh toán của chương trình Đường Đến Tim Con, vui lòng hoàn thành thanh toán trong hôm nay để tiếp tục học!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 8,
+    type: 'payment'
+  },
+  {
+    id: 9,
+    title: 'Thanh toán trả góp đã quá hạn',
+    message: 'Ngày đến hạn thanh toán đã qua, và bạn có 15 ngày để thanh toán trước khi khóa học Đường Đến Tim Con bị vô hiệu hóa!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 9,
+    type: 'payment'
+  },
+  {
+    id: 10,
+    title: 'Thanh toán trả góp đã quá hạn',
+    message: 'Ngày đến hạn thanh toán đã qua, và bạn có 15 ngày để thanh toán trước khi khóa học Đường Đến Tim Con bị vô hiệu hóa!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 10,
+    type: 'payment'
+  },
+  {
+    id: 11,
+    title: 'Thanh toán trả góp đã quá hạn',
+    message: 'Ngày đến hạn thanh toán đã qua, và bạn có 15 ngày để thanh toán trước khi khóa học Đường Đến Tim Con bị vô hiệu hóa!',
+    createdAt: '2023-09-19T20:00:00',
+    isRead: true,
+    courseId: 11,
+    type: 'payment'
   }
 ])
+
+onMounted(async () => {
+  isLoading.value = false
+})
+
+function formatNotificationDate(date: string): string {
+  return formatDate(date, 'DD/MM/YYYY HH:mm')
+}
+
+function getNotificationUrl(notification: typeof notifications.value[0]): string {
+  if (notification.type === 'course' && 'courseId' in notification && notification.courseId) {
+    return `/profile/courses/${notification.courseId}`
+  }
+  if (notification.type === 'payment') {
+    return '/profile/cart'
+  }
+  return '/profile/notifications'
+}
 </script>
 
 <template>
   <div class="bg-white rounded-sm p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">
-        Thông báo
-      </h1>
-      <UButton
-        color="neutral"
-        variant="ghost"
-        size="sm"
-      >
-        Đánh dấu tất cả đã đọc
-      </UButton>
-    </div>
+    <h1 class="text-2xl font-bold mb-6">
+      Danh sách thông báo
+    </h1>
 
-    <div class="space-y-3">
-      <div
-        v-for="notification in notifications"
-        :key="notification.id"
-        class="p-4 rounded-lg border"
-        :class="notification.read ? 'bg-gray-50' : 'bg-blue-50 border-blue-200'"
-      >
-        <div class="flex items-start gap-4">
-          <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1">
-              <h3 class="font-semibold">
+    <UTabs
+      v-model="activeTab"
+      :items="tabItems"
+      variant="link"
+      :ui="{
+        list: 'justify-start border-b-0 cursor-pointer',
+        trigger: 'text-sm font-medium rounded-none border-none data-[active]:text-primary cursor-pointer',
+        indicator: 'h-0.5 bg-primary'
+      }"
+      class="mb-6"
+    />
+
+    <div class="space-y-0">
+      <template v-if="isLoading">
+        <div
+          v-for="i in 6"
+          :key="i"
+          class="flex items-start gap-4 py-4 border-b border-neutral-300 last:border-b-0"
+        >
+          <div class="shrink-0 mt-1">
+            <USkeleton
+              class="size-5 rounded-full"
+            />
+          </div>
+
+          <div class="flex-1 min-w-0 space-y-2">
+            <div class="flex items-start justify-between gap-4">
+              <USkeleton
+                class="h-5 w-48"
+              />
+              <USkeleton
+                class="h-4 w-32"
+              />
+            </div>
+            <USkeleton
+              class="h-4 w-full"
+            />
+            <USkeleton
+              class="h-4 w-3/4"
+            />
+          </div>
+        </div>
+      </template>
+
+      <template v-else>
+        <NuxtLink
+          v-for="notification in notifications"
+          :key="notification.id"
+          :to="getNotificationUrl(notification)"
+          class="flex items-center gap-4 py-4 border-b border-neutral-300 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+        >
+          <div class="shrink-0 flex items-center">
+            <Ring class="w-8 h-8 text-orange-300" />
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-4 mb-1">
+              <h3
+                class="text-base"
+                :class="!notification.isRead ? 'text-primary-500 font-bold' : 'text-default'"
+              >
                 {{ notification.title }}
               </h3>
-              <UBadge
-                v-if="!notification.read"
-                color="primary"
-                size="xs"
-              >
-                Mới
-              </UBadge>
+              <div class="flex items-center gap-2 shrink-0">
+                <span
+                  v-if="!notification.isRead"
+                  class="w-2 h-2 bg-red-500 rounded-full"
+                />
+                <span class="text-sm text-gray-500 whitespace-nowrap">
+                  {{ formatNotificationDate(notification.createdAt) }}
+                </span>
+              </div>
             </div>
-            <p class="text-gray-600 text-sm mb-2">
+            <p
+              class="text-base"
+              :class="!notification.isRead ? 'text-default' : 'text-gray-500'"
+            >
               {{ notification.message }}
             </p>
-            <p class="text-gray-400 text-xs">
-              {{ notification.time }}
-            </p>
           </div>
-          <UButton
-            v-if="!notification.read"
-            color="neutral"
-            variant="ghost"
-            size="xs"
-            icon="i-lucide-check"
-          >
-            Đánh dấu đã đọc
-          </UButton>
-        </div>
-      </div>
+        </NuxtLink>
+      </template>
+    </div>
+
+    <div class="mt-6 mx-auto flex">
+      <UPagination
+        v-model:page="page"
+        class="mx-auto"
+        :total="notifications.length"
+        :page-size="PAGE_DEFAULT"
+      />
     </div>
   </div>
 </template>
