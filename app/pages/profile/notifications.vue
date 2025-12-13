@@ -155,10 +155,9 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
 </script>
 
 <template>
-  <div>
+  <div class="space-y-6">
     <Heading
-      variant="h2"
-      class="text-[2rem] font-extrabold mb-6 md:text-start text-center"
+      variant="h3"
     >
       Danh sách thông báo
     </Heading>

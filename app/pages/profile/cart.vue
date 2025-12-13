@@ -58,10 +58,9 @@ function handleCheckout(items: CartItem[]) {
 </script>
 
 <template>
-  <div>
+  <div class="space-y-6">
     <Heading
       variant="h3"
-      class="mb-6 md:text-start text-center"
     >
       Giỏ hàng
     </Heading>

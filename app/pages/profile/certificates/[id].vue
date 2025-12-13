@@ -30,10 +30,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div class="space-y-6">
     <Heading
-      variant="h2"
-      class="text-[2rem] font-extrabold mb-6"
+      variant="h3"
     >
       Chứng nhận của bạn
     </Heading>

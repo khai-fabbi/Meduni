@@ -47,6 +47,7 @@ useSeoMeta({
           'object-top': true,
           'md:object-center': true
         }"
+        :placeholder="[20, 5]"
       />
 
       <div class="relative z-10 text-center px-4 pt-0 pb-8 md:pb-12 w-full">
@@ -64,6 +65,7 @@ useSeoMeta({
           color="primary"
           size="xl"
           class="bg-white justify-center rounded-full text-primary hover:bg-white/90 font-semibold w-full md:w-60 h-12 md:h-15 text-sm md:text-base"
+          trailing-icon="i-lucide-arrow-right"
           @click="handleError"
         >
           {{ errorConfig.buttonText }}

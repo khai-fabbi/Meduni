@@ -203,10 +203,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div class="space-y-6">
     <Heading
       variant="h3"
-      class="font-extrabold mb-6 md:text-start text-center"
     >
       Lộ trình học tập
     </Heading>

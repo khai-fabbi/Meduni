@@ -107,7 +107,7 @@ function handleCheckout() {
           <div
             class="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-3 md:pt-0 md:pb-0 rounded-lg mb-0 md:mb-4"
           >
-            <div class="flex gap-3 items-center flex-1 min-w-0">
+            <div class="flex gap-4 items-center flex-1 min-w-0">
               <UCheckbox
                 color="secondary"
                 :model-value="item.selected"
@@ -118,24 +118,29 @@ function handleCheckout() {
                 }"
                 @update:model-value="toggleItem(item.id)"
               />
+              <NuxtLink
+                to="/khoa-hoc/1"
+                class="flex gap-4 items-center flex-1 min-w-0"
+              >
 
-              <NuxtImg
-                :src="item.image"
-                :alt="item.title"
-                class="w-20 h-16 md:w-32 md:h-24 object-cover rounded-lg shrink-0"
-              />
+                <NuxtImg
+                  :src="item.image"
+                  :alt="item.title"
+                  class="w-20 h-16 md:w-40 md:h-30 object-cover rounded-lg shrink-0"
+                />
 
-              <div class="flex-1 min-w-0">
-                <h3 class="font-bold text-base md:text-2xl text-primary mb-1 line-clamp-2">
-                  {{ item.title }}
-                </h3>
-                <p class="text-sm md:text-lg mb-1 line-clamp-1">
-                  Giảng viên: {{ formatInstructor(item.instructor) }}
-                </p>
-                <p class="text-xs md:text-base text-neutral-600">
-                  {{ item.videoCount }} video • {{ item.duration }}
-                </p>
-              </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-bold text-base md:text-2xl text-primary mb-1 line-clamp-2">
+                    {{ item.title }}
+                  </h3>
+                  <p class="text-sm md:text-lg mb-1 line-clamp-1">
+                    Giảng viên: {{ formatInstructor(item.instructor) }}
+                  </p>
+                  <p class="text-xs md:text-base text-neutral-600">
+                    {{ item.videoCount }} video • {{ item.duration }}
+                  </p>
+                </div>
+              </NuxtLink>
             </div>
 
             <div class="flex items-center justify-between md:flex-col md:items-end gap-1 shrink-0 pl-8 md:pl-0">
