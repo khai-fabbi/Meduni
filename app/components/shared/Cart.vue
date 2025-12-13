@@ -70,7 +70,7 @@ function handleCheckout() {
 </script>
 
 <template>
-  <div class="bg-white rounded-sm pb-10">
+  <div class="bg-white rounded-sm md:pb-10">
     <div
       v-if="cartItems.length === 0"
       class="text-center py-12"
@@ -84,72 +84,79 @@ function handleCheckout() {
       v-else
       class="space-y-6"
     >
-      <div class="flex items-center justify-between h-18 rounded-sm rounded-b-none bg-primary-light">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between h-auto md:h-18 rounded-sm rounded-b-none bg-primary-light py-3 md:py-0 mb-0 md:mb-6">
         <div class="flex items-center gap-3 px-4">
           <UIcon
             name="i-lucide-shopping-cart"
-            class="size-5 text-secondary"
+            class="size-5 text-secondary shrink-0"
           />
-          <span class="text-lg">
+          <span class="text-sm md:text-lg">
             <span class="font-bold">{{ cartItems.length }} sản phẩm</span> đã được thêm vào giỏ hàng
           </span>
         </div>
-        <span class="text-lg font-medium px-4">
+        <span class="hidden md:block text-sm md:text-lg font-medium px-4 mt-2 md:mt-0">
           Giá tiền
         </span>
       </div>
 
       <div class="space-y-4">
-        <div
+        <template
           v-for="item in cartItems"
           :key="item.id"
-          class="flex items-center gap-4 p-4 rounded-lg"
         >
-          <UCheckbox
-            color="secondary"
-            :model-value="item.selected"
-            @update:model-value="toggleItem(item.id)"
-          />
+          <div
+            class="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-3 md:pt-0 md:pb-0 rounded-lg mb-0 md:mb-4"
+          >
+            <div class="flex gap-3 items-center flex-1 min-w-0">
+              <UCheckbox
+                color="secondary"
+                :model-value="item.selected"
+                class="shrink-0"
+                @update:model-value="toggleItem(item.id)"
+              />
 
-          <NuxtImg
-            :src="item.image"
-            :alt="item.title"
-            class="w-32 h-24 object-cover rounded-lg shrink-0"
-          />
+              <NuxtImg
+                :src="item.image"
+                :alt="item.title"
+                class="w-20 h-16 md:w-32 md:h-24 object-cover rounded-lg shrink-0"
+              />
 
-          <div class="flex-1 min-w-0">
-            <h3 class="font-bold text-2xl text-primary mb-1">
-              {{ item.title }}
-            </h3>
-            <p class="text-lg mb-1">
-              Giảng viên: {{ formatInstructor(item.instructor) }}
-            </p>
-            <p class="text-base text-neutral-600">
-              {{ item.videoCount }} video • {{ item.duration }}
-            </p>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-base md:text-2xl text-primary mb-1 line-clamp-2">
+                  {{ item.title }}
+                </h3>
+                <p class="text-sm md:text-lg mb-1 line-clamp-1">
+                  Giảng viên: {{ formatInstructor(item.instructor) }}
+                </p>
+                <p class="text-xs md:text-base text-neutral-600">
+                  {{ item.videoCount }} video • {{ item.duration }}
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between md:flex-col md:items-end gap-1 shrink-0 pl-8 md:pl-0">
+              <span class="text-lg md:text-xl font-bold text-secondary">
+                {{ formatPrice(item.price) }}
+              </span>
+              <span class="text-sm md:text-lg text-neutral-400 line-through">
+                {{ formatPrice(item.originalPrice) }}
+              </span>
+            </div>
           </div>
-
-          <div class="flex flex-col items-end gap-1 shrink-0">
-            <span class="text-xl font-bold text-secondary">
-              {{ formatPrice(item.price) }}
-            </span>
-            <span class="text-lg text-neutral-400 line-through">
-              {{ formatPrice(item.originalPrice) }}
-            </span>
-          </div>
-        </div>
+          <USeparator />
+        </template>
       </div>
 
-      <div class="flex items-center justify-between pt-6 border-t border-neutral-300 ps-4 pe-4">
+      <div class="hidden md:flex md:items-center md:justify-between pt-4 ps-4 pe-4 border-neutral-300">
         <UCheckbox
           v-model="allSelected"
           :label="`Chọn tất cả (${selectedItems.length})`"
           color="secondary"
         />
 
-        <div class="flex items-center">
-          <div class="text-right pr-7.5">
-            <p class="text-lg mb-1">
+        <div class="flex flex-row items-center gap-4">
+          <div class="text-left md:text-right pr-0 md:pr-7.5">
+            <p class="text-base md:text-lg mb-1">
               Tổng tiền tạm tính: <span class="text-secondary font-bold">
                 {{ formatPrice(totalPrice) }}
               </span>
@@ -159,12 +166,45 @@ function handleCheckout() {
             color="primary"
             size="lg"
             :disabled="selectedItems.length === 0"
-            class="w-40 h-14 text-center font-semibold text-base flex justify-center"
+            class="w-full md:w-40 h-14 text-center font-semibold text-base flex justify-center"
             @click="handleCheckout"
           >
             Mua ngay
           </UButton>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-if="cartItems.length > 0"
+    class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-300 p-4 z-50 md:hidden shadow-lg"
+  >
+    <div class="space-y-3">
+      <UCheckbox
+        v-model="allSelected"
+        :label="`Chọn tất cả (${selectedItems.length})`"
+        color="secondary"
+        class="w-full"
+      />
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex-1">
+          <p class="text-sm text-neutral-600 mb-0.5">
+            Tổng tiền tạm tính:
+          </p>
+          <p class="text-lg font-bold text-secondary">
+            {{ formatPrice(totalPrice) }}
+          </p>
+        </div>
+        <UButton
+          color="primary"
+          size="lg"
+          :disabled="selectedItems.length === 0"
+          class="h-12 px-6 font-semibold text-base shrink-0"
+          @click="handleCheckout"
+        >
+          Mua ngay
+        </UButton>
       </div>
     </div>
   </div>
