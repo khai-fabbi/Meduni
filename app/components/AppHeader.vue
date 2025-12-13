@@ -4,15 +4,14 @@ const authStore = useAuthStore()
 const { user, isLoggedIn } = storeToRefs(authStore)
 const router = useRouter()
 
-const items = computed(() => [
+const baseItems = [
   {
     label: 'Giới thiệu',
     to: '/gioi-thieu'
   },
   {
     label: 'E-Learning',
-    to: '/docs',
-    active: route.path.startsWith('/docs')
+    to: '/docs'
   },
   {
     label: 'Khoá học',
@@ -26,7 +25,24 @@ const items = computed(() => [
     label: 'Y tế cộng đồng',
     to: '/y-te-cong-dong'
   }
-])
+]
+
+const items = computed(() => {
+  const result = baseItems.map(item => ({
+    ...item,
+    active: item.to === '/docs' ? route.path.startsWith('/docs') : route.path === item.to
+  }))
+
+  if (isLoggedIn.value) {
+    result.push({
+      label: 'Hồ sơ',
+      to: '#',
+      active: route.path.startsWith('/profile')
+    })
+  }
+
+  return result
+})
 
 const userMenuItems = [
   [
@@ -52,6 +68,35 @@ const userMenuItems = [
       }
     }
   ]
+]
+
+const isProfileMenuOpen = ref(false)
+
+const profileSubMenuItems = [
+  {
+    label: 'Thông tin cá nhân',
+    to: '/profile'
+  },
+  {
+    label: 'Thông báo',
+    to: '/profile/notifications'
+  },
+  {
+    label: 'Giỏ hàng',
+    to: '/profile/cart'
+  },
+  {
+    label: 'Chứng nhận của bạn',
+    to: '/profile/certificates'
+  },
+  {
+    label: 'Khoá học đã mua',
+    to: '/profile/courses'
+  },
+  {
+    label: 'Lộ trình học tập',
+    to: '/profile/learning-paths'
+  }
 ]
 
 const userInitials = computed(() => {
@@ -83,15 +128,32 @@ const userInitials = computed(() => {
       </NuxtLink>
     </template>
     <div class="flex-1 flex items-center gap-4">
-      <UNavigationMenu
-        :items="items"
-        variant="link"
-        :ui="{
-          linkLabel: 'text-base font-medium uppercase',
-          link: 'py-1 px-1.5 text-default animate-link-underline data-[active]:text-primary',
-          list: 'gap-2'
-        }"
-      />
+      <ClientOnly>
+        <UNavigationMenu
+          :items="items"
+          variant="link"
+          :ui="{
+            linkLabel: 'text-base font-medium uppercase',
+            link: 'py-1 px-1.5 text-default animate-link-underline data-[active]:text-primary',
+            list: 'gap-2'
+          }"
+        />
+        <template #fallback>
+          <div class="flex items-center gap-4">
+            <template
+              v-for="(item, index) in baseItems"
+              :key="index"
+            >
+              <NuxtLink
+                :to="item.to"
+                class="text-base font-medium uppercase py-1 px-1.5 text-default"
+              >
+                {{ item.label }}
+              </NuxtLink>
+            </template>
+          </div>
+        </template>
+      </ClientOnly>
     </div>
 
     <template #right>
@@ -148,11 +210,47 @@ const userInitials = computed(() => {
     </template>
 
     <template #body>
-      <UNavigationMenu
-        :items="items"
-        orientation="vertical"
-        class="-mx-2.5"
-      />
+      <div class="space-y-2">
+        <template
+          v-for="(item, index) in items"
+          :key="index"
+        >
+          <div v-if="item.label === 'Hồ sơ' && isLoggedIn">
+            <button
+              class="w-full flex items-center justify-between text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+              @click="isProfileMenuOpen = !isProfileMenuOpen"
+            >
+              <span>{{ item.label }}</span>
+              <UIcon
+                :name="isProfileMenuOpen ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+                class="w-4 h-4 transition-transform"
+              />
+            </button>
+            <div
+              v-show="isProfileMenuOpen"
+              class="pl-4 mt-2 space-y-2"
+            >
+              <NuxtLink
+                v-for="subItem in profileSubMenuItems"
+                :key="subItem.to"
+                :to="subItem.to"
+                class="block text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+                :class="{ 'text-primary': route.path === subItem.to || (subItem.to !== '/profile' && route.path.startsWith(subItem.to)) }"
+              >
+                {{ subItem.label }}
+              </NuxtLink>
+            </div>
+          </div>
+          <NuxtLink
+            v-else
+            :to="item.to"
+            class="block text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+            :class="{ 'text-primary': item.active || route.path === item.to }"
+          >
+            {{ item.label }}
+          </NuxtLink>
+        </template>
+      </div>
 
       <USeparator class="my-6" />
 
@@ -173,13 +271,6 @@ const userInitials = computed(() => {
             </p>
           </div>
         </div>
-        <UButton
-          label="Hồ sơ"
-          variant="ghost"
-          to="/profile"
-          block
-          class="mb-2"
-        />
         <UButton
           label="Cài đặt"
           variant="ghost"

@@ -59,11 +59,14 @@ function handleCheckout(items: CartItem[]) {
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">
+    <Heading
+      variant="h3"
+      class="mb-6 md:text-start text-center"
+    >
       Giỏ hàng
-    </h1>
+    </Heading>
 
-    <SkeletonCartSkeleton v-if="isLoading" />
+    <SkeletonCart v-if="isLoading" />
 
     <SharedCart
       v-else

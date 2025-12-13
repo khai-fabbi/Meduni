@@ -102,9 +102,12 @@ async function onChangePassword(
 <template>
   <div class="bg-white rounded-sm p-4 md:p-7.5">
     <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
-      <h1 class="text-2xl font-bold shrink-0">
+      <Heading
+        variant="h3"
+        class="shrink-0"
+      >
         Thông tin cá nhân
-      </h1>
+      </Heading>
       <div class="flex items-center gap-3">
         <UButton
           v-if="!isEditing"

@@ -112,6 +112,10 @@ function handleCheckout() {
                 color="secondary"
                 :model-value="item.selected"
                 class="shrink-0"
+                :ui="{
+                  base: 'size-5',
+                  indicator: 'size-5'
+                }"
                 @update:model-value="toggleItem(item.id)"
               />
 
@@ -150,6 +154,10 @@ function handleCheckout() {
       <div class="hidden md:flex md:items-center md:justify-between pt-4 ps-4 pe-4 border-neutral-300">
         <UCheckbox
           v-model="allSelected"
+          :ui="{
+            base: 'size-5',
+            indicator: 'size-5'
+          }"
           :label="`Chọn tất cả (${selectedItems.length})`"
           color="secondary"
         />
@@ -186,6 +194,10 @@ function handleCheckout() {
         :label="`Chọn tất cả (${selectedItems.length})`"
         color="secondary"
         class="w-full"
+        :ui="{
+          base: 'size-5',
+          indicator: 'size-5'
+        }"
       />
       <div class="flex items-center justify-between gap-3">
         <div class="flex-1">

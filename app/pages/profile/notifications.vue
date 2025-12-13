@@ -145,7 +145,7 @@ function formatNotificationDate(date: string): string {
 
 function getNotificationUrl(notification: typeof notifications.value[0]): string {
   if (notification.type === 'course' && 'courseId' in notification && notification.courseId) {
-    return `/profile/courses/${notification.courseId}`
+    return '/profile/courses'
   }
   if (notification.type === 'payment') {
     return '/profile/cart'
@@ -156,9 +156,12 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
 
 <template>
   <div>
-    <h1 class="text-[2rem] font-extrabold mb-6">
+    <Heading
+      variant="h2"
+      class="text-[2rem] font-extrabold mb-6 md:text-start text-center"
+    >
       Danh sách thông báo
-    </h1>
+    </Heading>
     <div class="bg-white rounded-sm p-6">
       <UTabs
         v-model="activeTab"
@@ -173,7 +176,7 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
       />
 
       <div class="space-y-0">
-        <SkeletonNotificationSkeleton v-if="isLoading" />
+        <SkeletonNotification v-if="isLoading" />
 
         <template v-else>
           <NuxtLink
@@ -215,7 +218,10 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
         </template>
       </div>
 
-      <div class="mt-6 mx-auto flex">
+      <div
+        v-if="notifications.length > PAGE_DEFAULT"
+        class="mt-6 mx-auto flex"
+      >
         <UPagination
           v-model:page="page"
           class="mx-auto"
