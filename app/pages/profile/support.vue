@@ -78,9 +78,12 @@ const createTicket = () => {
 
 <template>
   <div class="bg-white rounded-sm p-6">
-    <h1 class="text-2xl font-bold mb-6">
+    <Heading
+      variant="h3"
+      class="mb-6"
+    >
       Hỗ trợ
-    </h1>
+    </Heading>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div>

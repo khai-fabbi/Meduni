@@ -1,70 +1,76 @@
 <script setup lang="ts">
 import type { NuxtError } from '#app'
 
-defineProps({
-  error: {
-    type: Object as PropType<NuxtError>,
-    required: true
+const props = defineProps<{
+  error: NuxtError
+}>()
+
+const statusCode = computed(() => props.error?.statusCode || 500)
+
+const errorConfig = computed(() => {
+  if (statusCode.value === 404) {
+    return {
+      title: '404',
+      heading: 'Không tìm thấy trang',
+      message: 'Chúng tôi không thể tìm thấy trang bạn đang tìm kiếm...',
+      buttonText: 'Quay lại trang chủ'
+    }
+  }
+  return {
+    title: '500',
+    heading: 'Lỗi máy chủ',
+    message: 'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau...',
+    buttonText: 'Quay lại trang chủ'
   }
 })
 
-useHead({
-  htmlAttrs: {
-    lang: 'en'
-  }
-})
+function handleError() {
+  clearError({ redirect: '/' })
+}
 
 useSeoMeta({
-  title: 'Page not found',
-  description: 'We are sorry but this page could not be found.'
+  title: statusCode.value === 404 ? 'Không tìm thấy trang' : 'Lỗi máy chủ',
+  description: errorConfig.value.message
 })
-
-const { data: navigation } = await useAsyncData('navigation', () => queryCollectionNavigation('docs'), {
-  transform: data => data.find(item => item.path === '/docs')?.children || []
-})
-const { data: files } = useLazyAsyncData('search', () => queryCollectionSearchSections('docs'), {
-  server: false
-})
-
-const links = [{
-  label: 'Docs',
-  icon: 'i-lucide-book',
-  to: '/docs/getting-started'
-}, {
-  label: 'Pricing',
-  icon: 'i-lucide-credit-card',
-  to: '/pricing'
-}, {
-  label: 'Blog',
-  icon: 'i-lucide-pencil',
-  to: '/blog'
-}]
 </script>
 
 <template>
   <div>
     <AppHeader />
 
-    <UMain>
-      <UContainer>
-        <UPage>
-          <UError :error="error" />
-        </UPage>
-      </UContainer>
-    </UMain>
+    <div class="relative h-screen flex items-center justify-center overflow-hidden">
+      <NuxtImg
+        src="/bg_error_not_found.png"
+        alt="Error background"
+        class="absolute inset-0 w-full h-full object-cover object-center md:object-cover"
+        :class="{
+          'object-top': true,
+          'md:object-center': true
+        }"
+      />
+
+      <div class="relative z-10 text-center px-4 pt-0 pb-8 md:pb-12 w-full">
+        <h1 class="text-[8rem] md:text-[18rem] font-extrabold text-white mb-2 md:mb-4 drop-shadow-lg leading-none">
+          {{ errorConfig.title }}
+        </h1>
+        <h2 class="text-2xl md:text-[2rem] font-bold text-white mb-2 md:mb-4">
+          {{ errorConfig.heading }}
+        </h2>
+        <p class="text-sm md:text-xl text-white/90 mb-6 md:mb-8 w-full mx-auto px-2">
+          {{ errorConfig.message }}
+        </p>
+        <UButton
+          to="/"
+          color="primary"
+          size="xl"
+          class="bg-white justify-center rounded-full text-primary hover:bg-white/90 font-semibold w-full md:w-60 h-12 md:h-15 text-sm md:text-base"
+          @click="handleError"
+        >
+          {{ errorConfig.buttonText }}
+        </UButton>
+      </div>
+    </div>
 
     <AppFooter />
-
-    <ClientOnly>
-      <LazyUContentSearch
-        :files="files"
-        shortcut="meta_k"
-        :navigation="navigation"
-        :links="links"
-        :fuse="{ resultLimit: 42 }"
-      />
-    </ClientOnly>
-
-    <UToaster />
   </div>
 </template>

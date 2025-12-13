@@ -46,6 +46,18 @@ export default defineAppConfig({
           }
         }
       ]
+    },
+    separator: {
+      defaultVariants: {
+        color: 'neutral'
+      },
+      variants: {
+        color: {
+          neutral: {
+            border: 'border-neutral-200'
+          }
+        }
+      }
     }
   }
 })

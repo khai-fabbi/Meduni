@@ -145,7 +145,7 @@ function formatNotificationDate(date: string): string {
 
 function getNotificationUrl(notification: typeof notifications.value[0]): string {
   if (notification.type === 'course' && 'courseId' in notification && notification.courseId) {
-    return `/profile/courses/${notification.courseId}`
+    return '/profile/courses'
   }
   if (notification.type === 'payment') {
     return '/profile/cart'
@@ -156,9 +156,12 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
 
 <template>
   <div>
-    <h1 class="text-[2rem] font-extrabold mb-6">
+    <Heading
+      variant="h2"
+      class="text-[2rem] font-extrabold mb-6 md:text-start text-center"
+    >
       Danh sách thông báo
-    </h1>
+    </Heading>
     <div class="bg-white rounded-sm p-6">
       <UTabs
         v-model="activeTab"
@@ -173,36 +176,7 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
       />
 
       <div class="space-y-0">
-        <template v-if="isLoading">
-          <div
-            v-for="i in 6"
-            :key="i"
-            class="flex items-start gap-4 py-4 border-b border-neutral-300 last:border-b-0"
-          >
-            <div class="shrink-0 mt-1">
-              <USkeleton
-                class="size-5 rounded-full"
-              />
-            </div>
-
-            <div class="flex-1 min-w-0 space-y-2">
-              <div class="flex items-start justify-between gap-4">
-                <USkeleton
-                  class="h-5 w-48"
-                />
-                <USkeleton
-                  class="h-4 w-32"
-                />
-              </div>
-              <USkeleton
-                class="h-4 w-full"
-              />
-              <USkeleton
-                class="h-4 w-3/4"
-              />
-            </div>
-          </div>
-        </template>
+        <SkeletonNotification v-if="isLoading" />
 
         <template v-else>
           <NuxtLink
@@ -244,7 +218,10 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
         </template>
       </div>
 
-      <div class="mt-6 mx-auto flex">
+      <div
+        v-if="notifications.length > PAGE_DEFAULT"
+        class="mt-6 mx-auto flex"
+      >
         <UPagination
           v-model:page="page"
           class="mx-auto"

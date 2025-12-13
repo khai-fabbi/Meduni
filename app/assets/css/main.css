@@ -43,6 +43,7 @@
 
   --color-brown-500: #a25a40;
   --color-primary-light: #1659a51a;
+  --color-progress-inner: #D0E6FF;
 }
 
 :root {
@@ -109,4 +110,8 @@ body {
 .animate-link-underline:hover::after {
   transform: scaleX(1);
   transform-origin: bottom left;
+}
+
+.bg-certificate-badge {
+  background: linear-gradient(to right, #E1EEFF, #FFEFF1);
 }
