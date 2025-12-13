@@ -1,67 +1,67 @@
 <script setup lang="ts">
-const colorMode = useColorMode();
+const colorMode = useColorMode()
 
 const color = computed(() =>
-  colorMode.value === "dark" ? "#020618" : "white",
-);
+  colorMode.value === 'dark' ? '#020618' : 'white'
+)
 
 useHead({
   meta: [
-    { charset: "utf-8" },
-    { name: "viewport", content: "width=device-width, initial-scale=1" },
-    { key: "theme-color", name: "theme-color", content: color },
+    { charset: 'utf-8' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+    { key: 'theme-color', name: 'theme-color', content: color }
   ],
-  link: [{ rel: "icon", href: "/favicon.ico" }],
+  link: [{ rel: 'icon', href: '/favicon.ico' }],
   htmlAttrs: {
-    lang: "en",
-  },
-});
+    lang: 'en'
+  }
+})
 
 useSeoMeta({
-  titleTemplate: "MEDUNI - AI-Powered Medical Transcription",
-  ogImage: "https://ui.nuxt.com/assets/templates/nuxt/saas-light.png",
-  twitterImage: "https://ui.nuxt.com/assets/templates/nuxt/saas-light.png",
-  twitterCard: "summary_large_image",
-});
+  titleTemplate: 'MEDUNI - AI-Powered Medical Transcription',
+  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/saas-light.png',
+  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/saas-light.png',
+  twitterCard: 'summary_large_image'
+})
 
 const { data: navigation } = await useAsyncData(
-  "navigation",
-  () => queryCollectionNavigation("docs"),
+  'navigation',
+  () => queryCollectionNavigation('docs'),
   {
-    transform: (data) =>
-      data.find((item) => item.path === "/docs")?.children || [],
-  },
-);
+    transform: data =>
+      data.find(item => item.path === '/docs')?.children || []
+  }
+)
 
 const links = [
   {
-    label: "Giới thiệu",
-    icon: "i-lucide-book",
-    to: "/gioi-thieu",
+    label: 'Giới thiệu',
+    icon: 'i-lucide-book',
+    to: '/gioi-thieu'
   },
   {
-    label: "E-Learning",
-    icon: "i-lucide-book",
-    to: "/docs/getting-started",
+    label: 'E-Learning',
+    icon: 'i-lucide-book',
+    to: '/docs/getting-started'
   },
   {
-    label: "Khoá học",
-    icon: "i-lucide-credit-card",
-    to: "/pricing",
+    label: 'Khoá học',
+    icon: 'i-lucide-book',
+    to: '/khoa-hoc'
   },
   {
-    label: "AI trong Y tế",
-    icon: "i-lucide-pencil",
-    to: "/blog",
+    label: 'AI trong Y tế',
+    icon: 'i-lucide-pencil',
+    to: '/blog'
   },
   {
-    label: "Y tế cộng đồng",
-    icon: "i-lucide-history",
-    to: "/changelog",
-  },
-];
+    label: 'Y tế cộng đồng',
+    icon: 'i-lucide-history',
+    to: '/changelog'
+  }
+]
 
-provide("navigation", navigation);
+provide('navigation', navigation)
 </script>
 
 <template>

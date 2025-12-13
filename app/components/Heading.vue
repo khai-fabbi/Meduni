@@ -15,7 +15,7 @@ const tag = computed(() => props.as || props.variant)
 const sizeClasses = {
   h1: 'text-4xl md:text-5xl',
   h2: 'text-3xl md:text-[2.5rem]',
-  h3: 'text-2xl md:text-3xl',
+  h3: 'text-2xl md:text-[2rem]',
   h4: 'text-xl md:text-2xl',
   h5: 'text-lg md:text-xl',
   h6: 'text-base md:text-lg'

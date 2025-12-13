@@ -16,7 +16,7 @@ const items = computed(() => [
   },
   {
     label: 'Khoá học',
-    to: '/pricing'
+    to: '/khoa-hoc'
   },
   {
     label: 'AI trong Y tế',
