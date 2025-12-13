@@ -63,7 +63,7 @@ const items = ref<NavigationMenuItem[][]>([
   <UNavigationMenu
     orientation="vertical"
     :items="items"
-    class="data-[orientation=vertical]:w-full p-6 bg-white rounded-sm"
+    class="data-[orientation=vertical]:w-full p-6 bg-white rounded-sm sticky top-35"
     :ui="{
       list: 'space-y-2.5',
       link: 'text-base rounded-sm px-4 gap-3 min-h-14 text-default data-[active]:text-primary data-[active]:font-semibold data-[active]:bg-[#DFEEFF]',

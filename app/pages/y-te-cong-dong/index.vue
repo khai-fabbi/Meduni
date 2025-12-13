@@ -74,7 +74,7 @@ const articles: Article[] = [
     description: 'Các trợ lý AI như ChatGPT có thể hỗ trợ bạn trong việc viết email, lập kế hoạch, học tập và lập trình.',
     slug: 'chatgpt-va-cac-tro-ly-ai-ban-da-khai-thac-dung-cach-chua',
     date: '15/10/2024',
-    image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    image: 'https://plus.unsplash.com/premium_photo-1683121710572-7723bd2e235d?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
   {
     id: 5,
@@ -82,7 +82,7 @@ const articles: Article[] = [
     description: 'AI không chỉ dành cho các doanh nghiệp lớn. Các doanh nghiệp nhỏ cũng có thể hưởng lợi từ AI để tối ưu chi phí, chăm sóc khách hàng và năng suất.',
     slug: 'doanh-nghiep-nho-co-nen-ung-dung-ai-khong-loi-ich-va-luu-y',
     date: '15/10/2024',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    image: 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
   {
     id: 6,
@@ -90,7 +90,7 @@ const articles: Article[] = [
     description: 'Các gã khổng lồ công nghệ liên tục ra mắt các mô hình AI tiên tiến, tạo nên cuộc đua AI sôi động trong năm 2025.',
     slug: 'openai-google-meta-cuoc-dua-ai-nam-2025-dang-dien-ra-the-nao',
     date: '15/10/2024',
-    image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    image: 'https://images.unsplash.com/photo-1666597107756-ef489e9f1f09?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
   {
     id: 7,
