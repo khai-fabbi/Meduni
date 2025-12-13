@@ -9,7 +9,6 @@ const items = ref<BreadcrumbItem[]>([
   },
   {
     label: 'Khoá học',
-    icon: 'i-lucide-book',
     to: '/khoa-hoc'
   },
   {
