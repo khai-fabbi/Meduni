@@ -1,7 +1,8 @@
 <script setup lang="ts">
 defineProps<{
   title: string
-  icon?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon?: any
 }>()
 </script>
 
