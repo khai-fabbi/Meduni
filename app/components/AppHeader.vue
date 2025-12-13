@@ -20,11 +20,11 @@ const items = computed(() => [
   },
   {
     label: 'AI trong Y tế',
-    to: '/blog'
+    to: '/ai-trong-y-te'
   },
   {
     label: 'Y tế cộng đồng',
-    to: '/changelog'
+    to: '/y-te-cong-dong'
   }
 ])
 

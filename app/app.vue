@@ -52,12 +52,12 @@ const links = [
   {
     label: 'AI trong Y tế',
     icon: 'i-lucide-pencil',
-    to: '/blog'
+    to: '/ai-trong-y-te'
   },
   {
     label: 'Y tế cộng đồng',
     icon: 'i-lucide-history',
-    to: '/changelog'
+    to: '/y-te-cong-dong'
   }
 ]
 

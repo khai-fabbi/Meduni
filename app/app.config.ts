@@ -28,6 +28,24 @@ export default defineAppConfig({
         base: 'rounded cursor-pointer',
         indicator: 'rounded'
       }
+    },
+    breadcrumb: {
+      slots: {
+        list: 'min-h-15'
+      },
+      compoundVariants: [
+        {
+          disabled: false,
+          active: false,
+          to: true,
+          class: {
+            link: [
+              'text-default hover:text-primary',
+              'transition-colors'
+            ]
+          }
+        }
+      ]
     }
   }
 })
