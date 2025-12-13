@@ -5,7 +5,11 @@
     <NuxtImg
       src="/images/intro/banner.png"
       alt="Banner"
-      class="w-full min-h-[300px] object-cover"
+      class="w-full h-[300px] object-cover"
+      quality="100"
+      height="300"
+      width="100%"
+      :placeholder="[20, 5]"
     />
     <div
       class="absolute left-1/2 -translate-x-1/2 bottom-1/2 translate-y-1/2 w-full max-w-[350px] md:max-w-lg"

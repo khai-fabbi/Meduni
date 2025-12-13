@@ -237,7 +237,20 @@ const activeCategoryClass = computed(() => {
             :ui="{
               base: 'bg-white'
             }"
-          />
+          >
+            <template
+              v-if="searchQuery?.length"
+              #trailing
+            >
+              <UButton
+                color="primary"
+                variant="link"
+                icon="i-lucide-circle-x"
+                aria-label="Xóa tìm kiếm"
+                @click="searchQuery = ''"
+              />
+            </template>
+          </UInput>
         </div>
       </motion.div>
 
@@ -279,6 +292,7 @@ const activeCategoryClass = computed(() => {
               :title="course.title"
               :duration="course.duration"
               :price="course.price"
+              :to="`/khoa-hoc/${course.id}`"
             />
           </motion.div>
         </motion.div>

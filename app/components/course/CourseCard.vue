@@ -4,6 +4,7 @@ interface Props {
   duration: string
   price: number
   image?: string
+  to?: string
 }
 
 defineProps<Props>()
@@ -14,7 +15,10 @@ const formatPrice = (price: number) => {
 </script>
 
 <template>
-  <div class="bg-white h-full rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:shadow-secondary/15 transition-all duration-300 cursor-pointer group">
+  <NuxtLink
+    :to="to ?? '#'"
+    class="block bg-white h-full rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:shadow-secondary/15 transition-all duration-300 cursor-pointer group"
+  >
     <div class="overflow-hidden w-full aspect-video">
       <NuxtImg
         src="/images/course/course-placeholder.png"
@@ -50,5 +54,5 @@ const formatPrice = (price: number) => {
         </div>
       </div>
     </div>
-  </div>
+  </NuxtLink>
 </template>

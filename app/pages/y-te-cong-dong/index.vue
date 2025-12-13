@@ -33,14 +33,14 @@ interface Article {
   description: string
   date: string
   image: string
-  to?: string
+  slug: string
 }
 
 interface PopularArticle {
   id: number
   title: string
   date: string
-  to?: string
+  slug: string
 }
 
 const articles: Article[] = [
@@ -49,12 +49,14 @@ const articles: Article[] = [
     title: 'Trí tuệ nhân tạo đang thay đổi cách con người làm việc ra sao?',
     description: 'Trí tuệ nhân tạo đang thay đổi cách con người làm việc, từ việc tự động hóa các quy trình đơn giản đến hỗ trợ ra quyết định chiến lược.',
     date: '15/10/2024',
+    slug: 'tri-tue-nhan-tao-dang-thay-doi-cach-con-nguoi-lam-viec-ra-sao',
     image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
   {
     id: 2,
     title: '5 công cụ AI miễn phí giúp tăng hiệu suất làm việc mỗi ngày',
     description: 'Các công cụ AI miễn phí có thể giúp bạn tiết kiệm thời gian và làm việc thông minh hơn mỗi ngày.',
+    slug: '5-cong-cu-ai-mien-phi-giup-tang-hieu-suat-lam-viec-moi-ngay',
     date: '15/10/2024',
     image: 'https://images.unsplash.com/photo-1761839257469-96c78a7c2dd3?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
@@ -62,13 +64,15 @@ const articles: Article[] = [
     id: 3,
     title: 'AI trong giáo dục: Học thông minh hơn, cá nhân hóa hơn',
     description: 'Trí tuệ nhân tạo giúp cá nhân hóa việc học tập và tạo ra môi trường giáo dục hiệu quả hơn.',
+    slug: 'ai-trong-giao-duc-hoc-thong-minh-hon-ca-nhan-hoa-hon',
     date: '15/10/2024',
-    image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
   {
     id: 4,
     title: 'ChatGPT và các trợ lý AI – Bạn đã khai thác đúng cách chưa?',
     description: 'Các trợ lý AI như ChatGPT có thể hỗ trợ bạn trong việc viết email, lập kế hoạch, học tập và lập trình.',
+    slug: 'chatgpt-va-cac-tro-ly-ai-ban-da-khai-thac-dung-cach-chua',
     date: '15/10/2024',
     image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
@@ -76,13 +80,15 @@ const articles: Article[] = [
     id: 5,
     title: 'Doanh nghiệp nhỏ có nên ứng dụng AI không? Lợi ích & lưu ý',
     description: 'AI không chỉ dành cho các doanh nghiệp lớn. Các doanh nghiệp nhỏ cũng có thể hưởng lợi từ AI để tối ưu chi phí, chăm sóc khách hàng và năng suất.',
+    slug: 'doanh-nghiep-nho-co-nen-ung-dung-ai-khong-loi-ich-va-luu-y',
     date: '15/10/2024',
-    image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
   {
     id: 6,
     title: 'OpenAI, Google, Meta: Cuộc đua AI năm 2025 đang diễn ra thế nào?',
     description: 'Các gã khổng lồ công nghệ liên tục ra mắt các mô hình AI tiên tiến, tạo nên cuộc đua AI sôi động trong năm 2025.',
+    slug: 'openai-google-meta-cuoc-dua-ai-nam-2025-dang-dien-ra-the-nao',
     date: '15/10/2024',
     image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
@@ -90,6 +96,7 @@ const articles: Article[] = [
     id: 7,
     title: 'AI tạo sinh: Tương lai của sáng tạo nội dung',
     description: 'AI tạo sinh đang thay đổi cách chúng ta tạo ra nội dung, từ hình ảnh, âm nhạc, tổng hợp giọng nói đến lập trình.',
+    slug: 'ai-tao-sinh-tuong-lai-cua-sang-tao-noi-dung',
     date: '15/10/2024',
     image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
@@ -97,6 +104,7 @@ const articles: Article[] = [
     id: 8,
     title: 'AI kết hợp IoT – Xu hướng mới trong tự động hóa và thành phố thông minh',
     description: 'Sự kết hợp giữa AI và IoT cho phép các thiết bị thông minh học hỏi, vận hành tự động và tương tác linh hoạt, tạo nền tảng cho các thành phố thông minh hiện đại.',
+    slug: 'ai-ket-hop-iot-xu-huong-moi-trong-tu-dong-hoa-va-thanh-pho-thong-minh',
     date: '15/10/2024',
     image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   },
@@ -104,6 +112,7 @@ const articles: Article[] = [
     id: 9,
     title: 'Tương lai nào cho AI tại Việt Nam? Cơ hội và thách thức',
     description: 'Việt Nam đang tích cực ứng dụng AI vào nhiều lĩnh vực như giáo dục, y tế, nông nghiệp, nhưng vẫn còn nhiều thách thức về nhân lực, dữ liệu và chính sách.',
+    slug: 'tuong-lai-nao-cho-ai-tai-viet-nam-co-hoi-va-thach-thuc',
     date: '15/10/2024',
     image: 'https://images.unsplash.com/photo-1764076327046-fe35f955cba1?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
   }
@@ -114,31 +123,31 @@ const popularArticles: PopularArticle[] = [
     id: 10,
     title: 'AI là gì? Ứng dụng của trí tuệ nhân tạo trong đời sống...',
     date: '15/10/2024',
-    to: '#'
+    slug: 'ai-la-gi-ung-dung-cua-tri-tue-nhan-tao-trong-doi-song'
   },
   {
     id: 11,
     title: 'Top 7 công cụ AI miễn phí giúp bạn học nhanh, làm...',
     date: '15/10/2024',
-    to: '#'
+    slug: 'top-7-cong-cu-ai-mien-phi-giup-ban-hoc-nhanh-lam'
   },
   {
     id: 12,
     title: 'ChatGPT có thể làm được gì? 10 cách sử dụng AI bạ...',
     date: '15/10/2024',
-    to: '#'
+    slug: 'chatgpt-co-the-lam-duoc-gi-10-cach-su-dung-ai-ban'
   },
   {
     id: 13,
     title: 'Liệu AI có thay thế con người trong tương lai?',
     date: '15/10/2024',
-    to: '#'
+    slug: 'lieu-ai-co-the-thay-the-con-nguoi-trong-tuong-lai'
   },
   {
     id: 14,
     title: 'Làm sao để bắt đầu học AI từ con số 0?',
     date: '15/10/2024',
-    to: '#'
+    slug: 'lam-sao-de-bat-dau-hoc-ai-tu-con-so-0'
   }
 ]
 
@@ -181,7 +190,7 @@ const currentPage = ref(1)
               :description="article.description"
               :date="article.date"
               :image="article.image ?? ''"
-              :to="article.to"
+              :to="`/y-te-cong-dong/${article.slug}`"
             />
           </motion.div>
         </motion.div>
@@ -215,7 +224,7 @@ const currentPage = ref(1)
               :key="article.id"
               :title="article.title"
               :date="article.date"
-              :to="article.to"
+              :to="`/y-te-cong-dong/${article.slug}`"
             />
           </div>
         </motion.div>
