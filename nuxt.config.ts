@@ -1,4 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+import { vite as vidstack } from 'vidstack/plugins'
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -18,6 +21,11 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+  vue: {
+    compilerOptions: {
+      isCustomElement: tag => tag.startsWith('media-')
+    }
+  },
   colorMode: {
     preference: 'light',
     fallback: 'light'
@@ -40,6 +48,9 @@ export default defineNuxtConfig({
       routes: ['/', '/gioi-thieu'],
       crawlLinks: true
     }
+  },
+  vite: {
+    plugins: [vidstack()]
   },
 
   eslint: {

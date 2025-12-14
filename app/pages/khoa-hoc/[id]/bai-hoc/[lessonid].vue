@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '@nuxt/ui'
 import { motion } from 'motion-v'
-import LessonVideo from '~/components/lesson/LessonVideo.vue'
 import LessonInfo from '~/components/lesson/LessonInfo.vue'
 import LessonTabs from '~/components/lesson/LessonTabs.vue'
 import LessonTableOfContents from '~/components/lesson/LessonTableOfContents.vue'
@@ -235,7 +234,8 @@ useSeoMeta({
           :animate="{ opacity: 1, y: 0 }"
           :transition="{ duration: 0.5 }"
         >
-          <LessonVideo :video-url="currentLesson.videoUrl" />
+          <PlayerVideo />
+          <!-- <LessonVideo :video-url="currentLesson.videoUrl" /> -->
         </motion.div>
 
         <motion.div
