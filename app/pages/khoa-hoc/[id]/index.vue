@@ -142,7 +142,7 @@ useSeoMeta({
       :items="items"
     />
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_530px] gap-6 md:gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_530px] gap-6 md:gap-7">
       <div class="space-y-6">
         <motion.div
           class="overflow-hidden rounded-lg"

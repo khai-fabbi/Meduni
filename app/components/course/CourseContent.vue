@@ -66,7 +66,7 @@ onMounted(() => {
               :key="lesson.id"
             >
               <NuxtLink
-                :to="`/khoa-hoc/${item.id}/lessons/${lesson.id}`"
+                :to="`/khoa-hoc/${item.id}/bai-hoc/${lesson.id}`"
                 class="flex items-center gap-4 min-h-15 md:min-h-16 px-3 md:px-5 border-b border-neutral-200 hover:bg-primary-50 hover:text-primary transition-colors"
               >
                 <PlayCircleIcon class="size-5" />
