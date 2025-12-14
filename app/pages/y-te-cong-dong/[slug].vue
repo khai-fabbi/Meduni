@@ -19,7 +19,6 @@ const items = ref<BreadcrumbItem[]>([
   },
   {
     label: 'Y tế cộng đồng',
-    icon: 'i-lucide-history',
     to: '/y-te-cong-dong'
   },
   {

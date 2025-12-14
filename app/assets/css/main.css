@@ -43,7 +43,7 @@
 
   --color-brown-500: #a25a40;
   --color-primary-light: #1659a51a;
-  --color-progress-inner: #D0E6FF;
+  --color-progress-inner: #d0e6ff;
 }
 
 :root {
@@ -113,5 +113,5 @@ body {
 }
 
 .bg-certificate-badge {
-  background: linear-gradient(to right, #E1EEFF, #FFEFF1);
+  background: linear-gradient(to right, #e1eeff, #ffeff1);
 }
