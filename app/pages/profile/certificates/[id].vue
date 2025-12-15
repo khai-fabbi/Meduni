@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { BreadcrumbItem } from '@nuxt/ui'
+
 const route = useRoute()
 const certificateId = route.params.id
 const isLoading = ref(true)
@@ -7,6 +9,26 @@ useSeoMeta({
   title: 'Chi tiết chứng nhận',
   description: 'Chi tiết chứng nhận của bạn'
 })
+
+const items = ref<BreadcrumbItem[]>([
+  {
+    label: 'Trang chủ',
+    icon: 'i-lucide-home',
+    to: '/'
+  },
+  {
+    label: 'Hồ sơ',
+    to: '/profile'
+  },
+  {
+    label: 'Chứng nhận',
+    to: '/profile/certificates'
+  },
+  {
+    label: 'Chi tiết chứng nhận',
+    to: '#'
+  }
+])
 
 definePageMeta({
   layout: 'profile'
@@ -31,6 +53,10 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-6">
+    <UBreadcrumb
+      :items="items"
+      class="md:hidden"
+    />
     <Heading
       variant="h3"
     >
