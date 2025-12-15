@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import CartIcon from '~/assets/icons/cart.svg'
+import UserIcon from '~/assets/icons/user.svg'
+
 const route = useRoute()
 const authStore = useAuthStore()
 const { user, isLoggedIn } = storeToRefs(authStore)
@@ -33,28 +36,15 @@ const items = computed(() => {
     active: item.to === '/docs' ? route.path.startsWith('/docs') : route.path === item.to
   }))
 
-  if (isLoggedIn.value) {
-    result.push({
-      label: 'Hồ sơ',
-      to: '#',
-      active: route.path.startsWith('/profile')
-    })
-  }
-
   return result
 })
 
-const userMenuItems = [
+const userMenuItems = computed(() => [
   [
     {
       label: 'Hồ sơ',
-      icon: 'i-lucide-user',
+      icon: UserIcon,
       to: '/profile'
-    },
-    {
-      label: 'Cài đặt',
-      icon: 'i-lucide-settings',
-      to: '/settings'
     }
   ],
   [
@@ -68,7 +58,7 @@ const userMenuItems = [
       }
     }
   ]
-]
+])
 
 const isProfileMenuOpen = ref(false)
 
@@ -99,114 +89,141 @@ const profileSubMenuItems = [
   }
 ]
 
-const userInitials = computed(() => {
-  if (!user.value?.name) return 'A'
+const userLastName = computed(() => {
+  if (!user.value?.name) return ''
   const names = user.value.name.split(' ').filter(n => n.length > 0)
   if (names.length >= 2) {
-    const first = names[0]?.[0]
-    const last = names[names.length - 1]?.[0]
-    if (first && last) {
-      return (first + last).toUpperCase()
-    }
+    return names[names.length - 1]
   }
-  const first = names[0]?.[0]
-  if (first) {
-    return first.toUpperCase()
-  }
-  return 'A'
+  return names[0] || ''
 })
+
+const cartCount = ref(2)
 </script>
 
 <template>
-  <UHeader class="rounded-b-xl border-b-none shadow-lg h-16 md:h-[100px]">
+  <UHeader class="rounded-b-xl border-b-none shadow-lg h-16 md:h-[100px] bg-white">
     <template #left>
-      <NuxtLink
-        to="/"
-        class="shrink-0 flex hover:opacity-80 transition-opacity"
-      >
-        <AppLogo class="w-[120px] h-auto md:w-[200px]" />
-      </NuxtLink>
-    </template>
-    <div class="flex-1 flex items-center gap-4">
-      <ClientOnly>
-        <UNavigationMenu
-          :items="items"
-          variant="link"
-          :ui="{
-            linkLabel: 'text-base font-medium uppercase',
-            link: 'py-1 px-1.5 text-default animate-link-underline data-[active]:text-primary',
-            list: 'gap-2'
-          }"
-        />
-        <template #fallback>
-          <div class="flex items-center gap-4">
-            <template
-              v-for="(item, index) in baseItems"
-              :key="index"
-            >
-              <NuxtLink
-                :to="item.to"
-                class="text-base font-medium uppercase py-1 px-1.5 text-default"
+      <div class="flex items-center gap-3 md:gap-4 lg:gap-6 shrink-0">
+        <NuxtLink
+          to="/"
+          class="shrink-0 flex hover:opacity-80 transition-opacity"
+        >
+          <AppLogo class="w-[120px] h-auto md:w-[200px]" />
+        </NuxtLink>
+        <ClientOnly>
+          <UNavigationMenu
+            :items="items"
+            variant="link"
+            class="hidden lg:flex"
+            :ui="{
+              linkLabel: 'text-sm lg:text-base font-medium uppercase',
+              link: 'py-1 px-1 lg:px-1.5 text-default animate-link-underline data-[active]:text-primary',
+              list: 'gap-1 lg:gap-2'
+            }"
+          />
+          <template #fallback>
+            <div class="hidden lg:flex items-center gap-2 xl:gap-4">
+              <template
+                v-for="(item, index) in baseItems"
+                :key="index"
               >
-                {{ item.label }}
-              </NuxtLink>
-            </template>
-          </div>
-        </template>
-      </ClientOnly>
-    </div>
+                <NuxtLink
+                  :to="item.to"
+                  class="text-sm xl:text-base font-medium uppercase py-1 px-1 lg:px-1.5 text-default"
+                >
+                  {{ item.label }}
+                </NuxtLink>
+              </template>
+            </div>
+          </template>
+        </ClientOnly>
+      </div>
+    </template>
 
     <template #right>
-      <UContentSearchButton
-        label="Tìm kiếm nội dung"
-        class="hidden rounded-md lg:flex"
-        variant="ghost"
-        color="primary"
-      />
-      <UColorModeButton />
-
-      <ClientOnly>
-        <template v-if="isLoggedIn">
-          <UDropdownMenu
-            :items="userMenuItems"
-            :popper="{ placement: 'bottom-end' }"
+      <div class="flex items-center justify-start lg:justify-end gap-2 md:gap-3 shrink-0">
+        <UContentSearchButton
+          label="Tìm kiếm nội dung"
+          class="flex rounded-md w-5 h-5 text-neutral-600"
+          variant="ghost"
+        />
+        <span class="hidden lg:block text-line-gray shrink-0">|</span>
+        <ClientOnly>
+          <NuxtLink
+            to="/profile/cart"
+            class="relative flex items-center justify-center w-9 h-9 lg:w-10 lg:h-10 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
           >
-            <UAvatar
-              :alt="user?.name || 'User'"
-              size="xl"
-              class="cursor-pointer"
+            <CartIcon class="size-5 lg:size-6" />
+            <span
+              v-if="cartCount > 0"
+              class="absolute top-1 right-0.5 lg:top-0.5 lg:right-0 flex items-center justify-center size-3 lg:size-4 px-1 text-xs font-semibold text-white bg-cart-badge rounded-full"
             >
-              <span class="text-sm font-semibold">{{ userInitials }}</span>
-            </UAvatar>
-          </UDropdownMenu>
-        </template>
+              {{ cartCount }}
+            </span>
+          </NuxtLink>
+        </ClientOnly>
+        <span class="hidden lg:block text-line-gray shrink-0">|</span>
+        <div class="flex items-center gap-2 md:gap-3 shrink-0">
+          <ClientOnly>
+            <template v-if="isLoggedIn">
+              <div class="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
+                <span class="text-sm xl:text-base text-default whitespace-nowrap">
+                  Chào, <span class="font-bold">{{ userLastName }}</span>
+                </span>
+                <UDropdownMenu
+                  :items="userMenuItems"
+                  :popper="{ placement: 'bottom-end' }"
+                >
+                  <button class="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 border border-neutral-300 rounded-full bg-neutral-100 hover:bg-neutral-200 active:bg-neutral-200 transition-colors cursor-pointer shrink-0">
+                    <UserIcon
+                      class="size-5 lg:size-6 text-default"
+                    />
+                  </button>
+                </UDropdownMenu>
+              </div>
+              <UDropdownMenu
+                :items="userMenuItems"
+                :popper="{ placement: 'bottom-end' }"
+                class="lg:hidden cursor-pointer hover:bg-gray-100"
+              >
+                <button class="flex items-center justify-center w-9 h-9 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer shrink-0">
+                  <UserIcon
+                    class="w-4 h-4 text-default"
+                  />
+                </button>
+              </UDropdownMenu>
+            </template>
 
-        <template v-else>
-          <UButton
-            icon="i-lucide-log-in"
-            variant="ghost"
-            to="/login"
-            class="lg:hidden"
-          />
+            <template v-else>
+              <UButton
+                icon="i-lucide-log-in"
+                variant="ghost"
+                to="/login"
+                class="lg:hidden cursor-pointer"
+                size="sm"
+              />
 
-          <UButton
-            label="Đăng ký"
-            variant="subtle"
-            class="hidden lg:inline-flex min-h-12 max-w-[120px]"
-            to="/signup"
-            size="xl"
-            block
-          />
-          <UButton
-            label="Đăng nhập"
-            variant="solid"
-            to="/login"
-            class="hidden lg:inline-flex min-h-12 max-w-[120px]"
-            size="xl"
-            block
-          />
-        </template>
-      </ClientOnly>
+              <UButton
+                label="Đăng ký"
+                variant="subtle"
+                class="hidden lg:inline-flex min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
+                to="/signup"
+                size="xl"
+                block
+              />
+              <UButton
+                label="Đăng nhập"
+                variant="solid"
+                to="/login"
+                class="hidden lg:inline-flex min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
+                size="xl"
+                block
+              />
+            </template>
+          </ClientOnly>
+        </div>
+      </div>
     </template>
 
     <template #body>
@@ -252,32 +269,7 @@ const userInitials = computed(() => {
         </template>
       </div>
 
-      <USeparator class="my-6" />
-
       <template v-if="isLoggedIn">
-        <div class="flex items-center gap-3 mb-4">
-          <UAvatar
-            :alt="user?.name || 'User'"
-            size="md"
-          >
-            <span class="text-sm font-semibold">{{ userInitials }}</span>
-          </UAvatar>
-          <div class="flex-1">
-            <p class="font-medium text-sm">
-              {{ user?.name || "Người dùng" }}
-            </p>
-            <p class="text-xs text-default">
-              {{ user?.email || user?.phone }}
-            </p>
-          </div>
-        </div>
-        <UButton
-          label="Cài đặt"
-          variant="ghost"
-          to="/settings"
-          block
-          class="mb-2"
-        />
         <UButton
           label="Đăng xuất"
           variant="outline"
