@@ -36,11 +36,6 @@ const items = ref<NavigationMenuItem[][]>([
       to: '/profile/learning-paths'
     },
     {
-      label: 'Hỗ trợ',
-      icon: 'i-lucide-help-circle',
-      to: '/profile/support'
-    },
-    {
       label: 'Đăng xuất',
       icon: 'i-lucide-log-out',
       class:
