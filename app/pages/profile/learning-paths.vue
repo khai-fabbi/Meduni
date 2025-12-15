@@ -1,11 +1,27 @@
 <script setup lang="ts">
-import type { TabsItem } from '@nuxt/ui'
+import type { TabsItem, BreadcrumbItem } from '@nuxt/ui'
 import Star from '~/assets/icons/star.svg'
 
 useSeoMeta({
   title: 'Lộ trình học tập',
   description: 'Lộ trình học tập của bạn'
 })
+
+const items = ref<BreadcrumbItem[]>([
+  {
+    label: 'Trang chủ',
+    icon: 'i-lucide-home',
+    to: '/'
+  },
+  {
+    label: 'Hồ sơ',
+    to: '/profile'
+  },
+  {
+    label: 'Lộ trình học tập',
+    to: '#'
+  }
+])
 
 definePageMeta({
   layout: 'profile'
@@ -204,6 +220,10 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-6">
+    <UBreadcrumb
+      :items="items"
+      class="md:hidden"
+    />
     <Heading
       variant="h3"
     >

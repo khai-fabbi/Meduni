@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TabsItem } from '@nuxt/ui'
+import type { TabsItem, BreadcrumbItem } from '@nuxt/ui'
 import { formatDate } from '~/utils/date'
 import Ring from '~/assets/icons/ring.svg'
 import { PAGE_DEFAULT } from '~/utils/constants'
@@ -8,6 +8,22 @@ useSeoMeta({
   title: 'Danh sách thông báo',
   description: 'Thông báo của bạn'
 })
+
+const items = ref<BreadcrumbItem[]>([
+  {
+    label: 'Trang chủ',
+    icon: 'i-lucide-home',
+    to: '/'
+  },
+  {
+    label: 'Hồ sơ',
+    to: '/profile'
+  },
+  {
+    label: 'Danh sách thông báo',
+    to: '#'
+  }
+])
 
 definePageMeta({
   layout: 'profile'
@@ -156,6 +172,10 @@ function getNotificationUrl(notification: typeof notifications.value[0]): string
 
 <template>
   <div class="space-y-6">
+    <UBreadcrumb
+      :items="items"
+      class="md:hidden"
+    />
     <Heading
       variant="h3"
     >

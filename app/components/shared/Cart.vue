@@ -9,6 +9,8 @@ export interface CartItem {
   videoCount: number
   duration: string
   selected?: boolean
+  indirectCommission?: number
+  directCommission?: number
 }
 
 interface Props {
@@ -85,7 +87,7 @@ function handleCheckout() {
       class="space-y-6"
     >
       <div class="flex flex-col md:flex-row md:items-center md:justify-between h-auto md:h-18 rounded-sm rounded-b-none bg-primary-light py-3 md:py-0 mb-0 md:mb-6">
-        <div class="flex items-center gap-3 px-4">
+        <div class="flex items-center gap-3 px-3">
           <UIcon
             name="i-lucide-shopping-cart"
             class="size-5 text-secondary shrink-0"
@@ -94,7 +96,7 @@ function handleCheckout() {
             <span class="font-bold">{{ cartItems.length }} sản phẩm</span> đã được thêm vào giỏ hàng
           </span>
         </div>
-        <span class="hidden md:block text-sm md:text-lg font-medium px-4 mt-2 md:mt-0">
+        <span class="hidden md:block text-sm md:text-lg font-medium px-3 mt-2 md:mt-0">
           Giá tiền
         </span>
       </div>

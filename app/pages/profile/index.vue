@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { BreadcrumbItem } from '@nuxt/ui'
 import {
   profileSchema,
   type ChangePasswordWithOldSchema,
@@ -10,6 +11,18 @@ useSeoMeta({
   title: 'Thông tin cá nhân',
   description: 'Thông tin cá nhân'
 })
+
+const items = ref<BreadcrumbItem[]>([
+  {
+    label: 'Trang chủ',
+    icon: 'i-lucide-home',
+    to: '/'
+  },
+  {
+    label: 'Hồ sơ',
+    to: '/profile'
+  }
+])
 
 definePageMeta({
   layout: 'profile'
@@ -100,7 +113,12 @@ async function onChangePassword(
 </script>
 
 <template>
-  <div class="bg-white rounded-sm p-4 md:p-7.5">
+  <div class="space-y-6">
+    <UBreadcrumb
+      :items="items"
+      class="md:hidden"
+    />
+    <div class="bg-white rounded-sm p-4 md:p-7.5">
     <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
       <Heading
         variant="h3"
@@ -327,5 +345,6 @@ async function onChangePassword(
       :loading="isChangingPassword"
       @submit="onChangePassword"
     />
+    </div>
   </div>
 </template>

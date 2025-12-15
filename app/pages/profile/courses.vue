@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { BreadcrumbItem } from '@nuxt/ui'
 import { PAGE_DEFAULT } from '~/utils/constants'
 import DocumentDone from '~/assets/icons/document-done.svg'
 
@@ -6,6 +7,22 @@ useSeoMeta({
   title: 'Khoá học đã mua',
   description: 'Khoá học của bạn'
 })
+
+const items = ref<BreadcrumbItem[]>([
+  {
+    label: 'Trang chủ',
+    icon: 'i-lucide-home',
+    to: '/'
+  },
+  {
+    label: 'Hồ sơ',
+    to: '/profile'
+  },
+  {
+    label: 'Khoá học đã mua',
+    to: '#'
+  }
+])
 
 definePageMeta({
   layout: 'profile'
@@ -155,6 +172,10 @@ const courses = ref([
 
 <template>
   <div class="space-y-6">
+    <UBreadcrumb
+      :items="items"
+      class="md:hidden"
+    />
     <Heading
       variant="h3"
     >

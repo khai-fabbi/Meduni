@@ -1,10 +1,27 @@
 <script setup lang="ts">
+import type { BreadcrumbItem } from '@nuxt/ui'
 import { PAGE_DEFAULT } from '~/utils/constants'
 
 useSeoMeta({
   title: 'Chứng nhận của bạn',
   description: 'Chứng nhận đã hoàn thành'
 })
+
+const items = ref<BreadcrumbItem[]>([
+  {
+    label: 'Trang chủ',
+    icon: 'i-lucide-home',
+    to: '/'
+  },
+  {
+    label: 'Hồ sơ',
+    to: '/profile'
+  },
+  {
+    label: 'Chứng nhận của bạn',
+    to: '#'
+  }
+])
 
 definePageMeta({
   layout: 'profile'
@@ -83,6 +100,10 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-6">
+    <UBreadcrumb
+      :items="items"
+      class="md:hidden"
+    />
     <Heading
       variant="h3"
     >

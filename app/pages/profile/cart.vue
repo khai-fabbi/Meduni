@@ -1,10 +1,27 @@
 <script setup lang="ts">
+import type { BreadcrumbItem } from '@nuxt/ui'
 import type { CartItem } from '~/components/shared/Cart.vue'
 
 useSeoMeta({
   title: 'Giỏ hàng',
   description: 'Giỏ hàng của bạn'
 })
+
+const items = ref<BreadcrumbItem[]>([
+  {
+    label: 'Trang chủ',
+    icon: 'i-lucide-home',
+    to: '/'
+  },
+  {
+    label: 'Hồ sơ',
+    to: '/profile'
+  },
+  {
+    label: 'Giỏ hàng',
+    to: '#'
+  }
+])
 
 definePageMeta({
   layout: 'profile'
@@ -59,6 +76,10 @@ function handleCheckout(items: CartItem[]) {
 
 <template>
   <div class="space-y-6">
+    <UBreadcrumb
+      :items="items"
+      class="md:hidden"
+    />
     <Heading
       variant="h3"
     >
