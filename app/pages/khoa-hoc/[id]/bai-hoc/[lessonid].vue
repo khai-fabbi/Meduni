@@ -227,7 +227,7 @@ useSeoMeta({
       :items="items"
     />
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_530px] gap-6 md:gap-7">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] 2xl:grid-cols-[1fr_530px] gap-6 md:gap-7">
       <div>
         <motion.div
           :initial="{ opacity: 0, y: 20 }"

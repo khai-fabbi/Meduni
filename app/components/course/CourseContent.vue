@@ -56,7 +56,8 @@ onMounted(() => {
           item: 'border-neutral-200',
           label: 'text-base md:text-xl font-bold data-[state=open]:text-primary',
           header: 'py-1 md:py-2 px-3 md:px-5 cursor-pointer transition-colors data-[state=open]:text-primary data-[state=open]:bg-primary-light',
-          trigger: 'gap-3 md:gap-4 cursor-pointer'
+          trigger: 'gap-3 md:gap-4 cursor-pointer',
+          trailingIcon: 'size-6'
         }"
       >
         <template #content="{ item }">
