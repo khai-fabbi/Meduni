@@ -128,11 +128,14 @@ function handleCheckout() {
                 <NuxtImg
                   :src="item.image"
                   :alt="item.title"
-                  class="w-20 h-16 md:w-40 md:h-30 object-cover rounded-lg shrink-0"
+                  class="w-20 h-16 md:w-40 md:h-30 object-cover md:rounded-lg rounded-sm shrink-0"
+                  :placeholder="[20, 20]"
+                  width="160"
+                  height="120"
                 />
 
                 <div class="flex-1 min-w-0">
-                  <h3 class="font-bold text-base md:text-2xl text-primary mb-1 line-clamp-2">
+                  <h3 class="font-bold text-base leading-tight md:text-2xl text-primary mb-1 line-clamp-2">
                     {{ item.title }}
                   </h3>
                   <p class="text-sm md:text-lg mb-1 line-clamp-1">

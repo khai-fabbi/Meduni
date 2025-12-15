@@ -65,7 +65,7 @@ provide('navigation', navigation)
 </script>
 
 <template>
-  <UApp theme="light">
+  <UApp>
     <NuxtLoadingIndicator />
 
     <NuxtLayout>
