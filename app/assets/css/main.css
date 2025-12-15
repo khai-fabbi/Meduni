@@ -44,6 +44,7 @@
   --color-brown-500: #a25a40;
   --color-primary-light: #1659a51a;
   --color-progress-inner: #d0e6ff;
+  --color-line-gray: #DFDFE0;
 }
 
 :root {
@@ -114,4 +115,8 @@ body {
 
 .bg-certificate-badge {
   background: linear-gradient(to right, #e1eeff, #ffeff1);
+}
+
+.bg-cart-badge {
+  background: linear-gradient(180deg, #A25A40 0%, #793C26 100%);
 }

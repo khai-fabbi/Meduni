@@ -53,50 +53,7 @@ const progress = 50
         Video khoá học
       </Heading>
 
-      <div
-        class="relative size-13 shrink-0"
-      >
-        <svg
-          class="transform -rotate-90 w-full h-full"
-          viewBox="0 0 36 36"
-        >
-          <!-- Inner circle -->
-          <circle
-            cx="18"
-            cy="18"
-            r="14"
-            stroke-linecap="round"
-            fill="var(--color-progress-inner)"
-          />
-          <!-- Background circle -->
-          <circle
-            cx="18"
-            cy="18"
-            r="16"
-            fill="none"
-            stroke="var(--color-primary-100)"
-            stroke-width="3"
-          />
-          <!-- Progress circle -->
-          <circle
-            cx="18"
-            cy="18"
-            r="16"
-            fill="none"
-            stroke="var(--color-primary-500)"
-            stroke-width="3"
-            stroke-dasharray="100, 100"
-            :stroke-dashoffset="100 - progress"
-            stroke-linecap="round"
-            class="transition-all duration-300"
-          />
-        </svg>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <span class="text-base font-black text-primary ">
-            {{ progress }}<span class="text-[10px] relative -top-1">%</span>
-          </span>
-        </div>
-      </div>
+      <SharedProcessLearning :progress="progress" />
     </div>
 
     <UAccordion
