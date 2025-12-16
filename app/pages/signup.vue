@@ -1,25 +1,7 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { signupSchema, type SignupSchema } from '~/utils/schema/signup'
-
-export interface JSConfettiApi {
-  JSConfetti: {
-    new (): {
-      addConfetti: (options?: {
-        emojis?: string[]
-        confettiColors?: string[]
-        confettiRadius?: number
-        confettiNumber?: number
-        confettiWind?: number
-      }) => void
-    }
-  }
-}
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Window extends JSConfettiApi {}
-}
+import SharedConfettiEffect from '~/components/shared/ConfettiEffect.vue'
 
 definePageMeta({
   layout: 'auth'
@@ -30,19 +12,8 @@ useSeoMeta({
   description: 'Tạo tài khoản mới để bắt đầu'
 })
 
-const { onLoaded } = useScriptNpm<JSConfettiApi>({
-  packageName: 'js-confetti',
-  file: 'dist/js-confetti.browser.js',
-  version: '0.12.0',
-  scriptOptions: {
-    use() {
-      return { JSConfetti: window.JSConfetti }
-    },
-    bundle: true
-  }
-})
-
 const toast = useToast()
+const confettiRef = ref<InstanceType<typeof SharedConfettiEffect> | null>(null)
 
 const signupForm = reactive({
   fullName: '',
@@ -60,22 +31,8 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
     isLoading.value = true
     console.log('Submitted', payload.data)
 
-    onLoaded(({ JSConfetti }) => {
-      const confetti = new JSConfetti()
-      // fully typed!
-      confetti.addConfetti({
-        confettiColors: [
-          '#ff0a54',
-          '#ff477e',
-          '#ff7096',
-          '#ff85a1',
-          '#fbb1bd',
-          '#f9bec7'
-        ],
-        confettiRadius: 6,
-        confettiNumber: 100,
-        confettiWind: 10
-      })
+    nextTick(() => {
+      confettiRef.value?.trigger()
     })
 
     toast.add({
@@ -228,5 +185,10 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         >Đăng nhập</ULink>
       </p>
     </div>
+
+    <SharedConfettiEffect
+      ref="confettiRef"
+      :auto-trigger="false"
+    />
   </div>
 </template>

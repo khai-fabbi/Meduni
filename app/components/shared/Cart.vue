@@ -15,14 +15,32 @@ export interface CartItem {
 
 interface Props {
   items: CartItem[]
+  isProfileCart?: boolean
+  finalTotal?: number
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isProfileCart: false,
+  finalTotal: 0
+})
 
 const emit = defineEmits<{
   'update:items': [items: CartItem[]]
   'checkout': [items: CartItem[]]
 }>()
+
+const router = useRouter()
+const checkoutModalOpen = ref(false)
+
+const paymentAmount = computed(() => {
+  return props.finalTotal > 0 ? props.finalTotal : totalPrice.value
+})
+
+const paymentContent = ref('PKG48603F5DE61B')
+const bankAccount = ref('999999999')
+const bankName = ref('Ngân hàng TMCP Việt Nam Thịnh Vượng (VPB)')
+const accountHolder = ref('VU VAN KHAI')
+const qrCodeUrl = ref('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=payment')
 
 const cartItems = computed({
   get: () => props.items,
@@ -67,8 +85,21 @@ function toggleItem(id: number) {
 }
 
 function handleCheckout() {
-  emit('checkout', selectedItems.value)
+  if (props.isProfileCart) {
+    router.push('/carts')
+  } else {
+    if (props.finalTotal > 0) {
+      checkoutModalOpen.value = true
+    }
+  }
 }
+
+const isCheckoutDisabled = computed(() => {
+  if (props.isProfileCart) {
+    return selectedItems.value.length === 0
+  }
+  return selectedItems.value.length === 0 || props.finalTotal <= 0
+})
 </script>
 
 <template>
@@ -183,8 +214,11 @@ function handleCheckout() {
           <UButton
             color="primary"
             size="lg"
-            :disabled="selectedItems.length === 0"
-            class="w-full md:w-40 h-14 text-center font-semibold text-base flex justify-center"
+            :disabled="isCheckoutDisabled"
+            :class="[
+              'w-full md:w-40 h-14 text-center font-semibold text-base flex justify-center',
+              isCheckoutDisabled && !props.isProfileCart && props.finalTotal <= 0 ? 'opacity-50' : ''
+            ]"
             @click="handleCheckout"
           >
             Mua ngay
@@ -195,7 +229,7 @@ function handleCheckout() {
   </div>
 
   <div
-    v-if="cartItems.length > 0"
+    v-if="cartItems.length > 0 && isProfileCart"
     class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-300 p-4 z-50 md:hidden shadow-lg"
   >
     <div class="space-y-3">
@@ -221,8 +255,11 @@ function handleCheckout() {
         <UButton
           color="primary"
           size="lg"
-          :disabled="selectedItems.length === 0"
-          class="h-12 px-6 font-semibold text-base shrink-0"
+          :disabled="isCheckoutDisabled"
+          :class="[
+            'h-12 px-6 font-semibold text-base shrink-0',
+            isCheckoutDisabled && !props.isProfileCart && props.finalTotal <= 0 ? 'opacity-50' : ''
+          ]"
           @click="handleCheckout"
         >
           Mua ngay
@@ -230,4 +267,14 @@ function handleCheckout() {
       </div>
     </div>
   </div>
+
+  <SharedPaymentModal
+    v-model="checkoutModalOpen"
+    :payment-amount="paymentAmount"
+    :payment-content="paymentContent"
+    :bank-account="bankAccount"
+    :bank-name="bankName"
+    :account-holder="accountHolder"
+    :qr-code-url="qrCodeUrl"
+  />
 </template>
