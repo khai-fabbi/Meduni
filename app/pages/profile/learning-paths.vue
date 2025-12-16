@@ -219,7 +219,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 mb-0">
     <UBreadcrumb
       :items="items"
       class="md:hidden"

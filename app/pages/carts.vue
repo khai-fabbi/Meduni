@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { CartItem } from '~/components/shared/Cart.vue'
 import type { BreadcrumbItem } from '@nuxt/ui'
+import DiscountTagIcon from '~/assets/icons/discount-tag.svg'
+import ScanIcon from '~/assets/icons/scan.svg'
 
 useSeoMeta({
   title: 'Giỏ hàng',
@@ -126,9 +128,16 @@ const directCommission = computed(() => {
 
 const useDirectCommission = ref(true)
 
-const paymentMethod = ref('onepay')
+const paymentMethod = ref('qr')
 const promoCode = ref('')
 const requestVATInvoice = ref(false)
+const checkoutModalOpen = ref(false)
+
+const paymentContent = ref('PKG48603F5DE61B')
+const bankAccount = ref('999999999')
+const bankName = ref('Ngân hàng TMCP Việt Nam Thịnh Vượng (VPB)')
+const accountHolder = ref('VU VAN KHAI')
+const qrCodeUrl = ref('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=payment')
 
 const finalTotal = computed(() => {
   let total = totalPrice.value
@@ -213,8 +222,10 @@ onMounted(async () => {
   isLoading.value = false
 })
 
-function handleCheckout(items: CartItem[]) {
-  console.log('Checkout items:', items)
+function handleCheckout() {
+  if (finalTotal.value > 0) {
+    checkoutModalOpen.value = true
+  }
 }
 
 function applyPromoCode() {
@@ -224,221 +235,236 @@ function applyPromoCode() {
 
 <template>
   <UContainer>
-    <div>
+    <div class="space-y-6 mb-6">
       <UBreadcrumb
         :items="items"
       />
 
-      <div class="space-y-6 mt-4">
-        <Heading
-          variant="h3"
-          class="text-primary"
-        >
-          Giỏ hàng
-        </Heading>
+      <Heading
+        variant="h3"
+        class="text-primary"
+      >
+        Giỏ hàng
+      </Heading>
 
-        <div class="grid grid-cols-1 lg:grid-cols-[1fr_25rem] gap-6">
-          <div class="min-w-0">
-            <SkeletonCart v-if="isLoading" />
-            <SharedCart
-              v-else
-              :items="cartItems"
-              @update:items="cartItems = $event"
-              @checkout="handleCheckout"
-            />
-          </div>
-
-          <div class="lg:sticky lg:top-28 h-fit w-full lg:w-auto lg:max-w-100">
-            <div class="bg-white rounded-sm p-6 px-3 space-y-6">
-              <Heading
-                variant="h4"
-                class="text-primary"
-              >
-                Thông tin thanh toán
-              </Heading>
-
-              <div class="space-y-3">
-                <div class="flex justify-between">
-                  <span class="text-base">Giá tiền:</span>
-                  <span class="text-base font-medium">{{ formatPrice(originalTotalPrice) }}</span>
-                </div>
-                <div class="flex justify-between text-secondary">
-                  <span class="text-base">Khuyến mãi:</span>
-                  <span class="text-base font-medium">- {{ formatPrice(discount) }}</span>
-                </div>
-                <div class="flex justify-between text-secondary">
-                  <span class="text-base">Hoa hồng gián tiếp:</span>
-                  <span class="text-base font-medium">- {{ formatPrice(indirectCommission) }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <UCheckbox
-                      id="direct-commission"
-                      v-model="useDirectCommission"
-                      :ui="{
-                        base: 'size-4',
-                        indicator: 'size-4'
-                      }"
-                    />
-                    <label
-                      for="direct-commission"
-                      class="text-base cursor-pointer"
-                    >Hoa hồng trực tiếp:</label>
-                  </div>
-                  <span class="text-base font-medium text-secondary">- {{ formatPrice(directCommission) }}</span>
-                </div>
-              </div>
-
-              <div class="space-y-3">
-                <div class="flex gap-2">
-                  <UInput
-                    v-model="promoCode"
-                    placeholder="Mã giảm giá"
-                    class="flex-1"
-                  />
-                  <UButton
-                    color="primary"
-                    @click="applyPromoCode"
-                  >
-                    Áp dụng
-                  </UButton>
-                </div>
-              </div>
-
-              <USeparator />
-
-              <div class="flex justify-between items-center">
-                <span class="text-lg font-semibold">Tổng thanh toán:</span>
-                <span class="text-2xl font-bold text-primary">{{ formatPrice(finalTotal) }}</span>
-              </div>
-
-              <div class="space-y-4">
-                <div>
-                  <p class="text-base font-medium mb-3">
-                    Phương thức thanh toán
-                  </p>
-                  <div class="space-y-2">
-                    <button
-                      :class="[
-                        'w-full flex items-center justify-between p-3 rounded-md border transition-colors cursor-pointer',
-                        paymentMethod === 'onepay' ? 'border-primary bg-primary-50' : 'border-neutral-300 hover:border-primary'
-                      ]"
-                      @click="paymentMethod = 'onepay'"
-                    >
-                      <div class="flex items-center gap-2">
-                        <div
-                          :class="[
-                            'size-4 rounded-full border-2 flex items-center justify-center',
-                            paymentMethod === 'onepay' ? 'border-primary' : 'border-neutral-400'
-                          ]"
-                        >
-                          <div
-                            v-if="paymentMethod === 'onepay'"
-                            class="size-2 rounded-full bg-primary"
-                          />
-                        </div>
-                        <span class="text-base">Onepay</span>
-                      </div>
-                      <span
-                        v-if="paymentMethod === 'onepay'"
-                        class="text-sm text-neutral-500"
-                      >Mặc định</span>
-                    </button>
-                    <button
-                      :class="[
-                        'w-full flex items-center justify-between p-3 rounded-md border transition-colors cursor-pointer',
-                        paymentMethod === 'qr' ? 'border-primary bg-primary-50' : 'border-neutral-300 hover:border-primary'
-                      ]"
-                      @click="paymentMethod = 'qr'"
-                    >
-                      <div class="flex items-center gap-2">
-                        <div
-                          :class="[
-                            'size-4 rounded-full border-2 flex items-center justify-center',
-                            paymentMethod === 'qr' ? 'border-primary' : 'border-neutral-400'
-                          ]"
-                        >
-                          <div
-                            v-if="paymentMethod === 'qr'"
-                            class="size-2 rounded-full bg-primary"
-                          />
-                        </div>
-                        <span class="text-base">Thanh toán mã QR</span>
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                <UCheckbox
-                  v-model="requestVATInvoice"
-                  label="Yêu cầu xuất hóa đơn VAT"
-                  :ui="{
-                    base: 'size-4',
-                    indicator: 'size-4',
-                    label: 'cursor-pointer'
-                  }"
-                />
-              </div>
-
-              <UButton
-                color="primary"
-                size="lg"
-                block
-                class="h-14 text-base font-semibold"
-                :disabled="selectedItems.length === 0"
-                @click="handleCheckout(selectedItems)"
-              >
-                Tiến hành thanh toán
-              </UButton>
-            </div>
-          </div>
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_25rem] gap-6">
+        <div class="min-w-0">
+          <SkeletonCart v-if="isLoading" />
+          <SharedCart
+            v-else
+            :items="cartItems"
+            :is-profile-cart="false"
+            :final-total="finalTotal"
+            @update:items="cartItems = $event"
+            @checkout="handleCheckout"
+          />
         </div>
 
-        <div class="space-y-6">
-          <Heading
-            variant="h3"
+        <div class="lg:sticky lg:top-28 h-fit w-full max-w-[95%] mx-auto lg:w-auto lg:max-w-100 lg:mx-0">
+          <SkeletonPaymentInfo v-if="isLoading" />
+          <div
+            v-else
+            class="bg-white rounded-sm p-6 px-3 space-y-6"
           >
-            Khoá học thường được mua kèm
-          </Heading>
-
-          <div class="relative">
-            <div
-              ref="carouselRef"
+            <Heading
+              variant="h5"
             >
-              <UCarousel
-                v-slot="{ item }"
-                auto-height
-                arrows
-                :prev="{
-                  icon: 'i-lucide-chevron-left',
-                  color: 'primary',
-                  variant: 'solid'
-                }"
-                :next="{
-                  icon: 'i-lucide-chevron-right',
-                  color: 'primary',
-                  variant: 'solid'
-                }"
-                :items="recommendedCourses"
-                :ui="{
-                  item: 'lg:basis-1/4',
-                  controls: 'absolute -top-6 right-12'
-                }"
-                class="w-full mx-auto"
-              >
-                <CourseCard
-                  :key="item.id"
-                  :title="item.title"
-                  :duration="item.duration"
-                  :price="item.price"
-                  :image="item.image"
-                  class="my-4"
-                />
-              </UCarousel>
+              Thông tin thanh toán
+            </Heading>
+
+            <div class="space-y-3">
+              <div class="flex justify-between">
+                <span class="text-lg">Giá tiền:</span>
+                <span class="text-lg font-bold">{{ formatPrice(originalTotalPrice) }}</span>
+              </div>
+              <div class="flex justify-between text-secondary">
+                <span class="text-lg">Khuyến mãi:</span>
+                <span class="text-lg font-medium">- {{ formatPrice(discount) }}</span>
+              </div>
+              <div class="flex justify-between text-secondary">
+                <span class="text-lg">Hoa hồng gián tiếp:</span>
+                <span class="text-lg font-medium">- {{ formatPrice(indirectCommission) }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UCheckbox
+                    id="direct-commission"
+                    v-model="useDirectCommission"
+                    :ui="{
+                      base: 'size-4',
+                      indicator: 'size-4'
+                    }"
+                  />
+                  <label
+                    for="direct-commission"
+                    class="text-lg cursor-pointer"
+                  >Hoa hồng trực tiếp:</label>
+                </div>
+                <span class="text-lg font-medium text-secondary">- {{ formatPrice(directCommission) }}</span>
+              </div>
             </div>
+
+            <div class="space-y-3">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">Mã giảm giá</span>
+              </div>
+              <div class="flex gap-2">
+                <UInput
+                  v-model="promoCode"
+                  placeholder="Mã giảm giá"
+                  class="flex-1 h-12 text-base"
+                >
+                  <template #leading>
+                    <DiscountTagIcon class="size-5" />
+                  </template>
+                </UInput>
+                <UButton
+                  class="text-base bg-button-gradient"
+                  color="primary"
+                  @click="applyPromoCode"
+                >
+                  Áp dụng
+                </UButton>
+              </div>
+            </div>
+
+            <USeparator />
+
+            <div class="flex justify-between items-center">
+              <span class="text-lg">Tổng thanh toán:</span>
+              <span class="text-2xl font-bold text-secondary">{{ formatPrice(finalTotal) }}</span>
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <p class="text-lg mb-3 font-semibold">
+                  Phương thức thanh toán
+                </p>
+                <div class="space-y-2">
+                  <button
+                    :class="[
+                      'w-full flex items-center justify-between p-3 rounded-md border transition-colors cursor-pointer',
+                      paymentMethod === 'qr' ? 'border-primary bg-primary-50' : 'border-neutral-300 hover:border-primary'
+                    ]"
+                    @click="paymentMethod = 'qr'"
+                  >
+                    <div class="flex items-center gap-2">
+                      <ScanIcon class="size-5" />
+                      <span class="text-base font-semibold">Thanh toán mã QR</span>
+                    </div>
+                    <div
+                      :class="[
+                        'size-4 rounded-full border-2 flex items-center justify-center',
+                        paymentMethod === 'qr' ? 'border-primary' : 'border-neutral-400'
+                      ]"
+                    >
+                      <div
+                        v-if="paymentMethod === 'qr'"
+                        class="size-2 rounded-full bg-primary"
+                      />
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <UCheckbox
+                v-model="requestVATInvoice"
+                label="Yêu cầu xuất hóa đơn VAT"
+                :ui="{
+                  base: 'size-6',
+                  indicator: 'size-6',
+                  label: 'cursor-pointer font-semibold',
+                  wrapper: 'semibold text-lg font-semibold',
+                  root: 'items-center'
+                }"
+              />
+            </div>
+
+            <UButton
+              color="primary"
+              size="lg"
+              block
+              class="h-14 text-base font-semibold bg-button-gradient"
+              :disabled="selectedItems.length === 0"
+              @click="handleCheckout"
+            >
+              Tiến hành thanh toán
+            </UButton>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <Heading
+          variant="h3"
+          class="mb-2"
+        >
+          Khoá học thường được mua kèm
+        </Heading>
+
+        <div class="relative">
+          <div
+            v-if="isLoading"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            <div
+              v-for="i in 4"
+              :key="i"
+              class="space-y-3"
+            >
+              <USkeleton class="w-full h-48 rounded-lg" />
+              <USkeleton class="h-6 w-full" />
+              <USkeleton class="h-5 w-2/3" />
+              <USkeleton class="h-6 w-1/2" />
+            </div>
+          </div>
+          <div
+            v-else
+            ref="carouselRef"
+          >
+            <UCarousel
+              v-slot="{ item }"
+              auto-height
+              arrows
+              :prev="{
+                icon: 'i-lucide-chevron-left',
+                color: 'primary',
+                variant: 'solid'
+              }"
+              :next="{
+                icon: 'i-lucide-chevron-right',
+                color: 'primary',
+                variant: 'solid'
+              }"
+              :items="recommendedCourses"
+              :ui="{
+                item: 'lg:basis-1/4',
+                controls: 'md:absolute md:-top-6 md:right-12'
+              }"
+              class="w-full mx-auto"
+            >
+              <CourseCard
+                :key="item.id"
+                :title="item.title"
+                :duration="item.duration"
+                :price="item.price"
+                :image="item.image"
+                class="my-4"
+              />
+            </UCarousel>
           </div>
         </div>
       </div>
     </div>
+
+    <SharedPaymentModal
+      v-model="checkoutModalOpen"
+      :payment-amount="finalTotal"
+      :payment-content="paymentContent"
+      :bank-account="bankAccount"
+      :bank-name="bankName"
+      :account-holder="accountHolder"
+      :qr-code-url="qrCodeUrl"
+    />
   </UContainer>
 </template>

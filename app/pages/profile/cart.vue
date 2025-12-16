@@ -78,7 +78,7 @@ function handleCheckout(items: CartItem[]) {
   <div class="space-y-6">
     <UBreadcrumb
       :items="items"
-      class="md:hidden"
+      class="md:hidden mb-0"
     />
     <Heading
       variant="h3"
@@ -91,6 +91,7 @@ function handleCheckout(items: CartItem[]) {
     <SharedCart
       v-else
       :items="cartItems"
+      :is-profile-cart="true"
       @update:items="cartItems = $event"
       @checkout="handleCheckout"
     />

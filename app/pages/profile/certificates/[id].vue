@@ -55,7 +55,7 @@ onMounted(async () => {
   <div class="space-y-6">
     <UBreadcrumb
       :items="items"
-      class="md:hidden"
+      class="md:hidden mb-0"
     />
     <Heading
       variant="h3"
