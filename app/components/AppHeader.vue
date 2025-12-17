@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CartIcon from '~/assets/icons/cart.svg'
 import UserIcon from '~/assets/icons/user.svg'
+import { profileMenuItems } from '~/utils/constants'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -62,32 +63,14 @@ const userMenuItems = computed(() => [
 
 const isProfileMenuOpen = ref(false)
 
-const profileSubMenuItems = [
-  {
-    label: 'Thông tin cá nhân',
-    to: '/profile'
-  },
-  {
-    label: 'Thông báo',
-    to: '/profile/notifications'
-  },
-  {
-    label: 'Giỏ hàng',
-    to: '/carts'
-  },
-  {
-    label: 'Chứng nhận của bạn',
-    to: '/profile/certificates'
-  },
-  {
-    label: 'Khoá học đã mua',
-    to: '/profile/courses'
-  },
-  {
-    label: 'Lộ trình học tập',
-    to: '/profile/learning-paths'
-  }
-]
+const profileMenuLinks = computed(() =>
+  profileMenuItems
+    .filter(item => item.to)
+    .map(item => ({
+      ...item,
+      to: item.to as string
+    }))
+)
 
 const userLastName = computed(() => {
   if (!user.value?.name) return ''
@@ -242,35 +225,53 @@ const cartCount = ref(2)
         </template>
       </div>
 
-      <div
+      <UCollapsible
         v-if="isLoggedIn"
-        class="space-y-2"
+        class=""
       >
-        <button
-          class="w-full flex items-center justify-between text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
-          @click="isProfileMenuOpen = !isProfileMenuOpen"
-        >
-          <span>Hồ sơ</span>
-          <UIcon
-            :name="isProfileMenuOpen ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
-            class="w-4 h-4 transition-transform"
-          />
-        </button>
-        <div
-          v-show="isProfileMenuOpen"
-          class="pl-4 mt-2 space-y-2"
-        >
-          <NuxtLink
-            v-for="subItem in profileSubMenuItems"
-            :key="subItem.to"
-            :to="subItem.to"
-            class="block text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
-            :class="{ 'text-primary': route.path === subItem.to || (subItem.to !== '/profile' && route.path.startsWith(subItem.to)) }"
+        <UButton
+          class="text-base font-medium uppercase px-2 w-full group"
+          label="Hồ sơ"
+          color="neutral"
+          variant="ghost"
+          trailing-icon="i-lucide-chevron-down"
+          :ui="{
+            trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200'
+          }"
+          block
+        />
+
+        <!-- <template #trigger="{ toggle }">
+          <button
+            class="w-full flex items-center justify-between text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+            @click="toggle"
           >
-            {{ subItem.label }}
-          </NuxtLink>
-        </div>
-      </div>
+            <span>Hồ sơ</span>
+            <UIcon
+              :name="isProfileMenuOpen ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+              class="w-4 h-4 transition-transform"
+            />
+          </button>
+        </template> -->
+        <template #content>
+          <div class="pl-4 mt-2 space-y-2">
+            <NuxtLink
+              v-for="subItem in profileMenuLinks"
+              :key="String(subItem.to)"
+              :to="subItem.to as string"
+              class="flex items-center gap-2 text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+              :class="{ 'text-primary': route.path === subItem.to || (subItem.to !== '/profile' && route.path.startsWith(subItem.to)) }"
+            >
+              <UIcon
+                v-if="subItem.icon && typeof subItem.icon === 'string'"
+                :name="subItem.icon"
+                class="w-4 h-4 text-current"
+              />
+              {{ subItem.label }}
+            </NuxtLink>
+          </div>
+        </template>
+      </UCollapsible>
 
       <template v-if="isLoggedIn">
         <UButton

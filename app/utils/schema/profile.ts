@@ -2,6 +2,7 @@ import * as z from 'zod'
 
 export const profileSchema = z.object({
   goal: z.string().optional(),
+  shortDescription: z.string().optional(),
   fullName: z.string().min(1, 'Họ và tên là bắt buộc'),
   dateOfBirth: z.string().optional(),
   gender: z.nativeEnum(Gender).optional(),

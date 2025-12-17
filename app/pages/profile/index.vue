@@ -41,7 +41,7 @@ const toast = useToast()
 
 const profileForm = reactive<ProfileSchema>({
   goal: 'Nâng cao kiến thức về AI trong Y tế và ứng dụng vào thực tế',
-  fullName: 'Vũ Hữu Đồng',
+  fullName: 'Vũ Quang Khải',
   dateOfBirth: '15/05/1996',
   gender: Gender.Male,
   phone: '0901234567',
@@ -53,6 +53,19 @@ const profileForm = reactive<ProfileSchema>({
 })
 
 const avatar = ref('https://api.dicebear.com/7.x/avataaars/svg?seed=John')
+const avatarInput = ref<HTMLInputElement | null>(null)
+
+function triggerAvatarSelect() {
+  avatarInput.value?.click()
+}
+
+function handleAvatarChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    avatar.value = URL.createObjectURL(file)
+  }
+}
 
 const toggleEdit = () => {
   isEditing.value = !isEditing.value
@@ -146,20 +159,48 @@ async function onChangePassword(
       </div>
 
       <div class="space-y-6">
-        <div class="flex items-center gap-6">
-          <UAvatar
-            :src="avatar"
-            size="xl"
-          />
-          <div>
-            <h2 class="text-xl font-semibold">
-              {{ profileForm.fullName }}
-            </h2>
-            <p class="text-gray-500">
-              {{ profileForm.email }}
-            </p>
-          </div>
-        </div>
+        <UUser class="items-center gap-6">
+          <template #avatar>
+            <div class="relative">
+              <UAvatar
+                :src="avatar"
+                class="size-22"
+              />
+              <UButton
+                color="primary"
+                size="sm"
+                class="absolute bottom-0 right-0 px-1 rounded-full size-8 shrink-0"
+                @click="triggerAvatarSelect"
+              >
+                <UIcon
+                  name="i-lucide-camera"
+                  class="size-6 shrink-0"
+                />
+              </UButton>
+              <input
+                ref="avatarInput"
+                type="file"
+                accept="image/*"
+                class="hidden"
+                @change="handleAvatarChange"
+              >
+            </div>
+          </template>
+          <template #description>
+            <div class="flex flex-col gap-1">
+              <p class="text-lg font-bold text-default">
+                {{ profileForm.fullName }}
+              </p>
+              <div class="flex items-center gap-2">
+                <UIcon
+                  name="i-lucide-target"
+                  class="w-6 h-6 text-primary"
+                />
+                <span class="line-clamp-2">{{ profileForm.goal }}</span>
+              </div>
+            </div>
+          </template>
+        </UUser>
 
         <UForm
           :schema="profileSchema"
