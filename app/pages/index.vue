@@ -12,5 +12,6 @@ useSeoMeta({
     <HomeBanner />
     <HomeTranningProgram />
     <HomeAchievementsAchieved />
+    <HomeScientificCouncil />
   </main>
 </template>
