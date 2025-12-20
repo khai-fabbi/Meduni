@@ -4,11 +4,12 @@ import { motion } from 'motion-v'
 import LessonInfo from '~/components/lesson/LessonInfo.vue'
 import LessonTabs from '~/components/lesson/LessonTabs.vue'
 import LessonTableOfContents from '~/components/lesson/LessonTableOfContents.vue'
+import type { LessonResourceLink } from '~/components/shared/LessonResources.vue'
 
 const route = useRoute()
 const pathParts = route.path.split('/').filter(Boolean)
-const courseId = pathParts[1] || '1'
-const lessonId = pathParts[3] || route.params.id
+const courseId = computed(() => String(route.params.id || pathParts[1] || '1'))
+const lessonId = computed(() => String(route.params.lessonid || pathParts[3] || route.params.id || '1'))
 
 interface Lesson {
   id: number
@@ -18,6 +19,9 @@ interface Lesson {
   content: string
   summary: string
   keywords: string[]
+  statusText?: string
+  document?: LessonResourceLink
+  quiz?: LessonResourceLink
 }
 
 interface Chapter {
@@ -60,7 +64,7 @@ const courseInfo = ref({
   courseTitle: 'Ứng dụng AI Chìa khóa kinh doanh bứt phá'
 })
 
-const chapters: Chapter[] = [
+const chapters = computed<Chapter[]>(() => [
   {
     id: 1,
     title: 'Chào mừng',
@@ -196,7 +200,21 @@ const chapters: Chapter[] = [
         videoUrl: '',
         keywords: [],
         content: '',
-        summary: ''
+        summary: '',
+        statusText: '7 phút',
+        document: {
+          id: 'doc-11-1',
+          title: 'Xem tài liệu tham khảo',
+          documentUrl: 'https://example.com/document-11',
+          done: false,
+          icon: 'i-lucide-message-square-text'
+        },
+        quiz: {
+          id: 'quiz-11-1',
+          title: 'Làm bài tập: Quiz 1 (10/10)',
+          to: `/khoa-hoc/${courseId.value}/bai-hoc/11/quiz`,
+          done: true
+        }
       },
       {
         id: 12,
@@ -205,11 +223,25 @@ const chapters: Chapter[] = [
         videoUrl: '',
         keywords: [],
         content: '',
-        summary: ''
+        summary: '',
+        statusText: 'Đang phát • Còn 5 phút',
+        document: {
+          id: 'doc-12-1',
+          title: 'Xem tài liệu tham khảo',
+          documentUrl: 'https://example.com/document-12',
+          done: false,
+          icon: 'i-lucide-message-square-text'
+        },
+        quiz: {
+          id: 'quiz-12-1',
+          title: 'Làm bài tập: Quiz 2',
+          to: `/khoa-hoc/${courseId.value}/bai-hoc/12/quiz`,
+          done: false
+        }
       }
     ]
   }
-]
+])
 
 const title = computed(() => `${currentLesson.value.title} - MedUni.ai`)
 
@@ -239,9 +271,9 @@ useSeoMeta({
         </motion.div>
 
         <motion.div
-          :initial="{ opacity: 0, y: 20 }"
-          :animate="{ opacity: 1, y: 0 }"
-          :transition="{ duration: 0.5, delay: 0.1 }"
+          :initial="{ opacity: 0, x: -100 }"
+          :animate="{ opacity: 1, x: 0 }"
+          :transition="{ duration: 0.3, ease: 'easeOut', delay: 0.1 }"
           class="mt-6"
         >
           <LessonInfo
@@ -254,9 +286,9 @@ useSeoMeta({
         </motion.div>
 
         <motion.div
-          :initial="{ opacity: 0, y: 20 }"
-          :animate="{ opacity: 1, y: 0 }"
-          :transition="{ duration: 0.5, delay: 0.2 }"
+          :initial="{ opacity: 0, x: -100 }"
+          :animate="{ opacity: 1, x: 0 }"
+          :transition="{ duration: 0.3, ease: 'easeOut', delay: 0.2 }"
           class="mt-3"
         >
           <LessonTabs
@@ -266,11 +298,17 @@ useSeoMeta({
         </motion.div>
       </div>
 
-      <LessonTableOfContents
-        :chapters="chapters"
-        :course-id="courseId"
-        :current-lesson-id="currentLesson.id"
-      />
+      <motion.div
+        :initial="{ opacity: 0, x: -100 }"
+        :animate="{ opacity: 1, x: 0 }"
+        :transition="{ duration: 0.3, ease: 'easeOut', delay: 0.1 }"
+      >
+        <LessonTableOfContents
+          :chapters="chapters"
+          :course-id="courseId"
+          :current-lesson-id="currentLesson.id"
+        />
+      </motion.div>
     </div>
   </UContainer>
 </template>

@@ -26,10 +26,17 @@ useSeoMeta({
 
 const { data: navigation } = await useAsyncData(
   'navigation',
-  () => queryCollectionNavigation('docs'),
+  async () => {
+    try {
+      const data = await queryCollectionNavigation('docs')
+      return data.find(item => item.path === '/docs')?.children || []
+    } catch (error) {
+      console.warn('Failed to load navigation:', error)
+      return []
+    }
+  },
   {
-    transform: data =>
-      data.find(item => item.path === '/docs')?.children || []
+    default: () => []
   }
 )
 

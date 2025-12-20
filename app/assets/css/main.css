@@ -126,3 +126,32 @@ body {
 .bg-button-gradient {
   background: linear-gradient(180deg, #1B8FF3 0%, #0064BA 100%);
 }
+
+.bg-learning-done {
+  background: #D9F6E8;
+}
+
+.text-dot-gray {
+  color: #D9D9D9;
+}
+
+.bg-submit-button-gradient {
+  background: linear-gradient(180deg, #1B8FF3 0%, #1B8FF3 100%),
+    linear-gradient(180deg, #1B8FF3 0%, #0064BA 100%);
+}
+
+.border-answer-correct {
+  border-color: #109B76;
+}
+
+.bg-answer-correct {
+  background-color: #D9F6E8;
+}
+
+.border-answer-incorrect {
+  border-color: #ED2649;
+}
+
+.bg-answer-incorrect {
+  background-color: #FEE2E2;
+}
