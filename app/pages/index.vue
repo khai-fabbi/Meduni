@@ -13,5 +13,7 @@ useSeoMeta({
     <HomeTranningProgram />
     <HomeAchievementsAchieved />
     <HomeScientificCouncil />
+    <HomeLearnWithGlobalExperts />
+    <HomePopularCourses />
   </main>
 </template>

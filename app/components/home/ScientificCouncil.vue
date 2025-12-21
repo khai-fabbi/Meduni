@@ -75,7 +75,7 @@ const scientificCouncilMembers = [
         prev: 'sm:start-6 2xl:-start-5',
         next: 'sm:end-6 2xl:-end-5',
         dots: 'absolute bottom-[calc(100%+10px)] justify-end',
-        dot: 'w-6 h-2 bg-neutral-300 data-[state=active]:bg-primary data-[state=active]:w-14 transition-all'
+        dot: 'w-6 h-2 bg-neutral-300 data-[state=active]:bg-primary data-[state=active]:w-13 transition-all'
       }"
       dots
     >
