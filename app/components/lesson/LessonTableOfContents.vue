@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import type { AccordionItem } from '@nuxt/ui'
 import ChapterIcon from '~/assets/icons/chapter.svg'
+import LessonResources, { type LessonResourceLink } from '~/components/shared/LessonResources.vue'
+import LearningDoneIcon from '~/assets/icons/learning_done.svg'
 
 interface Lesson {
   id: number
   title: string
   duration: string
+  statusText?: string
+  document?: LessonResourceLink
+  quiz?: LessonResourceLink
 }
 
 interface Chapter {
@@ -73,29 +78,64 @@ const progress = 50
     >
       <template #content="{ item }">
         <ul class="space-y-1">
-          <li
+          <template
             v-for="lesson in item.lessons"
             :key="lesson.id"
           >
-            <NuxtLink
-              :to="`/khoa-hoc/${courseId}/bai-hoc/${lesson.id}`"
+            <li
               :class="[
-                'flex rounded-sm items-center gap-4 min-h-14 md:min-h-15 px-3 md:px-5 hover:bg-primary-50 hover:text-primary transition-colors',
-                lesson.id === currentLessonId ? 'bg-primary-50 text-primary' : ''
+                lesson.quiz?.done
+                  ? 'bg-learning-done'
+                  : lesson.id === currentLessonId
+                    ? 'bg-sky-100'
+                    : ''
               ]"
             >
-              <UIcon
-                :name="lesson.id === currentLessonId ? 'i-lucide-circle-pause' : 'i-lucide-circle-play'"
-                class="size-5 animate-stroke-draw"
-              />
-              <span class="text-base md:text-lg flex-1 font-medium line-clamp-1">
-                {{ lesson.title }}
-              </span>
-              <span class="text-sm md:text-base font-semibold text-neutral-600">
-                {{ lesson.duration }}
-              </span>
-            </NuxtLink>
-          </li>
+              <NuxtLink
+                :to="`/khoa-hoc/${courseId}/bai-hoc/${lesson.id}`"
+                :class="[
+                  'flex rounded-sm items-center gap-4 min-h-14 md:min-h-15 px-3 md:px-5 hover:bg-primary-50 hover:text-primary transition-colors',
+                  lesson.quiz?.done ? 'bg-learning-done hover:bg-learning-done' : (lesson.id === currentLessonId ? 'bg-sky-100' : '')
+                ]"
+              >
+                <div
+                  v-if="lesson.quiz?.done"
+                  class="size-5"
+                >
+                  <LearningDoneIcon />
+                </div>
+                <div
+                  v-else-if="lesson.id === currentLessonId"
+                  class="size-5 animate-stroke-draw"
+                >
+                  <UIcon name="i-lucide-circle-pause" />
+                </div>
+                <div
+                  v-else
+                  class="size-5 text-primary"
+                >
+                  <UIcon name="i-lucide-circle-play" />
+                </div>
+                <span class="text-base md:text-lg flex-1 font-medium line-clamp-1">
+                  {{ lesson.title }}
+                </span>
+                <span class="text-sm md:text-base font-semibold text-neutral-600">
+                  {{ lesson.duration }}
+                </span>
+              </NuxtLink>
+
+              <div
+                v-if="lesson.document || lesson.quiz"
+                class="px-3 md:px-5 pt-2"
+              >
+                <LessonResources
+                  :document="lesson.document"
+                  :quiz="lesson.quiz"
+                  :is-active="lesson.id === currentLessonId"
+                />
+              </div>
+            </li>
+          </template>
         </ul>
       </template>
     </UAccordion>
