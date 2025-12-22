@@ -15,5 +15,6 @@ useSeoMeta({
     <HomeScientificCouncil />
     <HomeLearnWithGlobalExperts />
     <HomePopularCourses />
+    <HomeContact />
   </main>
 </template>

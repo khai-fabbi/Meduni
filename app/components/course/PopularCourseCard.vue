@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ShoppingCartCheckIn from '~/assets/icons/shopping-cart-check-in.svg'
+
 interface Props {
   title: string
   duration: string
@@ -16,7 +18,7 @@ const formatPrice = (price: number) => {
 </script>
 
 <template>
-  <div class="bg-white h-full rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:shadow-secondary/15 transition-all duration-300 group flex flex-col">
+  <article class="bg-white h-full rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:shadow-secondary/15 transition-all duration-300 group flex flex-col">
     <NuxtLink
       :to="to ?? '#'"
       class="block"
@@ -68,7 +70,7 @@ const formatPrice = (price: number) => {
       >
         {{ description }}
       </p>
-      <div class="mt-4">
+      <div class="mt-4 flex gap-4">
         <UButton
           :to="to ?? '#'"
           color="primary"
@@ -78,7 +80,16 @@ const formatPrice = (price: number) => {
         >
           Mua ngay
         </UButton>
+        <UButton
+          variant="outline"
+          color="secondary"
+          size="xl"
+          class="shrink-0 size-15 rounded-full"
+          block
+        >
+          <ShoppingCartCheckIn class="size-6" />
+        </UButton>
       </div>
     </div>
-  </div>
+  </article>
 </template>
