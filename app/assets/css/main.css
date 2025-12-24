@@ -47,6 +47,7 @@
   --color-primary-light: #1659a51a;
   --color-progress-inner: #d0e6ff;
   --color-line-gray: #DFDFE0;
+  --color-text-partner: #003BC4;
 }
 
 :root {
@@ -154,4 +155,12 @@ body {
 
 .bg-answer-incorrect {
   background-color: #FEE2E2;
+}
+
+.text-color-text-partner {
+  color: var(--color-text-partner);
+}
+
+.shadow-partner-item {
+  box-shadow: 0px 4px 8px 0px #00144514;
 }

@@ -7,9 +7,16 @@ interface Props {
   date: string
   image: string
   to?: string
+  withPaddingX?: boolean
+  withRounded?: boolean
+  withColorText?: boolean
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  withPaddingX: false,
+  withRounded: false,
+  withColorText: true
+})
 </script>
 
 <template>
@@ -17,7 +24,10 @@ defineProps<Props>()
     :to="to ?? '#'"
     class="h-full overflow-hidden hover:shadow-secondary/15 transition-all duration-300 cursor-pointer group block"
   >
-    <div class="overflow-hidden w-full aspect-video rounded-lg">
+    <div
+      class="overflow-hidden w-full aspect-video"
+      :class="{ 'rounded-t-lg': props.withRounded, 'rounded-lg': !props.withRounded }"
+    >
       <NuxtImg
         :src="image"
         :alt="title"
@@ -27,7 +37,10 @@ defineProps<Props>()
       />
     </div>
 
-    <div class="flex flex-col gap-1 py-2">
+    <div
+      class="flex flex-col gap-1 py-4"
+      :class="{ 'px-4': props.withPaddingX }"
+    >
       <div class="flex items-center gap-2 text-sm text-secondary">
         <CalendarIcon class="size-5" />
 
@@ -35,14 +48,17 @@ defineProps<Props>()
       </div>
 
       <Heading
-        variant="h6"
-        as="h6"
+        variant="h5"
+        as="h5"
         class="flex-1 font-semibold min-h-11 md:min-h-12.5 line-clamp-2 group-hover:text-secondary transition-colors"
       >
         {{ title }}
       </Heading>
 
-      <p class="text-base text-neutral-600 line-clamp-3">
+      <p
+        class="text-base line-clamp-3"
+        :class="{ 'text-neutral-600': props.withColorText }"
+      >
         {{ description }}
       </p>
     </div>
