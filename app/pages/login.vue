@@ -43,20 +43,20 @@ const loginItems = [
 const loginType = ref<LoginType>(LoginType.PHONE)
 
 const emailForm = reactive({
-  email: 'test@example.com',
-  password: 'Fabbi@123'
+  email: '',
+  password: ''
 })
 
 const phoneForm = reactive({
-  phone: '033132123',
-  password: 'Fabbi@123'
+  phone: '',
+  password: ''
 })
 
 async function onSubmitEmail(
   payload: FormSubmitEvent<z.output<typeof emailSchema>>
 ) {
   try {
-    await authStore.loginByEmail({
+    await authStore.login({
       email: payload.data.email,
       password: payload.data.password
     })
@@ -68,10 +68,10 @@ async function onSubmitEmail(
     })
 
     await router.push('/')
-  } catch (error) {
+  } catch {
     toast.add({
       title: 'Đăng nhập thất bại',
-      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      description: 'Tài khoản hoặc mật khẩu không đúng',
       color: 'error'
     })
   }
@@ -81,7 +81,7 @@ async function onSubmitPhone(
   payload: FormSubmitEvent<z.output<typeof phoneSchema>>
 ) {
   try {
-    await authStore.loginByPhone({
+    await authStore.login({
       phone: payload.data.phone,
       password: payload.data.password
     })
@@ -93,10 +93,10 @@ async function onSubmitPhone(
     })
 
     await router.push('/')
-  } catch (error) {
+  } catch {
     toast.add({
       title: 'Đăng nhập thất bại',
-      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      description: 'Tài khoản hoặc mật khẩu không đúng',
       color: 'error'
     })
   }
@@ -130,12 +130,13 @@ async function onSubmitPhone(
       variant="link"
       class="w-full gap-4 text-lg"
     >
-      <template #phone="{ item }">
+      <template #phone>
         <UForm
           :schema="phoneSchema"
           :state="phoneForm"
           class="flex flex-col gap-4 flex-1"
           :disabled="authStore.isLoading"
+          autocomplete="off"
           @submit="onSubmitPhone"
         >
           <UFormField
@@ -149,6 +150,7 @@ async function onSubmitPhone(
               placeholder="Nhập số điện thoại của bạn"
               size="xl"
               icon="i-lucide-phone"
+              autocomplete="off"
             />
           </UFormField>
 
@@ -161,6 +163,7 @@ async function onSubmitPhone(
               class="w-full"
               size="xl"
               placeholder="Nhập mật khẩu"
+              autocomplete="off"
             />
           </UFormField>
 
@@ -176,12 +179,13 @@ async function onSubmitPhone(
         </UForm>
       </template>
 
-      <template #email="{ item }">
+      <template #email>
         <UForm
           :schema="emailSchema"
           :state="emailForm"
           class="flex flex-col gap-4 flex-1"
           :disabled="authStore.isLoading"
+          autocomplete="off"
           @submit="onSubmitEmail"
         >
           <UFormField
@@ -194,6 +198,7 @@ async function onSubmitPhone(
               size="xl"
               placeholder="Nhập email của bạn"
               icon="i-lucide-mail"
+              autocomplete="none"
             />
           </UFormField>
           <UFormField
@@ -206,6 +211,7 @@ async function onSubmitPhone(
               size="xl"
               type="password"
               placeholder="Nhập mật khẩu"
+              autocomplete="off"
             />
           </UFormField>
 

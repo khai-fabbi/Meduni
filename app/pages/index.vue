@@ -6,37 +6,28 @@ useSeoMeta({
   description: 'Trang chủ - MedUni.ai'
 })
 
-const isLoading = ref(true)
+const config = useRuntimeConfig()
 
-onMounted(() => {
-  isLoading.value = false
-})
+console.log(config.public.nodeEnv)
 </script>
 
 <template>
   <main>
-    <SkeletonHomeBanner v-if="isLoading" />
-    <HomeBanner v-else />
+    <HomeBanner />
 
-    <SkeletonHomeTranningProgram v-if="isLoading" />
-    <HomeTranningProgram v-else />
+    <HomeTranningProgram />
 
-    <SkeletonHomeAchievementsAchieved v-if="isLoading" />
-    <HomeAchievementsAchieved v-else />
+    <HomeAchievementsAchieved />
 
-    <SkeletonHomeScientificCouncil v-if="isLoading" />
-    <HomeScientificCouncil v-else />
+    <HomeScientificCouncil />
+    <HomeLearnWithGlobalExperts />
 
-    <SkeletonHomeLearnWithGlobalExperts v-if="isLoading" />
-    <HomeLearnWithGlobalExperts v-else />
+    <!-- <SkeletonHomePopularCourses /> -->
+    <HomePopularCourses />
 
-    <SkeletonHomePopularCourses v-if="isLoading" />
-    <HomePopularCourses v-else />
+    <HomeContact />
 
-    <SkeletonHomeContact v-if="isLoading" />
-    <HomeContact v-else />
-
-    <SkeletonHomeNews v-if="isLoading" />
-    <HomeNews v-else />
+    <!-- <SkeletonHomeNews  /> -->
+    <HomeNews />
   </main>
 </template>

@@ -1,5 +1,9 @@
+import { authService } from './auth'
 import { contactService } from './contact'
+import { newsService } from './news'
 
 export const services = {
-  contact: contactService
+  auth: authService,
+  contact: contactService,
+  news: newsService
 }

@@ -5,7 +5,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
   const toast = useToast()
   const authStore = useAuthStore()
   const config = useRuntimeConfig()
-  const apiBaseUrl = config.public.API_BASE_URL as string
+  const apiBaseUrl = config.public.apiUrl as string
 
   const apiFetcher = $fetch.create({
     baseURL: apiBaseUrl,
@@ -19,14 +19,16 @@ export default defineNuxtPlugin((_nuxtApp) => {
         options.headers.set('Authorization', `Bearer ${authToken}`)
       }
     },
-    async onResponseError({ response }) {
+    async onResponseError({ response, request, options }) {
       switch (response.status) {
         case HttpCode.UNAUTHORIZED:
+
+          console.log('request:', request, options)
           // removeAccessToken()
           if (import.meta.client) {
             authStore.logout()
           }
-          await _nuxtApp.runWithContext(() => navigateTo('/'))
+          // await _nuxtApp.runWithContext(() => navigateTo('/'))
           break
         default:
           break

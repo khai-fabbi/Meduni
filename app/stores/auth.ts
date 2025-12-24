@@ -1,26 +1,23 @@
 import { defineStore } from 'pinia'
+import type { LoginRequest } from '~/types/auth'
+import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '~/utils/auth'
+import { authService } from '~/services/auth'
 
 interface User {
-  id: string
-  email?: string
-  phone?: string
-  name?: string
-}
-
-interface LoginByEmailPayload {
+  userId: string
+  user_name: string
   email: string
-  password: string
-}
-
-interface LoginByPhonePayload {
-  phone: string
-  password: string
+  phone?: string
+  avatar?: string
+  total_cart?: string
+  total_notification?: string
 }
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
-    token: null as string | null,
+    accessToken: null as string | null,
+    refreshToken: null as string | null,
     isAuthenticated: false,
     isLoading: false
   }),
@@ -30,97 +27,87 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    async loginByEmail(payload: LoginByEmailPayload) {
+    /**
+     * Login với email hoặc phone
+     */
+    async login(payload: LoginRequest) {
       this.isLoading = true
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        const response = await authService.login(payload)
+        const loginData = response.data
 
-        const mockUser: User = {
-          id: '1',
-          email: payload.email,
-          name: 'User Name'
+        // Lưu user profile
+        const user: User = {
+          userId: loginData.userId,
+          user_name: loginData.user_name,
+          email: loginData.email,
+          total_cart: loginData.total_cart,
+          total_notification: loginData.total_notification
         }
 
-        const mockToken = 'mock-jwt-token-' + Date.now()
+        // Lưu tokens vào cookie
+        const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY, {
+          secure: true,
+          sameSite: 'strict'
+        })
+        const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY, {
+          secure: true,
+          sameSite: 'strict'
+        })
 
-        this.user = mockUser
-        this.token = mockToken
+        accessTokenCookie.value = loginData.accessToken
+        refreshTokenCookie.value = loginData.refreshToken
+
+        // Cập nhật state
+        this.user = user
+        this.accessToken = loginData.accessToken
+        this.refreshToken = loginData.refreshToken
         this.isAuthenticated = true
 
-        if (import.meta.client) {
-          localStorage.setItem('auth_token', mockToken)
-          localStorage.setItem('user', JSON.stringify(mockUser))
-        }
-
-        return { success: true, user: mockUser }
+        return { success: true, user }
       } catch (error) {
         this.isAuthenticated = false
         this.user = null
-        this.token = null
+        this.accessToken = null
+        this.refreshToken = null
         throw error
       } finally {
         this.isLoading = false
       }
     },
 
-    async loginByPhone(payload: LoginByPhonePayload) {
-      this.isLoading = true
+    async logout() {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000))
-
-        const mockUser: User = {
-          id: '1',
-          phone: payload.phone,
-          name: 'User Name'
+        if (this.accessToken) {
+          await authService.logout()
         }
-
-        const mockToken = 'mock-jwt-token-' + Date.now()
-
-        this.user = mockUser
-        this.token = mockToken
-        this.isAuthenticated = true
-
-        if (import.meta.client) {
-          localStorage.setItem('auth_token', mockToken)
-          localStorage.setItem('user', JSON.stringify(mockUser))
-        }
-
-        return { success: true, user: mockUser }
       } catch (error) {
-        this.isAuthenticated = false
-        this.user = null
-        this.token = null
-        throw error
+        console.error('Logout error:', error)
       } finally {
-        this.isLoading = false
-      }
-    },
+        // Clear state
+        this.user = null
+        this.accessToken = null
+        this.refreshToken = null
+        this.isAuthenticated = false
 
-    logout() {
-      this.user = null
-      this.token = null
-      this.isAuthenticated = false
-
-      if (import.meta.client) {
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('user')
+        // Clear cookies
+        const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY)
+        const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY)
+        accessTokenCookie.value = null
+        refreshTokenCookie.value = null
       }
     },
 
     initializeAuth() {
-      if (import.meta.client) {
-        const token = localStorage.getItem('auth_token')
-        const userStr = localStorage.getItem('user')
+      const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY)
+      const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY)
 
-        if (token && userStr) {
-          try {
-            this.token = token
-            this.user = JSON.parse(userStr)
-            this.isAuthenticated = true
-          } catch (error) {
-            this.logout()
-          }
-        }
+      if (accessTokenCookie.value && refreshTokenCookie.value) {
+        this.accessToken = accessTokenCookie.value
+        this.refreshToken = refreshTokenCookie.value
+        // Note: User profile should be fetched from API if needed
+        // For now, we'll keep isAuthenticated as false until user profile is loaded
+        this.isAuthenticated = !!this.accessToken
       }
     }
   }

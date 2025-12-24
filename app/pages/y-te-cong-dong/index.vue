@@ -3,6 +3,7 @@ import type { BreadcrumbItem } from '@nuxt/ui'
 import { motion } from 'motion-v'
 import ArticleCard from '~/components/article/ArticleCard.vue'
 import PopularArticleItem from '~/components/article/PopularArticleItem.vue'
+import { services } from '~/services'
 
 const title = 'Y tế cộng đồng - MedUni.ai'
 const description = 'Khám phá các bài viết về y tế cộng đồng, trí tuệ nhân tạo trong y tế và các chủ đề liên quan.'
@@ -158,6 +159,9 @@ const popularArticles: PopularArticle[] = [
 ]
 
 const currentPage = ref(1)
+const { data: news } = await services.news.getList()
+
+console.log('news:', news.value?.data)
 </script>
 
 <template>

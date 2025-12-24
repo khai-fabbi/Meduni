@@ -20,7 +20,7 @@ export function useApiFetch<T>(
   // Creating default options
   const defaults: UseFetchOptions<T> = {
     // Setting baseURL for plugin interceptors to work
-    baseURL: config.public.API_BASE_URL as string,
+    baseURL: config.public.apiUrl as string,
 
     $fetch: useNuxtApp().$api as typeof $fetch
 

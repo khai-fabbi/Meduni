@@ -32,8 +32,24 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      API_BASE_URL: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
-      NODE_ENV: process.env.NUXT_PUBLIC_NODE_ENV || 'local'
+      // Environment
+      nodeEnv: process.env.NUXT_PUBLIC_NODE_ENV || 'local',
+      // base url
+      apiUrl: process.env.NUXT_PUBLIC_API_ENDPOINT || 'http://localhost:8080',
+      s3Bucket: process.env.NUXT_PUBLIC_S3_BUCKET || 'ai-elearning-user',
+      apiSearchEndpoint: process.env.NUXT_PUBLIC_API_SEARCH_ENDPOINT,
+      awsAppsyncEndpoint: process.env.NUXT_PUBLIC_AWS_APPSYNC_ENDPOINT,
+      awsAppsyncApiKey: process.env.NUXT_PUBLIC_AWS_APPSYNC_APIKEY,
+      appAssetEndpoint: process.env.NUXT_PUBLIC_APP_ASSET_ENDPOINT,
+      appFlagCdn: process.env.NUXT_PUBLIC_APP_FLAG_CDN,
+
+      // Gemini
+      geminiApiKey: process.env.NUXT_PUBLIC_GEMINI_API_KEY,
+      geminiApiUrl: process.env.NUXT_PUBLIC_GEMINI_API_URL,
+
+      // CES Intelligent
+      beCesintelligentUrl: process.env.NUXT_PUBLIC_BE_CESINTELLIGENT_URL,
+      beCesintelligentApiKey: process.env.NUXT_PUBLIC_BE_CESINTELLIGENT_API_KEY
     }
   },
 

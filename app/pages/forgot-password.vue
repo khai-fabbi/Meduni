@@ -1,172 +1,172 @@
 <script setup lang="ts">
-import type { FormSubmitEvent } from "@nuxt/ui";
+import type { FormSubmitEvent, TabsItem } from '@nuxt/ui'
 
-definePageMeta({
-  layout: "auth",
-});
-
-useSeoMeta({
-  title: "Quên mật khẩu",
-  description: "Khôi phục mật khẩu của bạn",
-});
-
-import type { TabsItem } from "@nuxt/ui";
 import {
   forgotPasswordEmailSchema,
   forgotPasswordPhoneSchema,
   type ForgotPasswordEmailSchema,
-  type ForgotPasswordPhoneSchema,
-} from "~/utils/schema/forgot-password";
-const toast = useToast();
+  type ForgotPasswordPhoneSchema
+} from '~/utils/schema/forgot-password'
+
+definePageMeta({
+  layout: 'auth'
+})
+
+useSeoMeta({
+  title: 'Quên mật khẩu',
+  description: 'Khôi phục mật khẩu của bạn'
+})
+
+const toast = useToast()
 
 enum ForgotPasswordType {
-  PHONE = "phone",
-  EMAIL = "email",
+  PHONE = 'phone',
+  EMAIL = 'email'
 }
 
 const loginItems = [
   {
-    label: "Số điện thoại",
+    label: 'Số điện thoại',
     value: ForgotPasswordType.PHONE,
-    icon: "i-lucide-phone",
-    slot: "phone" as const,
+    icon: 'i-lucide-phone',
+    slot: 'phone' as const
   },
   {
-    label: "Email",
+    label: 'Email',
     value: ForgotPasswordType.EMAIL,
-    icon: "i-lucide-mail",
-    slot: "email" as const,
-  },
-] satisfies TabsItem[];
+    icon: 'i-lucide-mail',
+    slot: 'email' as const
+  }
+] satisfies TabsItem[]
 
-const forgotPasswordType = ref<ForgotPasswordType>(ForgotPasswordType.PHONE);
-const isLoading = ref(false);
-const showOTPModal = ref(false);
-const showChangePasswordModal = ref(false);
-const otpVerified = ref(false);
+const forgotPasswordType = ref<ForgotPasswordType>(ForgotPasswordType.PHONE)
+const isLoading = ref(false)
+const showOTPModal = ref(false)
+const showChangePasswordModal = ref(false)
+const otpVerified = ref(false)
 
 const emailForm = reactive({
-  email: "test@example.com",
-});
+  email: 'test@example.com'
+})
 
 const phoneForm = reactive({
-  phone: "0909090909",
-});
+  phone: '0909090909'
+})
 
 async function sendOTP() {
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     toast.add({
-      title: "OTP đã được gửi",
-      description: "Vui lòng kiểm tra email/số điện thoại của bạn",
-      color: "success",
-    });
+      title: 'OTP đã được gửi',
+      description: 'Vui lòng kiểm tra email/số điện thoại của bạn',
+      color: 'success'
+    })
 
-    showOTPModal.value = true;
+    showOTPModal.value = true
   } catch (error) {
     toast.add({
-      title: "Gửi OTP thất bại",
-      description: error instanceof Error ? error.message : "Có lỗi xảy ra",
-      color: "error",
-    });
+      title: 'Gửi OTP thất bại',
+      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      color: 'error'
+    })
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 
 function handleResendOTP() {
-  sendOTP();
+  sendOTP()
 }
 
 async function onSubmitEmail(
-  payload: FormSubmitEvent<ForgotPasswordEmailSchema>,
+  payload: FormSubmitEvent<ForgotPasswordEmailSchema>
 ) {
-  emailForm.email = payload.data.email;
-  await sendOTP();
+  emailForm.email = payload.data.email
+  await sendOTP()
 }
 
 async function onSubmitPhone(
-  payload: FormSubmitEvent<ForgotPasswordPhoneSchema>,
+  payload: FormSubmitEvent<ForgotPasswordPhoneSchema>
 ) {
-  phoneForm.phone = payload.data.phone;
-  await sendOTP();
+  phoneForm.phone = payload.data.phone
+  await sendOTP()
 }
 
 async function onSubmitOTP(payload: FormSubmitEvent<{ otp: number[] }>) {
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-    if (payload.data.otp.join("") === "123456") {
-      otpVerified.value = true;
-      showOTPModal.value = false;
-      showChangePasswordModal.value = true;
+    if (payload.data.otp.join('') === '123456') {
+      otpVerified.value = true
+      showOTPModal.value = false
+      showChangePasswordModal.value = true
 
       toast.add({
-        title: "Xác thực thành công",
-        description: "Vui lòng nhập mật khẩu mới",
-        color: "success",
-      });
+        title: 'Xác thực thành công',
+        description: 'Vui lòng nhập mật khẩu mới',
+        color: 'success'
+      })
     } else {
       toast.add({
-        title: "Mã OTP không đúng",
-        description: "Vui lòng thử lại",
-        color: "error",
-      });
+        title: 'Mã OTP không đúng',
+        description: 'Vui lòng thử lại',
+        color: 'error'
+      })
     }
   } catch (error) {
     toast.add({
-      title: "Xác thực thất bại",
-      description: error instanceof Error ? error.message : "Có lỗi xảy ra",
-      color: "error",
-    });
+      title: 'Xác thực thất bại',
+      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      color: 'error'
+    })
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 
 async function onSubmitChangePassword(
   payload: FormSubmitEvent<{
-    newPassword: string;
-    confirmPassword: string;
-  }>,
+    newPassword: string
+    confirmPassword: string
+  }>
 ) {
-  isLoading.value = true;
+  isLoading.value = true
   try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     toast.add({
-      title: "Đổi mật khẩu thành công",
-      description: "Bạn có thể đăng nhập với mật khẩu mới",
-      color: "success",
-    });
+      title: 'Đổi mật khẩu thành công',
+      description: 'Bạn có thể đăng nhập với mật khẩu mới',
+      color: 'success'
+    })
 
-    showChangePasswordModal.value = false;
-    await navigateTo("/login");
+    showChangePasswordModal.value = false
+    await navigateTo('/login')
   } catch (error) {
     toast.add({
-      title: "Đổi mật khẩu thất bại",
-      description: error instanceof Error ? error.message : "Có lỗi xảy ra",
-      color: "error",
-    });
+      title: 'Đổi mật khẩu thất bại',
+      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      color: 'error'
+    })
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 
 const contactInfo = computed(() => {
   return forgotPasswordType.value === ForgotPasswordType.EMAIL
     ? emailForm.email
-    : phoneForm.phone;
-});
+    : phoneForm.phone
+})
 
-const contactType = computed<"email" | "phone">(() => {
+const contactType = computed<'email' | 'phone'>(() => {
   return forgotPasswordType.value === ForgotPasswordType.EMAIL
-    ? "email"
-    : "phone";
-});
+    ? 'email'
+    : 'phone'
+})
 </script>
 
 <template>
@@ -190,22 +190,25 @@ const contactType = computed<"email" | "phone">(() => {
       v-model="forgotPasswordType"
       :ui="{
         trigger: 'flex-1 text-lg',
-        indicator: 'h-0.5',
+        indicator: 'h-0.5'
       }"
       default-value="phone"
       :items="loginItems"
       variant="link"
       class="w-full gap-4 text-lg"
     >
-      <template #phone="{ item }">
+      <template #phone>
         <UForm
           :schema="forgotPasswordPhoneSchema"
           :state="phoneForm"
           class="flex flex-col gap-4 flex-1"
-          @submit="onSubmitPhone"
           :disabled="isLoading"
+          @submit="onSubmitPhone"
         >
-          <UFormField label="Số điện thoại" name="phone">
+          <UFormField
+            label="Số điện thoại"
+            name="phone"
+          >
             <UInput
               v-model="phoneForm.phone"
               class="w-full"
@@ -228,15 +231,18 @@ const contactType = computed<"email" | "phone">(() => {
         </UForm>
       </template>
 
-      <template #email="{ item }">
+      <template #email>
         <UForm
           :schema="forgotPasswordEmailSchema"
           :state="emailForm"
           class="flex flex-col gap-4 flex-1"
-          @submit="onSubmitEmail"
           :disabled="isLoading"
+          @submit="onSubmitEmail"
         >
-          <UFormField label="Email" name="email">
+          <UFormField
+            label="Email"
+            name="email"
+          >
             <UInput
               v-model="emailForm.email"
               class="w-full"
@@ -272,15 +278,15 @@ const contactType = computed<"email" | "phone">(() => {
       v-model:open="showOTPModal"
       :contact-info="contactInfo"
       :contact-type="contactType"
+      :loading="isLoading"
       @submit="onSubmitOTP"
       @resend="handleResendOTP"
-      :loading="isLoading"
     />
 
     <AuthChangePasswordModal
       v-model:open="showChangePasswordModal"
-      @submit="onSubmitChangePassword"
       :loading="isLoading"
+      @submit="onSubmitChangePassword"
     />
   </div>
 </template>
