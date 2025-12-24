@@ -186,50 +186,35 @@ const partners: Partner[] = [
       </div>
 
       <!-- Partners Footer -->
-      <div class="border-t border-neutral-200">
-        <UCarousel
-          v-slot="{ item }"
-          :items="partners"
-          wheel-gestures
-          arrows
-          :prev="{
-            icon: 'i-lucide-chevron-left',
-            color: 'primary',
-            variant: 'subtle',
-            class: 'shadow-sm'
-          }"
-          :next="{
-            icon: 'i-lucide-chevron-right',
-            color: 'primary',
-            variant: 'subtle',
-            class: 'shadow-sm'
-          }"
-          :ui="{
-            item: 'md:basis-1/3 lg:basis-1/4 ps-7',
-            container: 'py-3 relative',
-            arrows: 'md:flex',
-            prev: 'md:start-6',
-            next: 'md:end-6'
-          }"
+      <div class="border-t border-neutral-200 pt-8">
+        <UMarquee
+          pause-on-hover
+          :overlay="true"
+          :ui="{ root: '[--gap:--spacing(6)] [--duration:30s]', content: 'w-auto py-2' }"
+          :repeat="2"
         >
-          <div class="flex items-center gap-3 md:gap-4 bg-white rounded-lg p-3 md:p-4 border border-neutral-200 shadow-partner-item hover:shadow-md transition-shadow">
+          <div
+            v-for="partner in partners"
+            :key="partner.id"
+            class="flex items-center gap-3 md:gap-4 bg-white rounded-lg p-3 md:p-4 border border-neutral-200 shadow-partner-item hover:shadow-md transition-shadow shrink-0 min-w-[200px] md:min-w-[250px]"
+          >
             <div
               class="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-lg bg-neutral-100 flex items-center justify-center"
             >
               <NuxtImg
-                :src="item.logo"
-                :alt="item.name"
+                :src="partner.logo"
+                :alt="partner.name"
                 class="size-full object-contain p-2"
-                loading="lazy"
+                lazy
               />
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-base text-color-text-partner font-semibold leading-tight line-clamp-2">
-                {{ item.name }}
+                {{ partner.name }}
               </p>
             </div>
           </div>
-        </UCarousel>
+        </UMarquee>
       </div>
     </UContainer>
   </div>
