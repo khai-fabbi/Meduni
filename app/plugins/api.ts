@@ -10,9 +10,9 @@ export default defineNuxtPlugin((_nuxtApp) => {
   const apiFetcher = $fetch.create({
     baseURL: apiBaseUrl,
     timeout: TIME_OUT,
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    // headers: {
+    //   'Content-Type': 'application/json'
+    // },
     onRequest({ options }) {
       const authToken = useCookie(ACCESS_TOKEN_KEY).value
       if (authToken) {

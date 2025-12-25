@@ -22,3 +22,22 @@ export interface ListNews {
   total?: number
   total_pages?: number
 }
+
+export interface MostViewedNews {
+  cover_image: string
+  created_at: string
+  news_id: string
+  short_description: string
+  title: string
+  view_count: number
+}
+
+export interface NewsDetail {
+  content: string
+  cover_image: string
+  created_at: string
+  news_id: string
+  short_description: string
+  title: string
+  view_count: number
+}
