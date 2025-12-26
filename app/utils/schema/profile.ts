@@ -10,7 +10,7 @@ export const profileSchema = z.object({
     .string()
     .optional()
     .refine(
-      val => !val || /^[0-9]{8,11}$/.test(val),
+      val => !val || /^(\+84)?[0-9]{8,11}$/.test(val),
       'Số điện thoại không hợp lệ'
     ),
   email: z.string().email('Email không hợp lệ'),

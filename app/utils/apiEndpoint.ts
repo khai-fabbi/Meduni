@@ -24,5 +24,14 @@ export const ApiEndpoint = {
     GetDetail: (newsId: string) => `${prefix}/news/${newsId}`,
     MostViewed: `${prefix}/news/most-viewed`,
     Latest: `${prefix}/news/latest`
+  },
+  User: {
+    GetInfo: `${prefix}/user/info`,
+    UpdateInfo: `${prefix}/user/update-info`,
+    UpdatePassword: `${prefix}/user/update-password`,
+    GetCountries: `${prefix}/user/country`
+  },
+  Common: {
+    UploadPreSignedUrl: `${prefix}/common/upload-pre-signed-url`
   }
 }

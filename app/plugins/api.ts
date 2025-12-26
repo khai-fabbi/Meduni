@@ -14,9 +14,20 @@ export default defineNuxtPlugin((_nuxtApp) => {
     //   'Content-Type': 'application/json'
     // },
     onRequest({ options }) {
-      const authToken = useCookie(ACCESS_TOKEN_KEY).value
-      if (authToken) {
-        options.headers.set('Authorization', `Bearer ${authToken}`)
+      const existingAuth = options.headers?.get('Authorization')
+      if (!existingAuth) {
+        const authToken = useCookie(ACCESS_TOKEN_KEY).value
+        if (authToken) {
+          options.headers = options.headers || new Headers()
+          options.headers.set('Authorization', `Bearer ${authToken}`)
+        }
+      }
+
+      if (options.body && ['POST', 'PUT', 'PATCH'].includes(options.method || '')) {
+        if (!options.headers?.get('Content-Type')) {
+          options.headers = options.headers || new Headers()
+          options.headers.set('Content-Type', 'application/json')
+        }
       }
     },
     async onResponseError({ response, request, options }) {
