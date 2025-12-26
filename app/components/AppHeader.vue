@@ -85,9 +85,9 @@ const cartCount = ref(2)
 </script>
 
 <template>
-  <UHeader class="rounded-b-xl border-b-none shadow-lg h-16 md:h-[100px] bg-white">
+  <UHeader class="rounded-b-xl border-b-none shadow-lg h-16 md:h-[100px] bg-white header-compact">
     <template #left>
-      <div class="flex items-center gap-3 md:gap-4 lg:gap-6 shrink-0">
+      <div class="flex items-center gap-3 md:gap-4 lg:gap-6 min-w-0">
         <NuxtLink
           to="/"
           class="shrink-0 flex hover:opacity-80 transition-opacity"
@@ -102,7 +102,7 @@ const cartCount = ref(2)
             :ui="{
               linkLabel: 'text-sm lg:text-base font-medium uppercase',
               link: 'py-1 px-1 lg:px-1.5 text-default animate-link-underline data-[active]:text-primary',
-              list: 'gap-1 lg:gap-2'
+              list: 'gap-1 lg:gap-2 xl:gap-0'
             }"
           />
           <template #fallback>
@@ -125,13 +125,13 @@ const cartCount = ref(2)
     </template>
 
     <template #right>
-      <div class="flex items-center justify-start lg:justify-end gap-2 md:gap-3 shrink-0">
+      <div class="flex items-center justify-end gap-2 md:gap-3 min-w-0 shrink">
         <UContentSearchButton
           label="Tìm kiếm nội dung"
-          class="flex rounded-md w-5 h-5 text-neutral-600 px-0 lg:px-auto"
+          class="flex rounded-md w-5 h-5 text-neutral-600 px-0 lg:px-auto header-search-btn"
           variant="ghost"
         />
-        <span class="hidden lg:block text-line-gray shrink-0">|</span>
+        <span class="hidden lg:block text-line-gray shrink-0 header-separator-1">|</span>
         <ClientOnly>
           <NuxtLink
             to="/carts"
@@ -147,10 +147,10 @@ const cartCount = ref(2)
           </NuxtLink>
         </ClientOnly>
         <span class="hidden lg:block text-line-gray shrink-0">|</span>
-        <div class="flex items-center gap-2 md:gap-3 shrink-0">
+        <div class="flex items-center gap-2 md:gap-3 min-w-0">
           <ClientOnly>
             <template v-if="isLoggedIn">
-              <div class="hidden lg:flex items-center gap-2 xl:gap-3 shrink-0">
+              <div class="hidden lg:flex items-center gap-2 xl:gap-3 min-w-0">
                 <span class="text-sm xl:text-base text-default whitespace-nowrap">
                   Chào, <span class="font-bold">{{ userLastName }}</span>
                 </span>
@@ -187,22 +187,24 @@ const cartCount = ref(2)
                 size="sm"
               />
 
-              <UButton
-                label="Đăng ký"
-                variant="subtle"
-                class="hidden lg:inline-flex min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
-                to="/signup"
-                size="xl"
-                block
-              />
-              <UButton
-                label="Đăng nhập"
-                variant="solid"
-                to="/login"
-                class="hidden lg:inline-flex min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
-                size="xl"
-                block
-              />
+              <div class="hidden lg:flex items-center gap-2 md:gap-3 min-w-0">
+                <UButton
+                  label="Đăng ký"
+                  variant="subtle"
+                  class="min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
+                  to="/signup"
+                  size="xl"
+                  block
+                />
+                <UButton
+                  label="Đăng nhập"
+                  variant="solid"
+                  to="/login"
+                  class="min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
+                  size="xl"
+                  block
+                />
+              </div>
             </template>
           </ClientOnly>
         </div>
@@ -304,3 +306,30 @@ const cartCount = ref(2)
     </template>
   </UHeader>
 </template>
+
+<style>
+@media (max-width: 1600px) and (min-width: 1300px) {
+  .header-compact [data-slot="left"] {
+    flex: 0 0.1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .header-compact [data-slot="right"] {
+    flex: 0 0.1 auto !important;
+    min-width: 0 !important;
+    margin: auto;
+  }
+}
+
+@media (max-width: 1300px) {
+  .header-search-btn,
+  .header-separator-1 {
+    display: none !important;
+  }
+
+  .header-compact [data-slot="right"] {
+    justify-content: flex-start !important;
+  }
+}
+</style>

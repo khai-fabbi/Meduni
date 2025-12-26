@@ -45,23 +45,17 @@ export const useAuthStore = defineStore('auth', {
           total_notification: loginData.total_notification
         }
 
-        // Lưu tokens vào cookie
+        // Lưu token vào cookie
         const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY, {
-          secure: true,
-          sameSite: 'strict'
-        })
-        const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY, {
           secure: true,
           sameSite: 'strict'
         })
 
         accessTokenCookie.value = loginData.accessToken
-        refreshTokenCookie.value = loginData.refreshToken
 
         // Cập nhật state
         this.user = user
         this.accessToken = loginData.accessToken
-        this.refreshToken = loginData.refreshToken
         this.isAuthenticated = true
 
         return { success: true, user }
@@ -69,7 +63,6 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = false
         this.user = null
         this.accessToken = null
-        this.refreshToken = null
         throw error
       } finally {
         this.isLoading = false
@@ -87,24 +80,19 @@ export const useAuthStore = defineStore('auth', {
         // Clear state
         this.user = null
         this.accessToken = null
-        this.refreshToken = null
         this.isAuthenticated = false
 
         // Clear cookies
         const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY)
-        const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY)
         accessTokenCookie.value = null
-        refreshTokenCookie.value = null
       }
     },
 
     initializeAuth() {
       const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY)
-      const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY)
 
-      if (accessTokenCookie.value && refreshTokenCookie.value) {
+      if (accessTokenCookie.value) {
         this.accessToken = accessTokenCookie.value
-        this.refreshToken = refreshTokenCookie.value
         // Note: User profile should be fetched from API if needed
         // For now, we'll keep isAuthenticated as false until user profile is loaded
         this.isAuthenticated = !!this.accessToken
