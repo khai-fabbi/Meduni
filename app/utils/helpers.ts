@@ -29,3 +29,34 @@ export const getLinkFromS3 = (path: string) => {
   const appAssetEndpoint = config.public.appAssetEndpoint as string
   return `${appAssetEndpoint}/${path}`
 }
+
+export const formatDuration = (seconds: number) => {
+  if (!seconds) return '0 phút'
+
+  if (seconds <= 60) {
+    if (Math.floor(seconds / 30) > 0) {
+      return '1 phút'
+    } else {
+      return '0 phút'
+    }
+  }
+
+  const hours = Math.floor(seconds / 3600)
+  let minutes = Math.floor((seconds % 3600) / 60)
+  const secondsLeft = seconds - minutes * 60 - hours * 3600
+  if (secondsLeft >= 30) {
+    minutes = minutes + 1
+  }
+
+  const parts = []
+
+  if (hours > 0) {
+    parts.push(`${hours} tiếng `)
+  }
+
+  if (minutes > 0) {
+    parts.push(`${minutes} phút `)
+  }
+
+  return parts.join('')
+}

@@ -15,7 +15,7 @@ const baseItems = [
   },
   {
     label: 'E-Learning',
-    to: '/docs'
+    to: '/e-learning'
   },
   {
     label: 'Khoá học',
@@ -34,7 +34,7 @@ const baseItems = [
 const items = computed(() => {
   const result = baseItems.map(item => ({
     ...item,
-    active: item.to === '/docs' ? route.path.startsWith('/docs') : route.path === item.to
+    active: item.to === '/khoa-hoc' ? route.path.startsWith('/khoa-hoc') : route.path === item.to
   }))
 
   return result

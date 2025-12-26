@@ -14,8 +14,9 @@ defineProps<Props>()
     >
       Tổng quan về khóa học
     </Heading>
-    <p class="text-base leading-relaxed">
-      {{ overview }}
-    </p>
+    <div
+      class="text-base leading-relaxed"
+      v-html="overview"
+    />
   </div>
 </template>

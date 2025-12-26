@@ -25,6 +25,13 @@ export const ApiEndpoint = {
     MostViewed: `${prefix}/news/most-viewed`,
     Latest: `${prefix}/news/latest`
   },
+  Courses: {
+    GetList: `${prefix}/courses`,
+    GetDetail: (courseId: string) => `${prefix}/courses/${courseId}`,
+    GetMyCourses: `${prefix}/user/courses`,
+    GetCertificate: (myCourseId: string) => `${prefix}/${myCourseId}/certificate`,
+    GetCategories: `${prefix}/categories`
+  },
   User: {
     GetInfo: `${prefix}/user/info`,
     UpdateInfo: `${prefix}/user/update-info`,

@@ -5,9 +5,12 @@ import CourseOverview from '~/components/course/CourseOverview.vue'
 import CourseContent from '~/components/course/CourseContent.vue'
 import CourseDetails from '~/components/course/CourseDetails.vue'
 import InstructorInfo from '~/components/course/InstructorInfo.vue'
+import { services } from '~/services'
+import type { CourseDetail, Chapter as ApiChapter, Lesson as ApiLesson } from '~/types/course'
+import { getLinkFromS3, formatDuration } from '~/utils/helpers'
 
 const route = useRoute()
-const courseId = route.params.id
+const courseId = route.params.id as string
 
 interface Lesson {
   id: number
@@ -23,7 +26,81 @@ interface Chapter {
   totalDuration: string
 }
 
-const items = ref<BreadcrumbItem[]>([
+// Fetch course detail
+const {
+  data: courseData,
+  pending: isLoadingCourse,
+  error: courseError,
+  refresh: refreshCourse
+} = await services.courses.getCourseById(courseId)
+
+// Map API data to component format
+const course = computed(() => {
+  if (!courseData.value?.data) {
+    return null
+  }
+  const apiCourse = courseData.value.data as unknown as CourseDetail
+  return {
+    id: apiCourse.course_id,
+    image: apiCourse.course_image ? getLinkFromS3(apiCourse.course_image) : '',
+    tag: apiCourse.category?.category_name || apiCourse.category_name || '',
+    title: apiCourse.course_name,
+    overview: apiCourse.description || '',
+    language: 'Tiếng Việt',
+    totalLessons: apiCourse.info?.total_lesson || 0,
+    difficulty: 'Trình độ Trung bình',
+    duration: formatDuration(apiCourse.info?.total_duration || 0),
+    certificate: 'Khi khóa học kết thúc'
+  }
+})
+
+// Map chapters from API to component format
+const chapters = computed<Chapter[]>(() => {
+  if (!courseData.value?.data) {
+    return []
+  }
+  const apiCourse = courseData.value.data as unknown as CourseDetail
+  if (!apiCourse.chapters || !Array.isArray(apiCourse.chapters)) {
+    return []
+  }
+
+  return apiCourse.chapters.map((chapter: ApiChapter, index: number) => {
+    const chapterLessons = chapter.lessons || []
+    const totalDuration = chapterLessons.reduce((sum: number, lesson: ApiLesson) => {
+      return sum + (lesson.lesson_duration || 0)
+    }, 0)
+
+    return {
+      id: index + 1,
+      title: chapter.chapter_name,
+      totalLessons: chapterLessons.length,
+      totalDuration: formatDuration(totalDuration),
+      lessons: chapterLessons.map((lesson: ApiLesson, lessonIndex: number) => ({
+        id: lessonIndex + 1,
+        title: lesson.lesson_name,
+        duration: formatDuration(lesson.lesson_duration || 0)
+      }))
+    }
+  })
+})
+
+// Mock instructor data (không có trong API)
+const instructor = {
+  name: courseData.value?.data?.teacher?.teacher_name || '',
+  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+  description: 'Tại Học viện Med AI, Đội ngũ phát triển hệ tư duy lôi và phương pháp khoa học giúp cha mẹ đồng hành hiệu quả cùng con.',
+  greeting: 'Xin chào! Mình là trợ lý MEDUNI. Nếu bạn thắc mắc bất cứ điều gì MEDUNI, hãy đặt câu hỏi để mình ai giới đẹp hoặc tư vấn nga',
+  stats: [
+    'Hàng tháng, 40.000-60.000 khách hàng tham dự các chương trình trực tuyến miễn phí dành cho cha mẹ do các giảng viên trực tiếp chia sẻ.',
+    'Gần 50.000 khách hàng đã và đang tham gia các chương trình trực tuyến hàng tháng.',
+    'Hàng chục nghìn gia đình đã và đang chuyển hóa tích cực 5 lan tỏa giá trị tích cực tới cộng đồng & xã hội.'
+  ]
+}
+
+const isOwned = ref(false)
+
+// Breadcrumbs
+const items = computed<BreadcrumbItem[]>(() => [
   {
     label: 'Trang chủ',
     icon: 'i-lucide-home',
@@ -34,99 +111,14 @@ const items = ref<BreadcrumbItem[]>([
     to: '/khoa-hoc'
   },
   {
-    label: 'Chi tiết khóa học',
+    label: course.value?.title || 'Chi tiết khóa học',
     to: '#'
   }
 ])
 
-const isOwned = ref(false)
-
-const course = ref({
-  id: courseId,
-  image: 'https://images.unsplash.com/photo-1674027444485-cec3da58eef4?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-  tag: 'Kinh Doanh',
-  title: 'Chiến lược trí tuệ nhân tạo dành cho lãnh đạo',
-  subtitle: 'Tầm nhìn – Chiến lược - Thực thi Doanh nghiệp đột phá dẫn đầu kỷ nguyên số',
-  overview: 'Khóa học giúp bạn nắm bắt tư duy và công cụ AI hiện đại để tối ưu vận hành, nâng cao hiệu quả marketing và bứt phá doanh thu. Dành cho chủ doanh nghiệp, nhà quản lý và người khởi nghiệp muốn dẫn đầu xu hướng công nghệ, ứng dụng AI vào thực tiễn kinh doanh một cách thông minh và hiệu quả.',
-  language: 'Tiếng Việt',
-  totalLessons: 16,
-  difficulty: 'Trình độ Cao',
-  duration: '17 giờ 43 phút',
-  certificate: 'Khi khóa học kết thúc',
-  instructor: {
-    name: 'Vũ Văn Khải',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    description: 'Tại Học viện Med AI, A.Khải và đội ngũ phát triển hệ tư duy lôi và phương pháp khoa học giúp cha mẹ đồng hành hiệu quả cùng con.',
-    greeting: 'Xin chào! Mình là trợ lý MEDUNI. Nếu bạn thắc mắc bất cứ điều gì MEDUNI, hãy đặt câu hỏi để mình ai giới đẹp hoặc tư vấn nga',
-    stats: [
-      'Hàng tháng, 40.000-60.000 khách hàng tham dự các chương trình trực tuyến miễn phí dành cho cha mẹ do cô Lanh trực tiếp chia sẻ.',
-      'Gần 50.000 khách hàng đã và đang tham gia các chương trình trực tuyến hàng tháng.',
-      'Hàng chục nghìn gia đình đã và đang chuyển hóa tích cực 5 lan tỏa giá trị tích cực tới cộng đồng & xã hội.'
-    ]
-  }
-})
-
-const chapters: Chapter[] = [
-  {
-    id: 1,
-    title: 'Chương 1 Giới thiệu về Ứng dụng AI',
-    totalLessons: 4,
-    totalDuration: '16 phút',
-    lessons: [
-      {
-        id: 1,
-        title: 'Giới thiệu ứng dụng AI cho người mới bắt đầu',
-        duration: '03:17'
-      },
-      {
-        id: 2,
-        title: 'Làm quen với ứng dụng AI',
-        duration: '03:17'
-      },
-      {
-        id: 3,
-        title: 'Cách sử dụng AI làm chìa khóa kinh doanh',
-        duration: '03:17'
-      },
-      {
-        id: 4,
-        title: 'Tóm tắt bài học và những điều cần lưu ý',
-        duration: '03:17'
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: 'Chương 2 Làm quen với ứng dụng AI',
-    totalLessons: 4,
-    totalDuration: '16 phút',
-    lessons: [
-      {
-        id: 5,
-        title: 'Bài học 5',
-        duration: '03:17'
-      },
-      {
-        id: 6,
-        title: 'Bài học 6',
-        duration: '03:17'
-      },
-      {
-        id: 7,
-        title: 'Bài học 7',
-        duration: '03:17'
-      },
-      {
-        id: 8,
-        title: 'Bài học 8',
-        duration: '03:17'
-      }
-    ]
-  }
-]
-
-const title = computed(() => `${course.value.title} - MedUni.ai`)
-const description = computed(() => course.value.overview)
+// SEO
+const title = computed(() => course.value ? `${course.value.title} - MedUni.ai` : 'Chi tiết khóa học - MedUni.ai')
+const description = computed(() => course.value?.overview || '')
 
 useSeoMeta({
   title: title.value,
@@ -142,7 +134,37 @@ useSeoMeta({
       :items="items"
     />
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] 2xl:grid-cols-[1fr_530px] gap-6 md:gap-7">
+    <!-- Loading state -->
+    <div
+      v-if="isLoadingCourse"
+      class="flex justify-center items-center py-20"
+    >
+      <UIcon
+        name="i-lucide-loader-circle"
+        class="animate-spin size-10 text-primary"
+      />
+    </div>
+
+    <!-- Error state -->
+    <div
+      v-else-if="courseError"
+      class="flex justify-center items-center py-20"
+    >
+      <div class="text-center">
+        <p class="text-error mb-4">
+          Có lỗi xảy ra khi tải dữ liệu
+        </p>
+        <UButton @click="refreshCourse()">
+          Thử lại
+        </UButton>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div
+      v-else-if="course"
+      class="grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] 2xl:grid-cols-[1fr_530px] gap-6 md:gap-7"
+    >
       <div class="space-y-6">
         <motion.div
           class="overflow-hidden rounded-lg"
@@ -151,7 +173,7 @@ useSeoMeta({
           :transition="{ duration: 0.5 }"
         >
           <NuxtImg
-            :src="course.image"
+            :src="course.image || '/images/course/course-placeholder.png'"
             :alt="course.title"
             class="w-full h-auto object-cover"
             quality="100"
@@ -182,12 +204,16 @@ useSeoMeta({
             {{ course.title }}
           </Heading>
 
-          <p class="text-lg text-muted">
+          <!-- <p
+            v-if="course.subtitle"
+            class="text-lg text-muted"
+          >
             {{ course.subtitle }}
-          </p>
+          </p> -->
         </motion.div>
 
         <motion.div
+          v-if="course.overview"
           :initial="{ opacity: 0, y: 20 }"
           :animate="{ opacity: 1, y: 0 }"
           :transition="{ duration: 0.5, delay: 0.2 }"
@@ -196,6 +222,7 @@ useSeoMeta({
         </motion.div>
 
         <motion.div
+          v-if="chapters.length > 0"
           :initial="{ opacity: 0, y: 20 }"
           :animate="{ opacity: 1, y: 0 }"
           :transition="{ duration: 0.5, delay: 0.3 }"
@@ -226,13 +253,23 @@ useSeoMeta({
           :transition="{ duration: 0.5, delay: 0.3 }"
         >
           <InstructorInfo
-            :name="course.instructor.name"
-            :avatar="course.instructor.avatar"
-            :description="course.instructor.description"
-            :stats="course.instructor.stats"
+            :name="instructor.name"
+            :avatar="instructor.avatar"
+            :description="instructor.description"
+            :stats="instructor.stats"
           />
         </motion.div>
       </div>
+    </div>
+
+    <!-- Not found -->
+    <div
+      v-else
+      class="flex justify-center items-center py-20"
+    >
+      <p class="text-secondary">
+        Không tìm thấy khóa học
+      </p>
     </div>
   </UContainer>
 </template>

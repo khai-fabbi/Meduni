@@ -113,7 +113,7 @@ watch(currentPage, () => {
 </script>
 
 <template>
-  <UContainer class="space-y-6 mb-10 md:mb-20">
+  <UContainer class="space-y-2 mb-10 md:mb-20">
     <UBreadcrumb
       :items="items"
     />

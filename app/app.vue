@@ -24,22 +24,6 @@ useSeoMeta({
   twitterCard: 'summary_large_image'
 })
 
-const { data: navigation } = await useAsyncData(
-  'navigation',
-  async () => {
-    try {
-      const data = await queryCollectionNavigation('docs')
-      return data.find(item => item.path === '/docs')?.children || []
-    } catch (error) {
-      console.warn('Failed to load navigation:', error)
-      return []
-    }
-  },
-  {
-    default: () => []
-  }
-)
-
 const links = [
   {
     label: 'Giới thiệu',
@@ -49,7 +33,7 @@ const links = [
   {
     label: 'E-Learning',
     icon: 'i-lucide-book',
-    to: '/docs/getting-started'
+    to: '/e-learning'
   },
   {
     label: 'Khoá học',
@@ -67,8 +51,6 @@ const links = [
     to: '/y-te-cong-dong'
   }
 ]
-
-provide('navigation', navigation)
 </script>
 
 <template>
@@ -82,7 +64,6 @@ provide('navigation', navigation)
     <ClientOnly>
       <LazyUContentSearch
         shortcut="meta_k"
-        :navigation="navigation"
         :links="links"
         :fuse="{ resultLimit: 42 }"
         :color-mode="false"

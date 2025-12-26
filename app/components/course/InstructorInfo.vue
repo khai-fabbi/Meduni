@@ -21,7 +21,6 @@ defineProps<Props>()
 
     <div class="flex items-start gap-4">
       <UAvatar
-        :src="avatar"
         :alt="name"
         class="size-14"
       />

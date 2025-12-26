@@ -5,13 +5,16 @@ interface Props {
   price: number
   image?: string
   to?: string
+  isOwned?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
 }
+
+const durationFormatted = computed(() => formatDuration(Number(props.duration)))
 </script>
 
 <template>
@@ -21,7 +24,7 @@ const formatPrice = (price: number) => {
   >
     <div class="overflow-hidden w-full aspect-video">
       <NuxtImg
-        src="/images/course/course-placeholder.png"
+        :src="image ?? '/images/course/course-placeholder.png'"
         alt="Course Image"
         class="size-full object-cover group-hover:scale-110 transition-all duration-300"
         quality="100"
@@ -44,12 +47,12 @@ const formatPrice = (price: number) => {
             name="i-lucide-clock"
             class="size-4 md:size-5 text-secondary"
           />
-          <span class="text-base md:text-lg">{{ duration }}</span>
+          <span class="text-base md:text-lg">{{ durationFormatted }}</span>
         </div>
 
         <div class="text-right">
           <p class="text-xl md:text-2xl font-bold text-secondary">
-            {{ formatPrice(price) }}
+            {{ isOwned ? 'Đã sở hữu' : formatPrice(price) }}
           </p>
         </div>
       </div>

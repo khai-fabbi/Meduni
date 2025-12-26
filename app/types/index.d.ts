@@ -39,3 +39,12 @@ export type { ApiResponse } from './common'
 
 // Re-export news types
 export type { News, ListNews } from './news'
+
+// Re-export course types
+export type {
+  Course,
+  CoursesList,
+  CoursesListQueryParams,
+  Certificate,
+  CourseCategory
+} from './course'
