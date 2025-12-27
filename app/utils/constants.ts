@@ -24,7 +24,7 @@ export const profileMenuItems: NavigationMenuItem[] = [
   {
     label: 'Khoá học đã mua',
     icon: 'i-lucide-book',
-    to: '/profile/courses'
+    to: '/profile/my-course'
   },
   {
     label: 'Lộ trình học tập',

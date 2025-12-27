@@ -60,3 +60,31 @@ export const formatDuration = (seconds: number) => {
 
   return parts.join('')
 }
+
+/**
+ * Format avatar URL from API response
+ * @param avatarPath - Avatar path from API (can be full URL, relative path, or empty)
+ * @returns Full avatar URL or default avatar URL
+ */
+export const getAvatarUrl = (avatarPath?: string): string => {
+  const DEFAULT_AVATAR = 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
+
+  if (!avatarPath) {
+    return DEFAULT_AVATAR
+  }
+
+  // If already a full URL, return as is
+  if (avatarPath.startsWith('http')) {
+    return avatarPath
+  }
+
+  // Format relative path
+  const config = useRuntimeConfig()
+  const appAssetEndpoint = config.public.appAssetEndpoint as string | undefined
+  const apiUrl = config.public.apiUrl as string
+
+  const baseUrl = appAssetEndpoint || apiUrl
+  const path = avatarPath.startsWith('/') ? avatarPath.slice(1) : avatarPath
+
+  return `${baseUrl}/${path}`
+}

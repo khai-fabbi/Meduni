@@ -6,6 +6,7 @@ import {
   type ProfileSchema
 } from '~/utils/schema/profile'
 import { userService } from '~/services/user'
+import { getAvatarUrl } from '~/utils/helpers'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { CalendarDate } from '@internationalized/date'
@@ -190,7 +191,6 @@ async function fetchUserInfo() {
     console.log(response)
 
     const userData = response.data
-    const config = useRuntimeConfig()
 
     currentUserId.value = userData.userId
 
@@ -239,31 +239,7 @@ async function fetchUserInfo() {
       profileForm.gender = undefined
     }
 
-    if (userData.avatar) {
-      const appAssetEndpoint = config.public.appAssetEndpoint as string | undefined
-      if (appAssetEndpoint) {
-        if (userData.avatar.startsWith('http')) {
-          avatar.value = userData.avatar
-        } else {
-          const avatarPath = userData.avatar.startsWith('/')
-            ? userData.avatar.slice(1)
-            : userData.avatar
-          avatar.value = `${appAssetEndpoint}/${avatarPath}`
-        }
-      } else {
-        const apiUrl = config.public.apiUrl as string
-        if (userData.avatar.startsWith('http')) {
-          avatar.value = userData.avatar
-        } else {
-          const avatarPath = userData.avatar.startsWith('/')
-            ? userData.avatar.slice(1)
-            : userData.avatar
-          avatar.value = `${apiUrl}/${avatarPath}`
-        }
-      }
-    } else {
-      avatar.value = 'https://api.dicebear.com/7.x/avataaars/svg?seed=John'
-    }
+    avatar.value = getAvatarUrl(userData.avatar)
 
     originalFormData.value = { ...profileForm }
   } catch (error) {

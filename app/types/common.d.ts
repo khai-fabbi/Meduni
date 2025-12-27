@@ -23,4 +23,13 @@ export interface ApiResponse<T> {
     code: string
     message: string
   }
+  page?: {
+    current?: number
+    total?: number
+    per_page?: number
+    // Alternative pagination format from old API
+    page_number?: number
+    page_size?: number
+    total_records?: number
+  }
 }

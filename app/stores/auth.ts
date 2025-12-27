@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import type { LoginRequest } from '~/types/auth'
-import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '~/utils/auth'
+import { ACCESS_TOKEN_KEY } from '~/utils/auth'
 import { authService } from '~/services/auth'
+import { userService } from '~/services/user'
+import { getAvatarUrl } from '~/utils/helpers'
 
 interface User {
   userId: string
@@ -88,14 +90,35 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    initializeAuth() {
+    async initializeAuth() {
       const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY)
 
       if (accessTokenCookie.value) {
         this.accessToken = accessTokenCookie.value
-        // Note: User profile should be fetched from API if needed
-        // For now, we'll keep isAuthenticated as false until user profile is loaded
         this.isAuthenticated = !!this.accessToken
+
+        try {
+          const response = await userService.getInfo()
+          if (response.data) {
+            const userData = response.data
+
+            this.user = {
+              userId: userData.userId,
+              user_name: userData.user_name,
+              email: userData.email,
+              phone: userData.phone,
+              avatar: getAvatarUrl(userData.avatar),
+              total_cart: userData.total_cart?.toString() || '0'
+            }
+          }
+        } catch (error) {
+          // If token is invalid or expired, clear auth state
+          console.error('Failed to fetch user info:', error)
+          this.accessToken = null
+          this.isAuthenticated = false
+          this.user = null
+          accessTokenCookie.value = null
+        }
       }
     }
   }

@@ -156,6 +156,13 @@ export interface Certificate {
   category_id: string
 }
 
+export interface CertificateListItem {
+  my_course_id: string
+  course_name: string
+  completion_date: string
+  progress: number
+}
+
 export interface CourseCategory {
   category_color: string
   category_id: string
@@ -169,4 +176,28 @@ export interface CourseCategory {
   total_course: number
   updated_at: string
   updated_by: string
+}
+
+export interface MyCourseInfo {
+  total_chapter?: number
+  total_lesson?: number
+  total_exercise?: number
+  total_duration?: number
+}
+
+export interface MyCourse {
+  id: string
+  course_id: string
+  course_name: string
+  teacher_name?: string
+  course_image: string
+  progress: number
+  last_time?: string
+  expire_time?: number
+  info?: MyCourseInfo
+}
+
+export interface MyCourseListResponse {
+  data: MyCourse[]
+  page: Page
 }

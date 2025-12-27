@@ -1,10 +1,13 @@
 import type {
   CoursesList,
   Certificate,
+  CertificateListItem,
   CoursesListQueryParams,
   CourseCategory,
   CourseDetail,
-  CourseDetailResponse
+  CourseDetailResponse,
+  MyCourse,
+  MyCourseListResponse
 } from '~/types/course'
 import type { ApiResponse } from '~/types/common'
 import type { Ref } from 'vue'
@@ -36,15 +39,15 @@ export const coursesService = {
   getMyCourses: (
     query?: CoursesListQueryParams | Ref<CoursesListQueryParams>
   ) => {
-    return useApiFetch<CourseDetailResponse>(
+    return useApiFetch<ApiResponse<MyCourse[]>>(
       ApiEndpoint.Courses.GetMyCourses,
       {
         query: computed(() => {
           const queryParams = unref(query) || {}
           return {
-            ...(queryParams.page && { page_number: queryParams.page }),
-            ...(queryParams.limit && { page_size: queryParams.limit }),
-            ...(queryParams.keyword && { keyword: queryParams.keyword })
+            ...(queryParams.page && { page: queryParams.page }),
+            ...(queryParams.limit && { limit: queryParams.limit }),
+            ...(queryParams.sort && { sort: queryParams.sort })
           }
         })
       }
@@ -64,6 +67,18 @@ export const coursesService = {
   getCertificate: (myCourseId: string) => {
     return useApiFetch<ApiResponse<Certificate>>(
       ApiEndpoint.Courses.GetCertificate(myCourseId),
+      {
+        method: 'GET'
+      }
+    )
+  },
+
+  /**
+   * Lấy danh sách chứng chỉ của user
+   */
+  getCertificates: () => {
+    return useApiFetch<ApiResponse<CertificateListItem[]>>(
+      ApiEndpoint.Courses.GetCertificates,
       {
         method: 'GET'
       }
