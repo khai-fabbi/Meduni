@@ -30,6 +30,7 @@ export const ApiEndpoint = {
     GetDetail: (courseId: string) => `${prefix}/courses/${courseId}`,
     GetMyCourses: `${prefix}/user/courses`,
     GetCertificate: (myCourseId: string) => `${prefix}/${myCourseId}/certificate`,
+    GetCertificates: `${prefix}/user/certificates`,
     GetCategories: `${prefix}/categories`
   },
   User: {
@@ -40,5 +41,10 @@ export const ApiEndpoint = {
   },
   Common: {
     UploadPreSignedUrl: `${prefix}/common/upload-pre-signed-url`
+  },
+  Notifications: {
+    GetList: `${prefix}/notifications`,
+    GetDetail: (notificationId: string) => `${prefix}/notifications/${notificationId}`,
+    MarkAsRead: `${prefix}/notifications/read`
   }
 }

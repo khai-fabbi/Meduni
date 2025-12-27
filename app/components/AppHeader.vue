@@ -61,8 +61,6 @@ const userMenuItems = computed(() => [
   ]
 ])
 
-const isProfileMenuOpen = ref(false)
-
 const profileMenuLinks = computed(() =>
   profileMenuItems
     .filter(item => item.to)
@@ -73,15 +71,23 @@ const profileMenuLinks = computed(() =>
 )
 
 const userLastName = computed(() => {
-  if (!user.value?.name) return ''
-  const names = user.value.name.split(' ').filter(n => n.length > 0)
+  if (!user.value?.user_name) return ''
+  const names = user.value.user_name.split(' ').filter((n: string) => n.length > 0)
   if (names.length >= 2) {
     return names[names.length - 1]
   }
   return names[0] || ''
 })
 
-const cartCount = ref(2)
+const cartCount = computed(() => {
+  if (!user.value?.total_cart) return 0
+  const count = parseInt(user.value.total_cart, 10)
+  return isNaN(count) ? 0 : count
+})
+
+const userAvatar = computed(() => {
+  return user.value?.avatar || ''
+})
 </script>
 
 <template>
@@ -158,9 +164,11 @@ const cartCount = ref(2)
                   :items="userMenuItems"
                   :popper="{ placement: 'bottom-end' }"
                 >
-                  <button class="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 border border-neutral-300 rounded-full bg-neutral-100 hover:bg-neutral-200 active:bg-neutral-200 transition-colors cursor-pointer shrink-0">
-                    <UserIcon
-                      class="size-5 lg:size-6 text-default"
+                  <button class="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 border border-neutral-300 rounded-full bg-neutral-100 hover:bg-neutral-200 active:bg-neutral-200 transition-colors cursor-pointer shrink-0 overflow-hidden">
+                    <UAvatar
+                      :src="userAvatar"
+                      :alt="user?.user_name || 'User'"
+                      class="w-full h-full"
                     />
                   </button>
                 </UDropdownMenu>
@@ -170,9 +178,11 @@ const cartCount = ref(2)
                 :popper="{ placement: 'bottom-end' }"
                 class="lg:hidden cursor-pointer hover:bg-gray-100"
               >
-                <button class="flex items-center justify-center w-9 h-9 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer shrink-0">
-                  <UserIcon
-                    class="w-4 h-4 text-default"
+                <button class="flex items-center justify-center w-9 h-9 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer shrink-0 overflow-hidden">
+                  <UAvatar
+                    :src="userAvatar"
+                    :alt="user?.user_name || 'User'"
+                    class="w-full h-full"
                   />
                 </button>
               </UDropdownMenu>

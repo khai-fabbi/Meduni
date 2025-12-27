@@ -114,7 +114,7 @@ onMounted(() => {
           </UButton>
 
           <UButton
-            to="/profile/courses"
+            to="/profile/my-course"
             color="primary"
             variant="outline"
             size="lg"

@@ -48,3 +48,15 @@ export type {
   Certificate,
   CourseCategory
 } from './course'
+
+// Re-export notification types
+export type {
+  Notification,
+  NotificationContent,
+  NotificationListParams,
+  NotificationListResponse,
+  MarkAsReadRequest,
+  MarkAsReadResponse
+} from './notification'
+
+export { NotificationType } from './notification'
