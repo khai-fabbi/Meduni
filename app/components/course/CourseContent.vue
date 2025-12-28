@@ -73,7 +73,7 @@ onMounted(() => {
               :key="lesson.lesson_id"
             >
               <NuxtLink
-                :to="isOwned ? `/khoa-hoc/${courseId}/bai-hoc/${lesson.lesson_id}` : '#'"
+                :to="`/khoa-hoc/${courseId}/bai-hoc/${lesson.lesson_id}`"
                 class="flex items-center gap-4 min-h-15 md:min-h-16 px-3 md:px-5 border-b border-neutral-200 hover:bg-primary-50 hover:text-primary transition-colors"
                 :class="[isOwned ? 'cursor-pointer' : 'cursor-default']"
               >
