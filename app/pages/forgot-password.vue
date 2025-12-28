@@ -7,9 +7,11 @@ import {
   type ForgotPasswordEmailSchema,
   type ForgotPasswordPhoneSchema
 } from '~/utils/schema/forgot-password'
+import { authService } from '~/services/auth'
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: 'guest'
 })
 
 useSeoMeta({
@@ -35,138 +37,84 @@ const loginItems = [
     label: 'Số điện thoại',
     value: ForgotPasswordType.PHONE,
     icon: 'i-lucide-phone',
-    slot: 'phone' as const
+    slot: 'phone' as const,
+    disabled: true // Tạm thời disable số điện thoại,
   }
 ] satisfies TabsItem[]
 
 const forgotPasswordType = ref<ForgotPasswordType>(ForgotPasswordType.EMAIL)
 const isLoading = ref(false)
-const showOTPModal = ref(false)
-const showChangePasswordModal = ref(false)
-const otpVerified = ref(false)
 
 const emailForm = reactive({
-  email: 'test@example.com'
+  email: ''
 })
 
 const phoneForm = reactive({
-  phone: '0909090909'
+  phone: ''
 })
 
-async function sendOTP() {
+async function onSubmitEmail(
+  payload: FormSubmitEvent<ForgotPasswordEmailSchema>
+) {
   isLoading.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    emailForm.email = payload.data.email
 
-    toast.add({
-      title: 'OTP đã được gửi',
-      description: 'Vui lòng kiểm tra email/số điện thoại của bạn',
-      color: 'success'
+    const response = await authService.forgotPassword({
+      email: payload.data.email
     })
 
-    showOTPModal.value = true
+    if (response.data !== undefined) {
+      toast.add({
+        title: 'Yêu cầu đã được gửi',
+        description: 'Vui lòng kiểm tra hòm thư email của bạn để nhận link đặt lại mật khẩu',
+        color: 'success',
+        duration: 8_000
+      })
+    }
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const errorResponse = (error as any)?.data
     toast.add({
-      title: 'Gửi OTP thất bại',
-      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      title: 'Gửi yêu cầu thất bại',
+      description: errorResponse?.error?.message || 'Email không tồn tại trong hệ thống. Vui lòng kiểm tra lại',
       color: 'error'
     })
   } finally {
     isLoading.value = false
   }
-}
-
-function handleResendOTP() {
-  sendOTP()
-}
-
-async function onSubmitEmail(
-  payload: FormSubmitEvent<ForgotPasswordEmailSchema>
-) {
-  emailForm.email = payload.data.email
-  await sendOTP()
 }
 
 async function onSubmitPhone(
   payload: FormSubmitEvent<ForgotPasswordPhoneSchema>
 ) {
-  phoneForm.phone = payload.data.phone
-  await sendOTP()
-}
-
-async function onSubmitOTP(payload: FormSubmitEvent<{ otp: number[] }>) {
   isLoading.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    phoneForm.phone = payload.data.phone
 
-    if (payload.data.otp.join('') === '123456') {
-      otpVerified.value = true
-      showOTPModal.value = false
-      showChangePasswordModal.value = true
+    const response = await authService.forgotPassword({
+      phone: payload.data.phone
+    })
 
+    if (response.data !== undefined) {
       toast.add({
-        title: 'Xác thực thành công',
-        description: 'Vui lòng nhập mật khẩu mới',
+        title: 'Yêu cầu đã được gửi',
+        description: 'Vui lòng kiểm tra tin nhắn SMS của bạn để nhận mã OTP',
         color: 'success'
-      })
-    } else {
-      toast.add({
-        title: 'Mã OTP không đúng',
-        description: 'Vui lòng thử lại',
-        color: 'error'
       })
     }
   } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const errorResponse = (error as any)?.data
     toast.add({
-      title: 'Xác thực thất bại',
-      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
+      title: 'Gửi yêu cầu thất bại',
+      description: errorResponse?.error?.message || 'Số điện thoại không tồn tại trong hệ thống. Vui lòng kiểm tra lại',
       color: 'error'
     })
   } finally {
     isLoading.value = false
   }
 }
-
-async function onSubmitChangePassword(
-  payload: FormSubmitEvent<{
-    newPassword: string
-    confirmPassword: string
-  }>
-) {
-  isLoading.value = true
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    toast.add({
-      title: 'Đổi mật khẩu thành công',
-      description: 'Bạn có thể đăng nhập với mật khẩu mới',
-      color: 'success'
-    })
-
-    showChangePasswordModal.value = false
-    await navigateTo('/login')
-  } catch (error) {
-    toast.add({
-      title: 'Đổi mật khẩu thất bại',
-      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
-      color: 'error'
-    })
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const contactInfo = computed(() => {
-  return forgotPasswordType.value === ForgotPasswordType.EMAIL
-    ? emailForm.email
-    : phoneForm.phone
-})
-
-const contactType = computed<'email' | 'phone'>(() => {
-  return forgotPasswordType.value === ForgotPasswordType.EMAIL
-    ? 'email'
-    : 'phone'
-})
 </script>
 
 <template>
@@ -237,6 +185,7 @@ const contactType = computed<'email' | 'phone'>(() => {
           :state="emailForm"
           class="flex flex-col gap-4 flex-1"
           :disabled="isLoading"
+          autocomplete="off"
           @submit="onSubmitEmail"
         >
           <UFormField
@@ -249,6 +198,7 @@ const contactType = computed<'email' | 'phone'>(() => {
               size="xl"
               placeholder="Nhập email của bạn"
               icon="i-lucide-mail"
+              autocomplete="off"
             />
           </UFormField>
 
@@ -257,9 +207,9 @@ const contactType = computed<'email' | 'phone'>(() => {
             size="xl"
             class="w-full min-h-14 text-lg"
             block
-            :loading="isLoading && !showChangePasswordModal && !showOTPModal"
+            :loading="isLoading"
           >
-            Gửi mã OTP
+            Gửi yêu cầu
           </UButton>
         </UForm>
       </template>
@@ -274,19 +224,19 @@ const contactType = computed<'email' | 'phone'>(() => {
       </ULink>
     </div>
 
-    <AuthOtpModal
+    <!-- <AuthOtpModal
       v-model:open="showOTPModal"
       :contact-info="contactInfo"
       :contact-type="contactType"
       :loading="isLoading"
       @submit="onSubmitOTP"
       @resend="handleResendOTP"
-    />
+    /> -->
 
-    <AuthChangePasswordModal
+    <!-- <AuthChangePasswordModal
       v-model:open="showChangePasswordModal"
       :loading="isLoading"
       @submit="onSubmitChangePassword"
-    />
+    /> -->
   </div>
 </template>

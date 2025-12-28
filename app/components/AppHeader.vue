@@ -40,6 +40,35 @@ const items = computed(() => {
   return result
 })
 
+const showLogoutModal = ref(false)
+const isLoggingOut = ref(false)
+
+async function handleLogout() {
+  isLoggingOut.value = true
+  try {
+    await authStore.logout()
+    toast.add({
+      title: 'Đăng xuất thành công',
+      description: 'Bạn đã đăng xuất thành công',
+      color: 'success'
+    })
+    showLogoutModal.value = false
+    router.push('/')
+  } catch {
+    toast.add({
+      title: 'Đăng xuất thất bại',
+      description: 'Có lỗi xảy ra khi đăng xuất. Vui lòng thử lại',
+      color: 'error'
+    })
+  } finally {
+    isLoggingOut.value = false
+  }
+}
+
+function handleLogoutClick() {
+  showLogoutModal.value = true
+}
+
 const userMenuItems = computed(() => [
   [
     {
@@ -53,15 +82,7 @@ const userMenuItems = computed(() => [
       label: 'Đăng xuất',
       icon: 'i-lucide-log-out',
       color: 'error',
-      onSelect: async () => {
-        await authStore.logout()
-        toast.add({
-          title: 'Đăng xuất thành công',
-          description: 'Bạn đã đăng xuất thành công',
-          color: 'success'
-        })
-        router.push('/')
-      }
+      onSelect: handleLogoutClick
     }
   ]
 ])
@@ -291,10 +312,7 @@ const userAvatar = computed(() => {
           label="Đăng xuất"
           variant="outline"
           block
-          @click="
-            authStore.logout();
-            router.push('/');
-          "
+          @click="handleLogoutClick"
         />
       </template>
 
@@ -314,6 +332,16 @@ const userAvatar = computed(() => {
         />
       </template>
     </template>
+
+    <!-- Logout Confirmation Modal -->
+    <SharedConfirmModal
+      v-model:open="showLogoutModal"
+      title="Xác nhận đăng xuất"
+      description="Bạn có chắc chắn muốn đăng xuất khỏi tài khoản không?"
+      :loading="isLoggingOut"
+      @confirm="handleLogout"
+      @close="showLogoutModal = false"
+    />
   </UHeader>
 </template>
 

@@ -93,8 +93,7 @@ export const authService = {
   resetPasswordVerify: async (params: ResetPasswordVerifyRequest) => {
     const { $api } = useNuxtApp()
     const queryParams = new URLSearchParams({
-      token: params.token,
-      otp: params.otp
+      token: params.token
     })
     if (params.phone) queryParams.append('phone', params.phone)
     if (params.email) queryParams.append('email', params.email)

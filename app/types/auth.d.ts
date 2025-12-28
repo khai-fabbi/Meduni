@@ -46,7 +46,6 @@ export type ForgotPasswordResponse = Record<string, never>
 
 export interface ResetPasswordVerifyRequest {
   token: string
-  otp: string
   phone?: string
   email?: string
 }

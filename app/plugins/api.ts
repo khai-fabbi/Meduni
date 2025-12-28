@@ -32,13 +32,17 @@ export default defineNuxtPlugin((_nuxtApp) => {
     },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async onResponseError({ response, request, options }) {
+      const isLoginPath = request.toString().endsWith('/auth/login')
       if (response.status === HttpCode.NOT_FOUND) {
         // throw createError({
         //   statusCode: HttpCode.NOT_FOUND,
         //   statusMessage: 'Không tìm thấy dữ liệu',
         //   fatal: true
         // })
-      } else if (response.status === HttpCode.UNAUTHORIZED) {
+      } else if (response.status === HttpCode.UNAUTHORIZED && !isLoginPath) {
+        console.log('request:: ', request)
+        console.log('response:: ', response)
+
         removeToken()
         if (import.meta.client) {
           authStore.logout()

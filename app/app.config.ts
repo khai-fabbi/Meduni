@@ -58,6 +58,11 @@ export default defineAppConfig({
           }
         }
       }
+    },
+    toast: {
+      slots: {
+        root: 'rounded-sm'
+      }
     }
   }
 })

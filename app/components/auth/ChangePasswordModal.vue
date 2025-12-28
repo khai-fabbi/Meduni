@@ -8,6 +8,7 @@ import {
 
 defineProps<{
   loading: boolean
+  dismissible?: boolean
 }>()
 
 const open = defineModel<boolean>('open', { default: false })
@@ -72,6 +73,7 @@ const color = computed(() => {
     }"
     title="Đổi mật khẩu"
     description="Đổi mật khẩu"
+    :dismissible="dismissible"
   >
     <template #body>
       <div class="ring-10 ring-primary/10 rounded-full mx-auto w-fit my-8">
