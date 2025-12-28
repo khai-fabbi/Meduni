@@ -6,6 +6,10 @@ import LessonTabs from '~/components/lesson/LessonTabs.vue'
 import LessonTableOfContents from '~/components/lesson/LessonTableOfContents.vue'
 import type { LessonResourceLink } from '~/components/shared/LessonResources.vue'
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const route = useRoute()
 const pathParts = route.path.split('/').filter(Boolean)
 const courseId = computed(() => String(route.params.id || pathParts[1] || '1'))

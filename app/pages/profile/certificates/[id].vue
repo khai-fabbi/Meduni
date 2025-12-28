@@ -31,7 +31,8 @@ const items = ref<BreadcrumbItem[]>([
 ])
 
 definePageMeta({
-  layout: 'profile'
+  layout: 'profile',
+  middleware: 'auth'
 })
 
 // Mock data - trong thực tế sẽ fetch từ API dựa trên certificateId

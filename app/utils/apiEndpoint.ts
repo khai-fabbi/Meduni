@@ -4,7 +4,7 @@ export const ApiEndpoint = {
   Auth: {
     Login: `${prefix}/auth/login`,
     Register: `${prefix}/auth/register`,
-    VerifyRegister: `${prefix}/auth/verify-register`,
+    VerifyRegister: `${prefix}/auth/register-account`,
     RefreshToken: `${prefix}/auth/refresh-token`,
     ForgotPassword: `${prefix}/auth/forgot-password`,
     ResetPassword: `${prefix}/auth/reset-password`,

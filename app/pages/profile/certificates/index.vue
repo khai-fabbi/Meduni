@@ -27,7 +27,8 @@ const items = ref<BreadcrumbItem[]>([
 ])
 
 definePageMeta({
-  layout: 'profile'
+  layout: 'profile',
+  middleware: 'auth'
 })
 
 const isLoading = ref(true)

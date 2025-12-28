@@ -26,20 +26,20 @@ enum ForgotPasswordType {
 
 const loginItems = [
   {
-    label: 'Số điện thoại',
-    value: ForgotPasswordType.PHONE,
-    icon: 'i-lucide-phone',
-    slot: 'phone' as const
-  },
-  {
     label: 'Email',
     value: ForgotPasswordType.EMAIL,
     icon: 'i-lucide-mail',
     slot: 'email' as const
+  },
+  {
+    label: 'Số điện thoại',
+    value: ForgotPasswordType.PHONE,
+    icon: 'i-lucide-phone',
+    slot: 'phone' as const
   }
 ] satisfies TabsItem[]
 
-const forgotPasswordType = ref<ForgotPasswordType>(ForgotPasswordType.PHONE)
+const forgotPasswordType = ref<ForgotPasswordType>(ForgotPasswordType.EMAIL)
 const isLoading = ref(false)
 const showOTPModal = ref(false)
 const showChangePasswordModal = ref(false)

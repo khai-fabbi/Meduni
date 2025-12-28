@@ -13,7 +13,8 @@ export default defineNuxtConfig({
     'nuxt-og-image',
     '@nuxt/fonts',
     'nuxt-svgo',
-    '@nuxt/scripts'
+    '@nuxt/scripts',
+    'pinia-plugin-persistedstate/nuxt'
   ],
 
   devtools: {
@@ -59,7 +60,7 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
-      routes: ['/', '/gioi-thieu'],
+      routes: ['/gioi-thieu'],
       crawlLinks: true
     }
   },

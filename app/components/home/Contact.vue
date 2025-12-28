@@ -67,7 +67,7 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
     >
       Thông tin liên hệ
     </Heading>
-    <div class="max-w-7xl w-full mx-auto flex gap-4 flex-col-reverse flex-col md:flex-row items-center">
+    <div class="max-w-7xl w-full mx-auto flex gap-4 flex-col-reverse md:flex-row items-center overflow-hidden">
       <!-- left section -->
       <div class="rounded-lg bg-white p-4 md:px-7.5 md:py-5 md:max-w-[808px]">
         <div class="md:max-w-5/6">
@@ -183,7 +183,7 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
       </div>
 
       <!-- right section -->
-      <div class="bg-contact-info w-full md:max-w-[390px] rounded-lg h-fit text-white p-4 md:px-7.5 md:py-4 md:-translate-x-1/3">
+      <div class="bg-contact-info w-full md:max-w-[390px] rounded-lg h-fit text-white p-4 md:px-7.5 md:py-4 md:-ml-32">
         <div class="space-y-2">
           <Heading variant="h4">
             Thông tin hỗ trợ

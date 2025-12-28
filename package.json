@@ -27,6 +27,7 @@
     "nuxt": "^4.2.1",
     "nuxt-og-image": "^5.1.12",
     "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
     "vidstack": "^1.12.13",
     "zod": "^4.1.13"
   },

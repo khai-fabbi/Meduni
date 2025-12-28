@@ -29,7 +29,8 @@ const items = ref<BreadcrumbItem[]>([
 ])
 
 definePageMeta({
-  layout: 'profile'
+  layout: 'profile',
+  middleware: 'auth'
 })
 
 const page = ref(1)
@@ -202,7 +203,7 @@ const formatCourseDuration = (seconds?: number) => {
                 color="primary"
                 size="lg"
                 class="w-38 h-12 text-base text-right md:text-center justify-center items-center"
-                :to="`/khoa-hoc/${course.id}`"
+                :to="`/khoa-hoc/${course.course_id}`"
               >
                 Tiếp tục học
               </UButton>

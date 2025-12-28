@@ -5,9 +5,7 @@ import type {
   CoursesListQueryParams,
   CourseCategory,
   CourseDetail,
-  CourseDetailResponse,
-  MyCourse,
-  MyCourseListResponse
+  MyCourse
 } from '~/types/course'
 import type { ApiResponse } from '~/types/common'
 import type { Ref } from 'vue'
@@ -45,9 +43,9 @@ export const coursesService = {
         query: computed(() => {
           const queryParams = unref(query) || {}
           return {
-            ...(queryParams.page && { page: queryParams.page }),
-            ...(queryParams.limit && { limit: queryParams.limit }),
-            ...(queryParams.sort && { sort: queryParams.sort })
+            ...(queryParams.page && { page_number: queryParams.page }),
+            ...(queryParams.limit && { page_size: queryParams.limit }),
+            ...(queryParams.keyword && { keyword: queryParams.keyword })
           }
         })
       }

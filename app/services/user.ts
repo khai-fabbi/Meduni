@@ -27,10 +27,13 @@ export const userService = {
   /**
    * Lấy thông tin người dùng
    */
-  getInfo: async () => {
+  getInfo: async (accessToken?: string) => {
     const { $api } = useNuxtApp()
     return $api<ApiResponse<UserInfoResponse>>(ApiEndpoint.User.GetInfo, {
-      method: 'GET'
+      method: 'GET',
+      headers: {
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+      }
     })
   },
 

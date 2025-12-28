@@ -3,7 +3,6 @@ import { motion } from 'motion-v'
 import CourseCard from '~/components/course/CourseCard.vue'
 import SkeletonCourseCard from '~/components/skeleton/CourseCard.vue'
 import { services } from '~/services'
-import type { CourseDetail } from '~/types/course'
 import { getLinkFromS3, goToTop } from '~/utils/helpers'
 
 const route = useRoute()
@@ -17,6 +16,10 @@ useSeoMeta({
   ogTitle: title,
   description,
   ogDescription: description
+})
+
+definePageMeta({
+  middleware: 'auth'
 })
 
 const PAGE_SIZE = 16
@@ -47,13 +50,12 @@ const {
 const courses = computed(() => {
   if (!coursesData.value?.data) return []
   const apiCourses = coursesData.value.data || []
-  return apiCourses.map((course: CourseDetail) => ({
+  return apiCourses.map(course => ({
     id: course.course_id,
     title: course.course_name,
-    duration: course.info?.total_duration.toString(),
-    price: course.price || 0,
+    duration: course.info?.total_duration?.toString() || '0',
     image: course.course_image ? getLinkFromS3(course.course_image) : undefined,
-    slug: course.slug || course.course_id
+    price: 0
   }))
 })
 

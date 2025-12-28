@@ -29,7 +29,8 @@ const items = ref<BreadcrumbItem[]>([
 ])
 
 definePageMeta({
-  layout: 'profile'
+  layout: 'profile',
+  middleware: 'auth'
 })
 
 enum NotificationTab {

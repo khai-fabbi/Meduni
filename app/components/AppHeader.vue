@@ -7,7 +7,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 const { user, isLoggedIn } = storeToRefs(authStore)
 const router = useRouter()
-
+const toast = useToast()
 const baseItems = [
   {
     label: 'Giới thiệu',
@@ -53,8 +53,13 @@ const userMenuItems = computed(() => [
       label: 'Đăng xuất',
       icon: 'i-lucide-log-out',
       color: 'error',
-      onSelect: () => {
-        authStore.logout()
+      onSelect: async () => {
+        await authStore.logout()
+        toast.add({
+          title: 'Đăng xuất thành công',
+          description: 'Bạn đã đăng xuất thành công',
+          color: 'success'
+        })
         router.push('/')
       }
     }
@@ -81,8 +86,9 @@ const userLastName = computed(() => {
 
 const cartCount = computed(() => {
   if (!user.value?.total_cart) return 0
-  const count = parseInt(user.value.total_cart, 10)
-  return isNaN(count) ? 0 : count
+  // const count = parseInt(user.value.total_cart, 10)
+  // return isNaN(count) ? 0 : count
+  return 0
 })
 
 const userAvatar = computed(() => {

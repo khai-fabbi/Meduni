@@ -3,7 +3,8 @@ import * as z from 'zod'
 import type { FormSubmitEvent, TabsItem } from '@nuxt/ui'
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: 'guest'
 })
 
 useSeoMeta({
@@ -27,20 +28,20 @@ const phoneSchema = z.object({
 
 const loginItems = [
   {
-    label: 'Số điện thoại',
-    value: LoginType.PHONE,
-    icon: 'i-lucide-phone',
-    slot: 'phone' as const
-  },
-  {
     label: 'Email',
     value: LoginType.EMAIL,
     icon: 'i-lucide-mail',
     slot: 'email' as const
+  },
+  {
+    label: 'Số điện thoại',
+    value: LoginType.PHONE,
+    icon: 'i-lucide-phone',
+    slot: 'phone' as const
   }
 ] satisfies TabsItem[]
 
-const loginType = ref<LoginType>(LoginType.PHONE)
+const loginType = ref<LoginType>(LoginType.EMAIL)
 
 const emailForm = reactive({
   email: '',

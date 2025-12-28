@@ -27,17 +27,17 @@ useSeoMeta({
 const links = [
   {
     label: 'Giới thiệu',
-    icon: 'i-lucide-book',
+    icon: 'i-lucide-zap',
     to: '/gioi-thieu'
   },
   {
     label: 'E-Learning',
-    icon: 'i-lucide-book',
+    icon: 'i-lucide-graduation-cap',
     to: '/e-learning'
   },
   {
     label: 'Khoá học',
-    icon: 'i-lucide-book',
+    icon: 'i-lucide-tv-minimal-play',
     to: '/khoa-hoc'
   },
   {
@@ -49,7 +49,13 @@ const links = [
     label: 'Y tế cộng đồng',
     icon: 'i-lucide-history',
     to: '/y-te-cong-dong'
+  },
+  {
+    label: 'Trang cá nhân',
+    icon: 'i-lucide-user-circle',
+    to: '/profile'
   }
+
 ]
 </script>
 

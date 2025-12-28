@@ -50,7 +50,7 @@ export const authService = {
   verifyRegister: async (params: VerifyRegisterRequest) => {
     const { $api } = useNuxtApp()
     return $api<ApiResponse<VerifyRegisterResponse>>(
-      `${ApiEndpoint.Auth.VerifyRegister}?otp=${params.otp}`,
+      `${ApiEndpoint.Auth.VerifyRegister}?token=${params.token}`,
       {
         method: 'GET'
       }

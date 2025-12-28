@@ -10,25 +10,24 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   userId: string
-  user_name: string
-  email: string
   accessToken: string
   refreshToken: string
-  total_cart: string
-  total_notification: string
 }
 
 export interface RegisterRequest {
   email: string
   phone: string
   password: string
-  user_name: string
+  username: string
+  country_number?: string
+  verify_email?: boolean
+  invite_code?: string
 }
 
 export type RegisterResponse = boolean
 
 export interface VerifyRegisterRequest {
-  otp: string
+  token: string
 }
 
 export type VerifyRegisterResponse = boolean

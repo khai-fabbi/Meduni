@@ -2,9 +2,12 @@
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { signupSchema, type SignupSchema } from '~/utils/schema/signup'
 import SharedConfettiEffect from '~/components/shared/ConfettiEffect.vue'
+import { authService } from '~/services/auth'
+import type { RegisterRequest } from '~/types'
 
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  middleware: 'guest'
 })
 
 useSeoMeta({
@@ -15,13 +18,15 @@ useSeoMeta({
 const toast = useToast()
 const confettiRef = ref<InstanceType<typeof SharedConfettiEffect> | null>(null)
 
+const form = useTemplateRef('form')
+
 const signupForm = reactive({
-  fullName: '',
+  username: '',
   phone: '',
   email: '',
   password: '',
-  confirmPassword: '',
-  referralCode: ''
+  confirm_password: '',
+  invite_code: ''
 })
 
 const isLoading = ref(false)
@@ -29,24 +34,92 @@ const isLoading = ref(false)
 async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
   try {
     isLoading.value = true
-    console.log('Submitted', payload.data)
 
-    nextTick(() => {
-      confettiRef.value?.trigger()
-    })
+    // Gọi API register
+    const country_number = '+84'
+    const phoneTrimmed = payload.data.phone.trim()
+    const phoneProcessed = phoneTrimmed.startsWith('0')
+      ? phoneTrimmed.substring(1)
+      : phoneTrimmed
+    const phoneConverted = country_number + phoneProcessed
 
-    toast.add({
-      title: 'Đăng ký thành công',
-      description:
-        'Bạn đã đăng ký thành công! Vui lòng kiểm tra email để tiếp tục',
-      color: 'success'
-    })
-  } catch (error) {
-    toast.add({
-      title: 'Đăng ký thất bại',
-      description: error instanceof Error ? error.message : 'Có lỗi xảy ra',
-      color: 'error'
-    })
+    const registerPayload: RegisterRequest = {
+      username: payload.data.username.trim(),
+      email: payload.data.email.toLowerCase(),
+      phone: phoneConverted,
+      password: payload.data.password,
+      verify_email: true,
+      country_number,
+      invite_code: payload.data.invite_code?.trim() || undefined
+    }
+
+    const response = await authService.register(registerPayload)
+
+    if (response.data) {
+      toast.add({
+        title: 'Đăng ký thành công',
+        description: 'Vui lòng kiểm tra email để xác thực tài khoản',
+        color: 'success'
+      })
+
+      nextTick(() => {
+        confettiRef.value?.trigger()
+      })
+    }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    interface ErrorResponseType {
+      error: {
+        code: string
+      }
+    }
+    interface ErrorInputResponse {
+      error: {
+        property: string
+        error: string
+      }[]
+      error_type: string
+    }
+    const mappingFieldError: Record<string, string> = {
+      username: 'Tên người dùng',
+      phone: 'Số điện thoại',
+      email: 'Email',
+      password: 'Mật khẩu',
+      invite_code: 'Mã giới thiệu'
+    }
+    const errorResponse = error.data as ErrorResponseType | ErrorInputResponse
+    if ((errorResponse as ErrorInputResponse)?.error_type === ERROR_TYPE.INPUT_ERROR) {
+      const errors = (errorResponse as ErrorInputResponse).error
+
+      const errorMessages = errors.map((error) => {
+        const field = mappingFieldError[error.property]
+        if (field) {
+          return { name: error.property, message: `${field} không hợp lệ` }
+        }
+        return null
+      })
+      console.log('errorMessages:', errorMessages)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      form.value?.setErrors(errorMessages.filter(Boolean) as any)
+    } else if ((errorResponse as ErrorResponseType).error?.code === REGISTER_ERROR_CODES.ERROR2_215) {
+      toast.add({
+        title: 'Đăng ký thất bại',
+        description: 'Email đã được sử dụng',
+        color: 'error'
+      })
+    } else if ((errorResponse as ErrorResponseType).error?.code === REGISTER_ERROR_CODES.ERROR2_216) {
+      toast.add({
+        title: 'Đăng ký thất bại',
+        description: 'Số điện thoại đã được sử dụng',
+        color: 'error'
+      })
+    } else {
+      toast.add({
+        title: 'Đăng ký thất bại',
+        description: 'Vui lòng kiểm tra lại thông tin đăng ký',
+        color: 'error'
+      })
+    }
   } finally {
     isLoading.value = false
   }
@@ -70,6 +143,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
     </div>
 
     <UForm
+      ref="form"
       :schema="signupSchema"
       :state="signupForm"
       class="flex flex-col gap-3 flex-1"
@@ -79,11 +153,11 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
     >
       <UFormField
         label="Họ và tên"
-        name="fullName"
+        name="username"
         required
       >
         <UInput
-          v-model="signupForm.fullName"
+          v-model="signupForm.username"
           class="w-full"
           placeholder="Nhập họ và tên của bạn"
           size="xl"
@@ -142,7 +216,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         required
       >
         <SharedInputPassword
-          v-model="signupForm.confirmPassword"
+          v-model="signupForm.confirm_password"
           class="w-full"
           size="xl"
           placeholder="Nhập lại mật khẩu"
@@ -155,7 +229,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         name="referralCode"
       >
         <UInput
-          v-model="signupForm.referralCode"
+          v-model="signupForm.invite_code"
           class="w-full"
           placeholder="Nhập mã giới thiệu (nếu có)"
           size="xl"
