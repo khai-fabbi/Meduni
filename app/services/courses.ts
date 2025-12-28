@@ -5,7 +5,8 @@ import type {
   CoursesListQueryParams,
   CourseCategory,
   CourseDetail,
-  MyCourse
+  MyCourse,
+  LessonDetail
 } from '~/types/course'
 import type { ApiResponse } from '~/types/common'
 import type { Ref } from 'vue'
@@ -85,5 +86,19 @@ export const coursesService = {
 
   getCategories: () => {
     return useApiFetch<ApiResponse<CourseCategory[]>>(ApiEndpoint.Courses.GetCategories)
+  },
+
+  /**
+   * Lấy chi tiết bài học theo ID
+   * @param myCourseId - ID khóa học của user (courses_users.id)
+   * @param lessonId - ID bài học
+   */
+  getLessonById: (myCourseId: string, lessonId: string) => {
+    return useApiFetch<ApiResponse<LessonDetail>>(
+      ApiEndpoint.Courses.GetLessonDetail(myCourseId, lessonId),
+      {
+        method: 'GET'
+      }
+    )
   }
 }

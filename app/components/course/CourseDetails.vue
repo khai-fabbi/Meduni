@@ -5,13 +5,19 @@ import DifficultyIcon from '~/assets/icons/difficulty.svg'
 import TimeIcon from '~/assets/icons/time.svg'
 import CertificateIcon from '~/assets/icons/certificate.svg'
 
-interface Props {
+interface CourseInfo {
+  courseId: string
   language: string
   totalLessons: number
   difficulty: string
   duration: string
   certificate: string
+}
+
+interface Props {
+  courseInfo: CourseInfo
   isOwned: boolean
+  firstLessonId: string
 }
 
 defineProps<Props>()
@@ -31,27 +37,27 @@ defineProps<Props>()
       <div class="flex items-center gap-3">
         <VolumeIcon class="size-5 md:size-6" />
         <span>Ngôn ngữ:</span>
-        <span class="font-semibold">{{ language }}</span>
+        <span class="font-semibold">{{ courseInfo.language }}</span>
       </div>
       <div class="flex gap-2 md:gap-3 items-center">
         <BookIcon class="size-5 md:size-6" />
         <span>Số bài học:</span>
-        <span class="font-semibold">{{ totalLessons }}</span>
+        <span class="font-semibold">{{ courseInfo.totalLessons }}</span>
       </div>
       <div class="flex gap-2 md:gap-3 items-center">
         <DifficultyIcon class="size-5 md:size-6" />
         <span>Độ khó:</span>
-        <span class="font-semibold">{{ difficulty }}</span>
+        <span class="font-semibold">{{ courseInfo.difficulty }}</span>
       </div>
       <div class="flex gap-2 md:gap-3 items-center">
         <TimeIcon class="size-5 md:size-6" />
         <span>Thời gian:</span>
-        <span class="font-semibold">{{ duration }}</span>
+        <span class="font-semibold">{{ courseInfo.duration }}</span>
       </div>
       <div class="flex flex-wrap gap-2 md:gap-3 items-center">
         <CertificateIcon class="size-5 md:size-6" />
         <span>Giấy chứng nhận:</span>
-        <span class="font-semibold">{{ certificate }}</span>
+        <span class="font-semibold">{{ courseInfo.certificate }}</span>
       </div>
     </div>
 
@@ -64,6 +70,7 @@ defineProps<Props>()
       block
       class="min-h-12 md:min-h-14 bg-gradient-to-b from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800"
       icon="i-lucide-book-open"
+      :to="isOwned ? `/khoa-hoc/${courseInfo.courseId}/bai-hoc/${firstLessonId}` : '#'"
     />
   </div>
 </template>

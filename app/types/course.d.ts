@@ -71,6 +71,9 @@ export interface CourseDetail {
   is_special_coach: boolean
   has_multiple_tabs: boolean
   info: CourseDetailInfo
+
+  // if isOwned
+  my_course_id?: string
 }
 
 export interface ChapterExercise {
@@ -200,4 +203,22 @@ export interface MyCourse {
 export interface MyCourseListResponse {
   data: MyCourse[]
   page: Page
+}
+
+export interface LessonDetail {
+  lesson_id: string
+  lesson_name: string
+  description: string
+  course_id: string
+  chapter_id: string
+  lesson_path: string
+  lesson_duration: number
+  lesson_size: number
+  file_name: string
+  lesson_type: number
+  teacher_name: string
+  outstanding_quote: string
+  lesson_order: number
+  is_locked: boolean
+  lesson_material: unknown[]
 }

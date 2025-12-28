@@ -5,8 +5,8 @@
         ref="$player"
         :title="videoTitle"
         :src="{
-          src: 'https://files.vidstack.io/sprite-fight/720p.mp4',
-          type: 'video/mp4'
+          src: src,
+          type: type
         }"
         controls
         :autoplay="false"
@@ -28,8 +28,17 @@
   </ClientOnly>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import 'vidstack/bundle'
+
+interface Props {
+  src: string
+  type?: string
+}
+
+withDefaults(defineProps<Props>(), {
+  type: 'video/mp4'
+})
 
 const $player = ref()
 const videoTitle = ref('Sprite Fight')
@@ -40,7 +49,8 @@ const volume = useCookie('volume', {
   })
 })
 
-function onVolumeChange(event) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function onVolumeChange(event: any) {
   volume.value = {
     volume: event.detail.volume,
     muted: event.detail.muted

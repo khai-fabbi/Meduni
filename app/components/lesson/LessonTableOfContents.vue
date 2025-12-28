@@ -5,7 +5,7 @@ import LessonResources, { type LessonResourceLink } from '~/components/shared/Le
 import LearningDoneIcon from '~/assets/icons/learning_done.svg'
 
 interface Lesson {
-  id: number
+  id: string
   title: string
   duration: string
   statusText?: string
@@ -24,7 +24,7 @@ interface Chapter {
 interface Props {
   chapters: Chapter[]
   courseId: string
-  currentLessonId: number
+  currentLessonId: string
 }
 
 const props = defineProps<Props>()
@@ -41,8 +41,9 @@ onMounted(() => {
       ...lesson
     }))
   }))
-
-  activeChapter.value = ['2']
+  // Find active chapter
+  const foundChapterIndex = props.chapters.findIndex(chapter => chapter.lessons.some(lesson => lesson.id === props.currentLessonId)) || 0
+  activeChapter.value = [foundChapterIndex.toString()]
 })
 
 const progress = 50
@@ -99,22 +100,22 @@ const progress = 50
                 ]"
               >
                 <div
-                  v-if="lesson.quiz?.done"
-                  class="size-5"
+                  class="text-primary flex items-center gap-2"
                 >
-                  <LearningDoneIcon />
-                </div>
-                <div
-                  v-else-if="lesson.id === currentLessonId"
-                  class="size-5 animate-stroke-draw"
-                >
-                  <UIcon name="i-lucide-circle-pause" />
-                </div>
-                <div
-                  v-else
-                  class="size-5 text-primary"
-                >
-                  <UIcon name="i-lucide-circle-play" />
+                  <LearningDoneIcon
+                    v-if="lesson.quiz?.done"
+                    class="size-5"
+                  />
+                  <UIcon
+                    v-else-if="lesson.id === currentLessonId"
+                    name="i-lucide-circle-pause"
+                    class="size-5"
+                  />
+                  <UIcon
+                    v-else
+                    name="i-lucide-circle-play"
+                    class="size-5"
+                  />
                 </div>
                 <span class="text-base md:text-lg flex-1 font-medium line-clamp-1">
                   {{ lesson.title }}

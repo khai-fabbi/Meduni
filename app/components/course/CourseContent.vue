@@ -4,9 +4,11 @@ import ChapterIcon from '~/assets/icons/chapter.svg'
 import PlayCircleIcon from '~/assets/icons/play-circle.svg'
 
 interface Lesson {
-  id: number
   title: string
   duration: string
+  lesson_order: number
+  lesson_type: number
+  lesson_id: string
 }
 
 interface Chapter {
@@ -19,9 +21,13 @@ interface Chapter {
 
 interface Props {
   chapters: Chapter[]
+  courseId: string
+  isOwned?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isOwned: false
+})
 
 const items = shallowRef<AccordionItem[]>([])
 
@@ -64,11 +70,12 @@ onMounted(() => {
           <ul>
             <li
               v-for="lesson in item.lessons"
-              :key="lesson.id"
+              :key="lesson.lesson_id"
             >
               <NuxtLink
-                :to="`/khoa-hoc/${item.id}/bai-hoc/${lesson.id}`"
+                :to="isOwned ? `/khoa-hoc/${courseId}/bai-hoc/${lesson.lesson_id}` : '#'"
                 class="flex items-center gap-4 min-h-15 md:min-h-16 px-3 md:px-5 border-b border-neutral-200 hover:bg-primary-50 hover:text-primary transition-colors"
+                :class="[isOwned ? 'cursor-pointer' : 'cursor-default']"
               >
                 <PlayCircleIcon class="size-5" />
                 <span class="text-base md:text-lg flex-1 font-medium line-clamp-1">

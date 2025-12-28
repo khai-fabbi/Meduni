@@ -2,6 +2,7 @@
 import StarsIcon from '~/assets/icons/stars.svg'
 
 interface Props {
+  courseId: string
   keywords: string[]
   totalVideos: number
   totalDuration: string
@@ -37,7 +38,7 @@ defineProps<Props>()
 
     <p class="text-base">
       Video này là một phần của: <NuxtLink
-        to="/khoa-hoc/1"
+        :to="`/khoa-hoc/${courseId}`"
         class="animate-link-underline text-primary font-semibold"
       >{{ courseTitle }}</NuxtLink>
     </p>

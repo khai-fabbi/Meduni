@@ -31,7 +31,9 @@ export const ApiEndpoint = {
     GetMyCourses: `${prefix}/user/courses`,
     GetCertificate: (myCourseId: string) => `${prefix}/${myCourseId}/certificate`,
     GetCertificates: `${prefix}/user/certificates`,
-    GetCategories: `${prefix}/categories`
+    GetCategories: `${prefix}/categories`,
+    GetLessonDetail: (myCourseId: string, lessonId: string) =>
+      `${prefix}/user/courses/${myCourseId}/lessons/${lessonId}`
   },
   User: {
     GetInfo: `${prefix}/user/info`,

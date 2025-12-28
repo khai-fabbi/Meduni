@@ -13,9 +13,11 @@ const route = useRoute()
 const courseId = route.params.id as string
 
 interface Lesson {
-  id: number
   title: string
   duration: string
+  lesson_order: number
+  lesson_type: number
+  lesson_id: string
 }
 
 interface Chapter {
@@ -82,10 +84,12 @@ const chapters = computed<Chapter[]>(() => {
       title: chapter.chapter_name,
       totalLessons: chapterLessons.length,
       totalDuration: formatDuration(totalDuration),
-      lessons: chapterLessons.map((lesson: ApiLesson, lessonIndex: number) => ({
-        id: lessonIndex + 1,
+      lessons: chapterLessons.map((lesson: ApiLesson) => ({
+        lesson_id: lesson.lesson_id,
         title: lesson.lesson_name,
-        duration: formatDuration(lesson.lesson_duration || 0)
+        duration: formatDuration(lesson.lesson_duration || 0),
+        lesson_order: lesson.lesson_order,
+        lesson_type: lesson.lesson_type
       }))
     }
   })
@@ -103,8 +107,6 @@ const instructor = {
     'Hàng chục nghìn gia đình đã và đang chuyển hóa tích cực 5 lan tỏa giá trị tích cực tới cộng đồng & xã hội.'
   ]
 }
-
-const isOwned = ref(false)
 
 // Breadcrumbs
 const items = computed<BreadcrumbItem[]>(() => [
@@ -133,6 +135,18 @@ useSeoMeta({
   description: description.value,
   ogDescription: description.value
 })
+
+const courseInfo = computed(() => ({
+  courseId: courseId,
+  language: course.value?.language || '',
+  totalLessons: course.value?.totalLessons || 0,
+  difficulty: course.value?.difficulty || '',
+  duration: course.value?.duration || '',
+  certificate: course.value?.certificate || ''
+}))
+
+const isOwned = computed(() => !!courseData.value?.data?.my_course_id)
+const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.toString() || '')
 </script>
 
 <template>
@@ -234,7 +248,11 @@ useSeoMeta({
           :animate="{ opacity: 1, y: 0 }"
           :transition="{ duration: 0.5, delay: 0.3 }"
         >
-          <CourseContent :chapters="chapters" />
+          <CourseContent
+            :chapters="chapters"
+            :course-id="courseId"
+            :is-owned="isOwned"
+          />
         </motion.div>
       </div>
 
@@ -245,12 +263,9 @@ useSeoMeta({
           :transition="{ duration: 0.5, delay: 0.2 }"
         >
           <CourseDetails
-            :language="course.language"
-            :total-lessons="course.totalLessons"
-            :difficulty="course.difficulty"
-            :duration="course.duration"
-            :certificate="course.certificate"
+            :course-info="courseInfo"
             :is-owned="isOwned"
+            :first-lesson-id="firstLessonId"
           />
         </motion.div>
 
