@@ -24,13 +24,13 @@ const greetingChars = greetingText.split('')
     >
       <div class="max-w-lg w-full space-y-12 text-center">
         <motion.div
-          :initial="{ opacity: 0, scale: 0.8, y: -20 }"
+          :initial="{ opacity: 0, scale: 0.85, y: -20 }"
           :animate="{ opacity: 1, scale: 1, y: 0 }"
           :transition="{ duration: 0.8, ease: 'easeOut' }"
         >
           <NuxtImg
             src="/Robot.png"
-            class="w-100 h-auto mx-auto"
+            class="w-80 h-auto mx-auto"
           />
         </motion.div>
 
