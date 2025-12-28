@@ -13,17 +13,17 @@ useSeoMeta({
 
     <HomeTranningProgram />
 
-    <HomeAchievementsAchieved />
+    <LazyHomeAchievementsAchieved />
 
-    <HomeScientificCouncil />
-    <HomeLearnWithGlobalExperts />
+    <LazyHomeScientificCouncil />
+    <LazyHomeLearnWithGlobalExperts />
 
     <!-- <SkeletonHomePopularCourses /> -->
-    <HomePopularCourses />
+    <LazyHomePopularCourses />
 
-    <HomeContact />
+    <LazyHomeContact />
 
     <!-- <SkeletonHomeNews  /> -->
-    <HomeNews />
+    <LazyHomeNews />
   </main>
 </template>

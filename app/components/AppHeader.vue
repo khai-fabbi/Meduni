@@ -138,12 +138,6 @@ const userAvatar = computed(() => {
 
     <template #right>
       <div class="flex items-center justify-end gap-2 md:gap-3 min-w-0 shrink">
-        <UContentSearchButton
-          label="Tìm kiếm nội dung"
-          class="flex rounded-md w-5 h-5 text-neutral-600 px-0 lg:px-auto header-search-btn"
-          variant="ghost"
-        />
-        <span class="hidden lg:block text-line-gray shrink-0 header-separator-1">|</span>
         <ClientOnly>
           <NuxtLink
             to="/carts"

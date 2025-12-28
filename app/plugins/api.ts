@@ -30,19 +30,20 @@ export default defineNuxtPlugin((_nuxtApp) => {
         }
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     async onResponseError({ response, request, options }) {
-      switch (response.status) {
-        case HttpCode.UNAUTHORIZED:
-
-          console.log('request:', request, options)
-          // removeAccessToken()
-          if (import.meta.client) {
-            authStore.logout()
-          }
-          // await _nuxtApp.runWithContext(() => navigateTo('/'))
-          break
-        default:
-          break
+      if (response.status === HttpCode.NOT_FOUND) {
+        // throw createError({
+        //   statusCode: HttpCode.NOT_FOUND,
+        //   statusMessage: 'Không tìm thấy dữ liệu',
+        //   fatal: true
+        // })
+      } else if (response.status === HttpCode.UNAUTHORIZED) {
+        removeToken()
+        if (import.meta.client) {
+          authStore.logout()
+        }
+        await _nuxtApp.runWithContext(() => navigateTo('/'))
       }
     },
 

@@ -34,6 +34,13 @@ const {
   refresh: refreshCourse
 } = await services.courses.getCourseById(courseId)
 
+if (!courseData.value) {
+  throw createError({
+    statusCode: HttpCode.NOT_FOUND,
+    statusMessage: 'Không tìm thấy dữ liệu',
+    fatal: true
+  })
+}
 // Map API data to component format
 const course = computed(() => {
   if (!courseData.value?.data) {

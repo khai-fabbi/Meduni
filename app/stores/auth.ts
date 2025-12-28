@@ -80,20 +80,14 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = false
 
         // Clear cookies
-        const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY)
-        accessTokenCookie.value = null
-        const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY)
-        refreshTokenCookie.value = null
+        removeToken()
       } finally {
         // Clear state
         this.user = null
         this.isAuthenticated = false
 
         // Clear cookies
-        const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY)
-        accessTokenCookie.value = null
-        const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY)
-        refreshTokenCookie.value = null
+        removeToken()
 
         this.isLoading = false
       }

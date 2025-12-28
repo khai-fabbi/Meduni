@@ -163,6 +163,7 @@ const isCheckoutDisabled = computed(() => {
                   :placeholder="[20, 20]"
                   width="160"
                   height="120"
+                  loading="lazy"
                 />
 
                 <div class="flex-1 min-w-0">

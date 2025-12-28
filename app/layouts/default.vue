@@ -6,6 +6,6 @@
       <slot />
     </UMain>
 
-    <AppFooter />
+    <LazyAppFooter />
   </div>
 </template>

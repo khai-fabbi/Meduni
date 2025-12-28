@@ -5,6 +5,11 @@ const props = defineProps<{
   error: NuxtError
 }>()
 
+useSeoMeta({
+  title: props.error?.statusCode === HttpCode.NOT_FOUND ? 'Không tìm thấy trang' : 'Lỗi máy chủ',
+  description: props.error?.message
+})
+
 const statusCode = computed(() => props.error?.statusCode || 500)
 
 const errorConfig = computed(() => {
@@ -12,26 +17,19 @@ const errorConfig = computed(() => {
     return {
       title: '404',
       heading: 'Không tìm thấy trang',
-      message: 'Chúng tôi không thể tìm thấy trang bạn đang tìm kiếm...',
-      buttonText: 'Quay lại trang chủ'
+      message: 'Chúng tôi không thể tìm thấy trang bạn đang tìm kiếm...'
     }
   }
   return {
     title: '500',
     heading: 'Lỗi máy chủ',
-    message: 'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau...',
-    buttonText: 'Quay lại trang chủ'
+    message: 'Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau...'
   }
 })
 
 function handleError() {
   clearError({ redirect: '/' })
 }
-
-useSeoMeta({
-  title: statusCode.value === 404 ? 'Không tìm thấy trang' : 'Lỗi máy chủ',
-  description: errorConfig.value.message
-})
 </script>
 
 <template>
@@ -68,7 +66,7 @@ useSeoMeta({
           trailing-icon="i-lucide-arrow-right"
           @click="handleError"
         >
-          {{ errorConfig.buttonText }}
+          Quay lại trang chủ
         </UButton>
       </div>
     </div>

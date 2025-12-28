@@ -30,8 +30,9 @@ const durationFormatted = computed(() => formatDuration(Number(props.duration)))
         :src="image ?? '/images/course/course-placeholder.png'"
         alt="Course Image"
         class="size-full object-cover group-hover:scale-110 transition-all duration-300"
-        quality="100"
+        quality="80"
         :placeholder="[50, 25]"
+        loading="lazy"
       />
     </div>
 

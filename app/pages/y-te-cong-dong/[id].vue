@@ -155,7 +155,7 @@ const relatedArticles = computed(() => {
               :src="getLinkFromS3(newsDetail.cover_image)"
               :alt="newsDetail.title"
               class="w-full h-full object-cover"
-              quality="100"
+              loading="lazy"
             />
           </div>
 

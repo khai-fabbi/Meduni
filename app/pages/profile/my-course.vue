@@ -48,8 +48,7 @@ async function fetchCourses() {
       method: 'GET',
       query: {
         page_number: page.value,
-        page_size: PAGE_DEFAULT,
-        sort: 1 // 1: ngày mua, 2: tiến độ giảm, 3: tiến độ tăng, 4: học gần đây
+        page_size: PAGE_DEFAULT
       }
     })
 

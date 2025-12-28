@@ -20,7 +20,7 @@ const formatPrice = (price: number) => {
 <template>
   <article class="bg-white h-full rounded-lg shadow-md overflow-hidden hover:shadow-lg hover:shadow-secondary/15 transition-all duration-300 group flex flex-col">
     <NuxtLink
-      :to="to ?? '#'"
+      to="#"
       class="block"
     >
       <div class="overflow-hidden w-full aspect-video">

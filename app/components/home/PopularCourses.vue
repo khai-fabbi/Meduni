@@ -9,7 +9,7 @@ const popularCourses = [
     duration: '10 giờ',
     price: 2990000,
     image: '/images/course/course-placeholder.png',
-    to: '/khoa-hoc/ai-trong-y-te-co-ban'
+    to: '#'
   },
   {
     id: 2,
@@ -18,7 +18,7 @@ const popularCourses = [
     duration: '15 giờ',
     price: 3990000,
     image: '/images/course/course-placeholder.png',
-    to: '/khoa-hoc/deep-learning-chan-doan-y-khoa'
+    to: '#'
   },
   {
     id: 3,
@@ -27,7 +27,7 @@ const popularCourses = [
     duration: '12 giờ',
     price: 3490000,
     image: '/images/course/course-placeholder.png',
-    to: '/khoa-hoc/machine-learning-y-te'
+    to: '#'
   },
   {
     id: 4,
@@ -36,7 +36,7 @@ const popularCourses = [
     duration: '8 giờ',
     price: 2490000,
     image: '/images/course/course-placeholder.png',
-    to: '/khoa-hoc/xu-ly-anh-y-te-ai'
+    to: '#'
   },
   {
     id: 5,
@@ -45,7 +45,7 @@ const popularCourses = [
     duration: '14 giờ',
     price: 3790000,
     image: '/images/course/course-placeholder.png',
-    to: '/khoa-hoc/ai-quan-ly-benh-vien'
+    to: '#'
   },
   {
     id: 6,
@@ -54,7 +54,7 @@ const popularCourses = [
     duration: '16 giờ',
     price: 4290000,
     image: '/images/course/course-placeholder.png',
-    to: '/khoa-hoc/phan-tich-du-lieu-y-te-python'
+    to: '#'
   }
 ]
 </script>
