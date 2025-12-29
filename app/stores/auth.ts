@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import type { LoginRequest } from '~/types/auth'
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '~/utils/auth'
-import { authService } from '~/services/auth'
-import { userService } from '~/services/user'
-import { getAvatarUrl } from '~/utils/helpers'
 import type { UserInfoResponse } from '~/types/user'
+import type { ApiResponse } from '~/types/common'
+import { authService } from '~/services/auth'
+import { getAvatarUrl } from '~/utils/helpers'
+import { ApiEndpoint } from '~/utils/apiEndpoint'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -17,6 +18,46 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: state => state.isAuthenticated && state.user !== null
   },
   actions: {
+    /**
+     * Fetch user info từ API
+     * @param accessToken - Optional access token, nếu không có sẽ lấy từ cookie
+     */
+    async fetchUserInfo(accessToken?: string) {
+      try {
+        const token = accessToken || this.accessToken || useCookie(ACCESS_TOKEN_KEY).value
+        if (!token) {
+          throw new Error('No access token available')
+        }
+
+        const { $api } = useNuxtApp()
+        const response = await $api<ApiResponse<UserInfoResponse>>(
+          ApiEndpoint.User.GetInfo,
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        )
+
+        if (response.data) {
+          const userData = response.data
+
+          this.user = {
+            userId: userData.userId,
+            user_name: userData.user_name,
+            email: userData.email,
+            phone: userData.phone,
+            avatar: getAvatarUrl(userData.avatar),
+            total_cart: userData.total_cart?.toString() || '0'
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user info:', error)
+        throw error
+      }
+    },
+
     /**
      * Login với email hoặc phone
      */

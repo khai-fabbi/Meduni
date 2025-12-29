@@ -39,7 +39,8 @@ export const ApiEndpoint = {
     GetInfo: `${prefix}/user/info`,
     UpdateInfo: `${prefix}/user/update-info`,
     UpdatePassword: `${prefix}/user/update-password`,
-    GetCountries: `${prefix}/user/country`
+    GetCountries: `${prefix}/user/country`,
+    ReferralInfo: `${prefix}/user/referral/info`
   },
   Common: {
     UploadPreSignedUrl: `${prefix}/common/upload-pre-signed-url`
@@ -48,5 +49,16 @@ export const ApiEndpoint = {
     GetList: `${prefix}/notifications`,
     GetDetail: (notificationId: string) => `${prefix}/notifications/${notificationId}`,
     MarkAsRead: `${prefix}/notifications/read`
+  },
+  Cart: {
+    GetList: `${prefix}/cart`,
+    Add: `${prefix}/cart`,
+    Update: `${prefix}/cart`,
+    Estimate: `${prefix}/cart/est-cart`,
+    ApplyDiscount: `${prefix}/packages/apply-discount`
+  },
+  Payment: {
+    SePayTransaction: `${prefix}/sepay/transaction`,
+    SePayTransactionStatus: (transactionId: string) => `${prefix}/sepay/transaction/${transactionId}/status`
   }
 }

@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '@nuxt/ui'
+import type { Course, CoursesList } from '~/types/course'
+import type { ApiResponse } from '~/types/common'
 import SharedConfettiEffect from '~/components/shared/ConfettiEffect.vue'
+import CourseCard from '~/components/course/CourseCard.vue'
+import { getLinkFromS3 } from '~/utils/helpers'
+import { ApiEndpoint } from '~/utils/apiEndpoint'
+import { useCartStore } from '~/stores/cart'
 
 useSeoMeta({
   title: 'Thanh toán thành công',
@@ -20,42 +26,89 @@ const items = ref<BreadcrumbItem[]>([
 ])
 
 const isLoading = ref(true)
+const isLoadingRecommendedCourses = ref(true)
 const confettiRef = ref<InstanceType<typeof SharedConfettiEffect> | null>(null)
 
-const recommendedCourses = ref([
-  {
-    id: 1,
-    title: 'Chiến lược trí tuệ nhân tạo dành cho lãnh đạo',
-    duration: '13 giờ 24 phút',
-    price: 7200000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56'
-  },
-  {
-    id: 2,
-    title: 'Khóa đào tạo AI cho marketer không muốn bị tụt lại',
-    duration: '13 giờ 24 phút',
-    price: 6700000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3'
-  },
-  {
-    id: 3,
-    title: 'Chiến lược Marketing thời đại AI',
-    duration: '11 giờ 15 phút',
-    price: 5500000,
-    image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136'
-  },
-  {
-    id: 4,
-    title: 'Bứt phá hiệu suất công việc - Chương trình đào tạo Micro MBA AI',
-    duration: '8 giờ 00 phút',
-    price: 12200000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56'
-  }
-])
+const recommendedCourses = ref<Array<{
+  id: string
+  title: string
+  duration: string
+  price: number
+  image?: string
+  to?: string
+}>>([])
 
 const carouselRef = ref<HTMLElement | null>(null)
 
-onMounted(() => {
+async function fetchRecommendedCourses() {
+  try {
+    isLoadingRecommendedCourses.value = true
+
+    const cartStore = useCartStore()
+    const { $api } = useNuxtApp()
+
+    const ignoreIds = cartStore.cartApiItems
+      .map(item => item.course_id)
+      .filter(id => id && typeof id === 'string' && id.trim() !== '')
+
+    console.log('cartApiItems:', cartStore.cartApiItems)
+    console.log('ignoreIds:', ignoreIds)
+
+    const queryParams: Record<string, string | number> = {
+      page_number: 1,
+      page_size: 8,
+      sort: 1
+    }
+
+    if (ignoreIds.length > 0) {
+      queryParams.ignore = ignoreIds.join(',')
+    }
+
+    const response = await $api<ApiResponse<CoursesList>>(ApiEndpoint.Courses.GetList, {
+      method: 'GET',
+      query: queryParams
+    })
+
+    if (response?.data?.data) {
+      const courses = response.data.data as Course[]
+      recommendedCourses.value = courses.map((course) => {
+        const duration = course.overview?.study_duration || '0 giờ'
+
+        let price = course.price || 0
+        if (course.effective_duration && course.effective_duration.length > 0) {
+          const defaultDuration = course.effective_duration.find(d => d.is_default)
+          if (defaultDuration) {
+            price = defaultDuration.price
+          } else if (course.effective_duration[0]) {
+            price = course.effective_duration[0].price
+          }
+        }
+
+        return {
+          id: course.course_id,
+          title: course.course_name,
+          duration,
+          price,
+          image: course.course_image ? getLinkFromS3(course.course_image) : undefined,
+          to: `/khoa-hoc/${course.course_id}`
+        }
+      })
+    } else {
+      recommendedCourses.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching recommended courses:', error)
+    recommendedCourses.value = []
+  } finally {
+    isLoadingRecommendedCourses.value = false
+  }
+}
+
+onMounted(async () => {
+  if (import.meta.client) {
+    await fetchRecommendedCourses()
+  }
+
   setTimeout(() => {
     isLoading.value = false
     nextTick(() => {
@@ -135,9 +188,23 @@ onMounted(() => {
         </Heading>
 
         <div class="relative">
-          <SkeletonRecommendedCourses v-if="isLoading" />
           <div
-            v-else
+            v-if="isLoadingRecommendedCourses"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          >
+            <div
+              v-for="i in 4"
+              :key="i"
+              class="space-y-3"
+            >
+              <USkeleton class="w-full h-48 rounded-lg" />
+              <USkeleton class="h-6 w-full" />
+              <USkeleton class="h-5 w-2/3" />
+              <USkeleton class="h-6 w-1/2" />
+            </div>
+          </div>
+          <div
+            v-else-if="recommendedCourses.length > 0"
             ref="carouselRef"
           >
             <UCarousel
@@ -156,7 +223,7 @@ onMounted(() => {
               }"
               :items="recommendedCourses"
               :ui="{
-                item: 'lg:basis-1/4',
+                item: 'basis-1/2 sm:basis-1/3 md:basis-1/2 lg:basis-1/3 xl:basis-1/4',
                 controls: 'md:absolute md:-top-6 md:right-12'
               }"
               class="w-full mx-auto"
@@ -167,9 +234,16 @@ onMounted(() => {
                 :duration="item.duration"
                 :price="item.price"
                 :image="item.image"
+                :to="item.to"
                 class="my-4"
               />
             </UCarousel>
+          </div>
+          <div
+            v-else
+            class="text-center py-8 text-neutral-500"
+          >
+            Không có khóa học đề xuất
           </div>
         </div>
       </div>
