@@ -7,6 +7,7 @@ export interface CoursesListQueryParams {
   sort?: number
   category_id?: string
   keyword?: string
+  ignore?: string
 }
 
 export interface EffectiveDuration {

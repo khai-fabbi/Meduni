@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import type { BreadcrumbItem } from '@nuxt/ui'
 import type { CartItem } from '~/components/shared/Cart.vue'
+import type { CartApiItem } from '~/types/cart'
+import type { CommissionRates } from '~/types/referral'
+import { cartService } from '~/services/cart'
+import { userService } from '~/services/user'
+import { getLinkFromS3, formatDuration } from '~/utils/helpers'
 
 useSeoMeta({
   title: 'Giỏ hàng',
@@ -29,45 +34,134 @@ definePageMeta({
 })
 
 const isLoading = ref(true)
+const cartItems = ref<CartItem[]>([])
+const commissionRates = ref<CommissionRates | null>(null)
+const toast = useToast()
 
-const cartItems = ref<CartItem[]>([
-  {
-    id: 1,
-    title: 'Ứng dụng AI tạo sinh trong doanh nghiệp',
-    instructor: 'Nguyễn Kim Anh',
-    price: 5000000,
-    originalPrice: 7600000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56',
-    videoCount: 32,
-    duration: '12 giờ 7 phút',
-    selected: true
-  },
-  {
-    id: 2,
-    title: 'Quản trị nhân sự tinh gọn bằng AI',
-    instructor: ['Nguyễn Ngọc Lệ', 'Wilson Lieu', 'Nguyễn Quỳnh Giao'],
-    price: 4900000,
-    originalPrice: 6500000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    videoCount: 32,
-    duration: '8 giờ 27 phút',
-    selected: true
-  },
-  {
-    id: 3,
-    title: 'Giải mã sức mạnh AI',
-    instructor: 'Ngô Xuân Bách',
-    price: 5100000,
-    originalPrice: 8400000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    videoCount: 32,
-    duration: '9 giờ 15 phút',
-    selected: true
+/**
+ * Tính commission dựa trên giá và commission rates
+ * @param price - Giá khóa học (sau khi giảm giá)
+ * @param rates - Commission rates từ API
+ * @returns Object chứa directCommission và indirectCommission
+ */
+function calculateCommission(price: number, rates: CommissionRates | null): { directCommission: number, indirectCommission: number } {
+  if (!rates) {
+    return { directCommission: 0, indirectCommission: 0 }
   }
-])
+
+  // Hoa hồng trực tiếp = giá * level_1_rate
+  const directCommission = Math.round(price * (rates.level_1 || 0))
+
+  // Hoa hồng gián tiếp = giá * (level_2_rate + level_3_rate)
+  const indirectRate = (rates.level_2 || 0) + (rates.level_3 || 0)
+  const indirectCommission = Math.round(price * indirectRate)
+
+  return { directCommission, indirectCommission }
+}
+
+/**
+ * Map từ CartApiItem sang CartItem format để tương thích với SharedCart component
+ */
+function mapCartItem(apiItem: CartApiItem, index: number): CartItem {
+  // Tạo id từ cart_id hoặc index nếu cart_id không parse được thành số
+  let id: number
+  const parsedId = parseInt(apiItem.cart_id, 10)
+  if (!isNaN(parsedId)) {
+    id = parsedId
+  } else {
+    // Sử dụng hash của cart_id string để tạo id number
+    id = Math.abs(apiItem.cart_id.split('').reduce((acc, char) => {
+      const hash = ((acc << 5) - acc) + char.charCodeAt(0)
+      return hash & hash
+    }, 0)) || index + 1
+  }
+
+  // Format duration từ study_duration (giây) sang phút
+  const duration = apiItem.study_duration
+    ? formatDuration(apiItem.study_duration)
+    : '0 phút'
+
+  // Tính tổng duration từ effective_duration array nếu có
+  const totalDuration = apiItem.effective_duration && apiItem.effective_duration.length > 0
+    ? apiItem.effective_duration.reduce((sum, d) => sum + d, 0)
+    : apiItem.study_duration || 0
+
+  // Tính giá sau khi giảm giá
+  const finalPrice = apiItem.total_price || apiItem.course_price
+
+  // Tính commission dựa trên giá và commission rates
+  const { directCommission, indirectCommission } = calculateCommission(finalPrice, commissionRates.value)
+
+  return {
+    id,
+    cartId: apiItem.cart_id, // Lưu cart_id gốc để match lại
+    title: apiItem.course_name,
+    instructor: apiItem.teacher_name || 'Giảng viên',
+    price: finalPrice, // Giá sau khi giảm giá
+    originalPrice: apiItem.course_price, // Giá gốc (giá thật)
+    image: apiItem.thumbnail ? getLinkFromS3(apiItem.thumbnail) : '/images/course/course-placeholder.png',
+    videoCount: apiItem.chapter_count || 0,
+    duration: totalDuration > 0 ? formatDuration(totalDuration) : duration,
+    selected: true,
+    indirectCommission,
+    directCommission
+  }
+}
+
+/**
+ * Fetch commission rates từ referral API
+ */
+async function fetchCommissionRates() {
+  try {
+    const response = await userService.getReferralInfo()
+    if (response && response.data && response.data.commission_rates) {
+      commissionRates.value = response.data.commission_rates
+    }
+  } catch (error) {
+    console.error('Error fetching commission rates:', error)
+    // Không hiển thị toast vì đây không phải lỗi nghiêm trọng
+    // Nếu không có commission rates thì commission sẽ = 0
+    commissionRates.value = null
+  }
+}
+
+/**
+ * Fetch cart items from API
+ */
+async function fetchCartItems() {
+  try {
+    isLoading.value = true
+    const response = await cartService.getList()
+
+    // API response structure: { data: { total: number, carts: CartApiItem[] } }
+    if (response && response.data && response.data.carts) {
+      if (Array.isArray(response.data.carts)) {
+        // Map cart items với commission rates đã fetch
+        cartItems.value = response.data.carts.map((item, index) => mapCartItem(item, index))
+      } else {
+        cartItems.value = []
+      }
+    } else {
+      cartItems.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching cart items:', error)
+    toast.add({
+      title: 'Lỗi',
+      description: 'Không thể tải danh sách giỏ hàng',
+      color: 'error'
+    })
+    cartItems.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
 onMounted(async () => {
-  isLoading.value = false
+  // Fetch commission rates trước để có thể tính commission khi map cart items
+  await fetchCommissionRates()
+  // Sau đó fetch cart items (sẽ tự động tính commission trong mapCartItem)
+  await fetchCartItems()
 })
 
 function handleCheckout(items: CartItem[]) {

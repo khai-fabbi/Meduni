@@ -8,6 +8,7 @@ import type {
   UploadPreSignedUrlResponse
 } from '~/types/user'
 import type { ApiResponse } from '~/types/common'
+import type { ReferralInfoResponse } from '~/types/referral'
 
 /**
  * Format date theo chuẩn AWS X-Amz-Date: YYYYMMDDTHHMMSSZ
@@ -173,5 +174,16 @@ export const userService = {
     await userService.uploadFileToS3(file, responseData)
 
     return fields.key
+  },
+
+  /**
+   * Lấy thông tin referral/affiliate của user
+   * Bao gồm commission rates để tính hoa hồng
+   */
+  getReferralInfo: async () => {
+    const { $api } = useNuxtApp()
+    return $api<ReferralInfoResponse>(ApiEndpoint.User.ReferralInfo, {
+      method: 'GET'
+    })
   }
 }

@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import type { CartItem } from '~/components/shared/Cart.vue'
 import type { BreadcrumbItem } from '@nuxt/ui'
-import DiscountTagIcon from '~/assets/icons/discount-tag.svg'
+import type { CartApiItem, SePayTransactionResponse, InvoiceInfo } from '~/types/cart'
+import { PaymentStatus } from '~/types/cart'
+import type { Course } from '~/types/course'
+import type { CommissionRates } from '~/types/referral'
+import { cartService } from '~/services/cart'
+import { coursesService } from '~/services/courses'
+import { userService } from '~/services/user'
+import { getLinkFromS3, formatDuration } from '~/utils/helpers'
+import CourseCard from '~/components/course/CourseCard.vue'
+// TODO: Mã giảm giá - tạm thời comment vì chưa cần dùng
+// import DiscountTagIcon from '~/assets/icons/discount-tag.svg'
 import ScanIcon from '~/assets/icons/scan.svg'
 
 useSeoMeta({
@@ -22,87 +32,154 @@ const items = ref<BreadcrumbItem[]>([
 ])
 
 const isLoading = ref(true)
+const isLoadingRecommendedCourses = ref(true)
+const cartItems = ref<CartItem[]>([])
+const cartApiItems = ref<CartApiItem[]>([]) // Lưu lại để lấy category_id và course_id
+const recommendedCourses = ref<Array<{
+  id: string
+  title: string
+  duration: string
+  price: number
+  image?: string
+  to?: string
+}>>([])
+const commissionRates = ref<CommissionRates | null>(null)
+const toast = useToast()
 
-const cartItems = ref<CartItem[]>([
-  {
-    id: 1,
-    title: 'Ứng dụng AI tạo sinh trong doanh nghiệp',
-    instructor: 'Nguyễn Kim Anh',
-    price: 5000000,
-    originalPrice: 7600000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56',
-    videoCount: 32,
-    duration: '12 giờ 7 phút',
-    selected: true,
-    indirectCommission: 42500,
-    directCommission: 12500
-  },
-  {
-    id: 2,
-    title: 'Quản trị nhân sự tinh gọn bằng AI',
-    instructor: ['Nguyễn Ngọc Lệ', 'Wilson Lieu', 'Nguyễn Quỳnh Giao'],
-    price: 4900000,
-    originalPrice: 6500000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    videoCount: 32,
-    duration: '8 giờ 27 phút',
-    selected: true,
-    indirectCommission: 41650,
-    directCommission: 12250
-  },
-  {
-    id: 3,
-    title: 'Giải mã sức mạnh AI',
-    instructor: 'Ngô Xuân Bách',
-    price: 5100000,
-    originalPrice: 8400000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    videoCount: 32,
-    duration: '9 giờ 15 phút',
-    selected: true,
-    indirectCommission: 43350,
-    directCommission: 12750
-  },
-  {
-    id: 4,
-    title: 'Ứng dụng AI tạo sinh trong doanh nghiệp',
-    instructor: 'Nguyễn Kim Anh',
-    price: 5000000,
-    originalPrice: 7600000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56',
-    videoCount: 32,
-    duration: '12 giờ 7 phút',
-    selected: true,
-    indirectCommission: 42500,
-    directCommission: 12500
-  },
-  {
-    id: 5,
-    title: 'Quản trị nhân sự tinh gọn bằng AI',
-    instructor: ['Nguyễn Ngọc Lệ', 'Wilson Lieu', 'Nguyễn Quỳnh Giao'],
-    price: 4900000,
-    originalPrice: 6500000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    videoCount: 32,
-    duration: '8 giờ 27 phút',
-    selected: true,
-    indirectCommission: 41650,
-    directCommission: 12250
-  },
-  {
-    id: 6,
-    title: 'Giải mã sức mạnh AI',
-    instructor: 'Ngô Xuân Bách',
-    price: 5100000,
-    originalPrice: 8400000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    videoCount: 32,
-    duration: '9 giờ 15 phút',
-    selected: true,
-    indirectCommission: 43350,
-    directCommission: 12750
+/**
+ * Tính commission dựa trên giá và commission rates
+ * @param price - Giá khóa học (sau khi giảm giá)
+ * @param rates - Commission rates từ API
+ * @returns Object chứa directCommission và indirectCommission
+ */
+function calculateCommission(price: number, rates: CommissionRates | null): { directCommission: number, indirectCommission: number } {
+  if (!rates) {
+    return { directCommission: 0, indirectCommission: 0 }
   }
-])
+
+  // Hoa hồng trực tiếp = giá * level_1_rate
+  const directCommission = Math.round(price * (rates.level_1 || 0))
+
+  // Hoa hồng gián tiếp = giá * (level_2_rate + level_3_rate)
+  const indirectRate = (rates.level_2 || 0) + (rates.level_3 || 0)
+  const indirectCommission = Math.round(price * indirectRate)
+
+  return { directCommission, indirectCommission }
+}
+
+/**
+ * Map từ CartApiItem sang CartItem format để tương thích với SharedCart component
+ */
+function mapCartItem(apiItem: CartApiItem, index: number): CartItem {
+  // Tạo id từ cart_id hoặc index nếu cart_id không parse được thành số
+  let id: number
+  const parsedId = parseInt(apiItem.cart_id, 10)
+  if (!isNaN(parsedId)) {
+    id = parsedId
+  } else {
+    // Sử dụng hash của cart_id string để tạo id number
+    id = Math.abs(apiItem.cart_id.split('').reduce((acc, char) => {
+      const hash = ((acc << 5) - acc) + char.charCodeAt(0)
+      return hash & hash
+    }, 0)) || index + 1
+  }
+
+  // Format duration từ study_duration (giây) sang phút
+  const duration = apiItem.study_duration
+    ? formatDuration(apiItem.study_duration)
+    : '0 phút'
+
+  // Tính tổng duration từ effective_duration array nếu có
+  const totalDuration = apiItem.effective_duration && apiItem.effective_duration.length > 0
+    ? apiItem.effective_duration.reduce((sum, d) => sum + d, 0)
+    : apiItem.study_duration || 0
+
+  // Tính giá sau khi giảm giá
+  const finalPrice = apiItem.total_price || apiItem.course_price
+
+  // Tính commission dựa trên giá và commission rates
+  const { directCommission, indirectCommission } = calculateCommission(finalPrice, commissionRates.value)
+
+  return {
+    id,
+    cartId: apiItem.cart_id, // Lưu cart_id gốc để match lại
+    title: apiItem.course_name,
+    instructor: apiItem.teacher_name || 'Giảng viên',
+    price: finalPrice, // Giá sau khi giảm giá
+    originalPrice: apiItem.course_price, // Giá gốc (giá thật)
+    image: apiItem.thumbnail ? getLinkFromS3(apiItem.thumbnail) : '/images/course/course-placeholder.png',
+    videoCount: apiItem.chapter_count || 0,
+    duration: totalDuration > 0 ? formatDuration(totalDuration) : duration,
+    selected: true, // Mặc định tất cả đều được chọn
+    indirectCommission,
+    directCommission
+  }
+}
+
+/**
+ * Fetch commission rates từ referral API
+ */
+async function fetchCommissionRates() {
+  try {
+    const response = await userService.getReferralInfo()
+    if (response && response.data && response.data.commission_rates) {
+      commissionRates.value = response.data.commission_rates
+    }
+  } catch (error) {
+    console.error('Error fetching commission rates:', error)
+    // Không hiển thị toast vì đây không phải lỗi nghiêm trọng
+    // Nếu không có commission rates thì commission sẽ = 0
+    commissionRates.value = null
+  }
+}
+
+/**
+ * Fetch cart items from API
+ */
+async function fetchCartItems() {
+  try {
+    isLoading.value = true
+    const cartStore = useCartStore()
+    const response = await cartService.getList()
+
+    // API response structure: { data: { total: number, carts: CartApiItem[] } }
+    if (response && response.data && response.data.carts) {
+      if (Array.isArray(response.data.carts)) {
+        // Lưu cartApiItems để dùng cho similar courses
+        cartApiItems.value = response.data.carts
+        // Lưu vào store để dùng ở payment-success
+        cartStore.setCartApiItems(response.data.carts)
+        // Map cart items với commission rates đã fetch
+        cartItems.value = response.data.carts.map((item, index) => mapCartItem(item, index))
+
+        // Nếu có selected cart IDs trong store, chỉ chọn các items đã được chọn ở profile/cart
+        if (cartStore.selectedCartIds.length > 0) {
+          const selectedIds = cartStore.selectedCartIds
+          cartItems.value = cartItems.value.map(item => ({
+            ...item,
+            selected: selectedIds.includes(item.cartId || '') || selectedIds.includes(item.id.toString())
+          }))
+          // Clear selected IDs sau khi đã áp dụng
+          cartStore.clearSelectedCartIds()
+        }
+      } else {
+        cartItems.value = []
+      }
+    } else {
+      cartItems.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching cart items:', error)
+    toast.add({
+      title: 'Lỗi',
+      description: 'Không thể tải danh sách giỏ hàng',
+      color: 'error'
+    })
+    cartItems.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const selectedItems = computed(() => cartItems.value.filter(item => item.selected))
 
@@ -129,15 +206,60 @@ const directCommission = computed(() => {
 const useDirectCommission = ref(true)
 
 const paymentMethod = ref('qr')
-const promoCode = ref('')
+// TODO: Mã giảm giá - tạm thời comment vì chưa cần dùng
+// const promoCode = ref('')
+// const applyingDiscount = ref(false)
+// const discountError = ref('')
+// const appliedDiscount = ref<{
+//   discount_code: string
+//   discount_percentage: number
+//   discount_amount: number
+//   final_price: number
+// } | null>(null)
 const requestVATInvoice = ref(false)
 const checkoutModalOpen = ref(false)
+const isCreatingTransaction = ref(false)
+const transactionData = ref<SePayTransactionResponse | null>(null)
+const pollingInterval = ref<NodeJS.Timeout | null>(null)
+const router = useRouter()
 
-const paymentContent = ref('PKG48603F5DE61B')
-const bankAccount = ref('999999999')
-const bankName = ref('Ngân hàng TMCP Việt Nam Thịnh Vượng (VPB)')
-const accountHolder = ref('VU VAN KHAI')
-const qrCodeUrl = ref('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=payment')
+// VAT Invoice form fields
+const vatTaxCode = ref('')
+const vatEmail = ref('')
+const vatName = ref('')
+const vatAddress = ref('')
+const vatDeliveryAddress = ref('')
+const vatConfirmInfo = ref(false)
+
+// Payment data từ API (sẽ được set sau khi gọi API)
+// Lấy bank account đầu tiên từ array bank_accounts
+const firstBankAccount = computed(() => {
+  if (transactionData.value?.bank_accounts && transactionData.value.bank_accounts.length > 0) {
+    return transactionData.value.bank_accounts[0]
+  }
+  return null
+})
+
+const paymentContent = computed(() => {
+  // Extract payment content từ qr_code_data hoặc qr_code_url
+  // Format: "AIUNI30MJFNL3DOHGT59" (phần sau "des=")
+  if (transactionData.value?.qr_code_data) {
+    const match = transactionData.value.qr_code_data.match(/des=([^&]+)/)
+    if (match && match[1]) {
+      return match[1]
+    }
+  }
+  // Fallback: tạo từ transaction_id
+  if (transactionData.value?.transaction_id) {
+    return transactionData.value.transaction_id.substring(0, 20).toUpperCase()
+  }
+  return 'PKG48603F5DE61B'
+})
+
+const bankAccount = computed(() => firstBankAccount.value?.account_number || '999999999')
+const bankName = computed(() => firstBankAccount.value?.bank_full_name || 'Ngân hàng TMCP Việt Nam Thịnh Vượng (VPB)')
+const accountHolder = computed(() => firstBankAccount.value?.account_holder_name || 'VU VAN KHAI')
+const qrCodeUrl = computed(() => transactionData.value?.qr_code_url || transactionData.value?.qr_code_data || 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=payment')
 
 const finalTotal = computed(() => {
   let total = totalPrice.value
@@ -146,69 +268,81 @@ const finalTotal = computed(() => {
   if (useDirectCommission.value) {
     total -= directCommission.value
   }
-  return total
+  // TODO: Trừ discount từ discount code nếu có - tạm thời comment vì chưa cần dùng
+  // if (appliedDiscount.value) {
+  //   total -= appliedDiscount.value.discount_amount
+  // }
+  return Math.max(0, total) // Đảm bảo không âm
 })
 
 const carouselRef = ref<HTMLElement | null>(null)
 
-const recommendedCourses = ref([
-  {
-    id: 1,
-    title: 'Chiến lược trí tuệ nhân tạo dành cho lãnh đạo',
-    duration: '13 giờ 24 phút',
-    price: 7200000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56'
-  },
-  {
-    id: 2,
-    title: 'Khóa đào tạo AI cho marketer không muốn bị tụt lại',
-    duration: '13 giờ 24 phút',
-    price: 6700000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3'
-  },
-  {
-    id: 3,
-    title: 'Chiến lược Marketing thời đại AI',
-    duration: '11 giờ 15 phút',
-    price: 5500000,
-    image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136'
-  },
-  {
-    id: 4,
-    title: 'Bứt phá hiệu suất công việc - Chương trình đào tạo Micro MBA AI',
-    duration: '8 giờ 00 phút',
-    price: 12200000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56'
-  },
-  {
-    id: 1,
-    title: 'Chiến lược trí tuệ nhân tạo dành cho lãnh đạo',
-    duration: '13 giờ 24 phút',
-    price: 7200000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56'
-  },
-  {
-    id: 2,
-    title: 'Khóa đào tạo AI cho marketer không muốn bị tụt lại',
-    duration: '13 giờ 24 phút',
-    price: 6700000,
-    image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3'
-  },
-  {
-    id: 3,
-    title: 'Chiến lược Marketing thời đại AI',
-    duration: '11 giờ 15 phút',
-    price: 5500000,
-    image: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136'
-  },
-  {
-    id: 4,
-    title: 'Bứt phá hiệu suất công việc - Chương trình đào tạo Micro MBA AI',
-    duration: '8 giờ 00 phút',
-    price: 12200000,
-    image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56'
+/**
+ * Fetch recommended courses (courses thường được mua kèm)
+ * Client-side only - lấy từ cart items với ignore và category_id
+ */
+async function fetchRecommendedCourses() {
+  try {
+    isLoadingRecommendedCourses.value = true
+
+    // Lấy ignore (course_ids) và category_ids từ cartItems
+    const ignoreIds = cartApiItems.value.map(item => item.course_id).filter(Boolean)
+    const categoryIds = cartApiItems.value
+      .map(item => item.category_id)
+      .filter(Boolean)
+      .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+
+    if (ignoreIds.length === 0) {
+      recommendedCourses.value = []
+      return
+    }
+
+    const { data: responseData } = await coursesService.getList({
+      page: 1,
+      limit: 8,
+      sort: 1,
+      ignore: ignoreIds.join(','),
+      ...(categoryIds.length > 0 && { category_id: categoryIds.join(',') })
+    })
+
+    if (responseData.value?.data?.data) {
+      const courses = responseData.value.data.data as Course[]
+      recommendedCourses.value = courses.map((course) => {
+        // Lấy duration từ overview.study_duration (CourseCard sẽ tự format)
+        const duration = course.overview?.study_duration || '0 giờ'
+
+        // Lấy giá: nếu có effective_duration và length > 0 thì lấy price từ effective_duration, không thì lấy course.price
+        let price = course.price || 0
+        if (course.effective_duration && course.effective_duration.length > 0) {
+          // Lấy giá từ effective_duration (có thể lấy giá đầu tiên hoặc giá mặc định)
+          const defaultDuration = course.effective_duration.find(d => d.is_default)
+          if (defaultDuration) {
+            price = defaultDuration.price
+          } else if (course.effective_duration[0]) {
+            // Nếu không có is_default, lấy giá đầu tiên
+            price = course.effective_duration[0].price
+          }
+        }
+
+        return {
+          id: course.course_id,
+          title: course.course_name,
+          duration,
+          price,
+          image: course.course_image ? getLinkFromS3(course.course_image) : undefined,
+          to: `/khoa-hoc/${course.course_id}`
+        }
+      })
+    } else {
+      recommendedCourses.value = []
+    }
+  } catch (error) {
+    console.error('Error fetching recommended courses:', error)
+    recommendedCourses.value = []
+  } finally {
+    isLoadingRecommendedCourses.value = false
   }
-])
+}
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('vi-VN', {
@@ -219,18 +353,245 @@ function formatPrice(price: number): string {
 }
 
 onMounted(async () => {
-  isLoading.value = false
+  // Fetch commission rates trước để có thể tính commission khi map cart items
+  await fetchCommissionRates()
+  // Sau đó fetch cart items (sẽ tự động tính commission trong mapCartItem)
+  await fetchCartItems()
+  // Cuối cùng fetch recommended courses
+  await fetchRecommendedCourses()
 })
 
-function handleCheckout() {
-  if (finalTotal.value > 0) {
-    checkoutModalOpen.value = true
+/**
+ * Tạo transaction và mở modal thanh toán
+ */
+async function handleCheckout() {
+  if (finalTotal.value <= 0 || selectedItems.value.length === 0) {
+    toast.add({
+      title: 'Lỗi',
+      description: 'Vui lòng chọn ít nhất một khóa học',
+      color: 'error'
+    })
+    return
+  }
+
+  // Validate VAT invoice fields nếu checkbox được chọn
+  if (requestVATInvoice.value) {
+    if (!vatTaxCode.value.trim() || !vatEmail.value.trim() || !vatName.value.trim() || !vatAddress.value.trim() || !vatDeliveryAddress.value.trim()) {
+      toast.add({
+        title: 'Lỗi',
+        description: 'Vui lòng điền đầy đủ thông tin hóa đơn VAT',
+        color: 'error'
+      })
+      return
+    }
+    if (!vatConfirmInfo.value) {
+      toast.add({
+        title: 'Lỗi',
+        description: 'Vui lòng xác nhận thông tin hóa đơn VAT',
+        color: 'error'
+      })
+      return
+    }
+  }
+
+  try {
+    isCreatingTransaction.value = true
+
+    // Lấy cart_ids từ selected items
+    const cartIds = selectedItems.value
+      .map(item => item.cartId)
+      .filter(Boolean) as string[]
+
+    if (cartIds.length === 0) {
+      toast.add({
+        title: 'Lỗi',
+        description: 'Không có sản phẩm nào được chọn',
+        color: 'error'
+      })
+      return
+    }
+
+    // Chuẩn bị request body
+    const requestBody: {
+      language: 'vn'
+      carts: string[]
+      invoice_info?: InvoiceInfo
+    } = {
+      language: 'vn',
+      carts: cartIds
+    }
+
+    // Thêm invoice_info nếu requestVATInvoice = true
+    if (requestVATInvoice.value) {
+      requestBody.invoice_info = {
+        tax_code: vatTaxCode.value.trim(),
+        email: vatEmail.value.trim(),
+        name: vatName.value.trim(),
+        address: vatAddress.value.trim(),
+        delivery_address: vatDeliveryAddress.value.trim()
+      }
+    }
+
+    // Gọi API tạo transaction
+    const response = await cartService.createSePayTransaction(requestBody)
+
+    if (response && response.data) {
+      transactionData.value = response.data
+      checkoutModalOpen.value = true
+
+      // Bắt đầu polling status mỗi 1 giây
+      startPollingTransactionStatus(response.data.transaction_id)
+    } else {
+      throw new Error('Không nhận được dữ liệu từ API')
+    }
+  } catch (error: unknown) {
+    console.error('Error creating transaction:', error)
+    const errorMessage = (error as { data?: { error?: { message?: string } } })?.data?.error?.message || 'Không thể tạo giao dịch thanh toán. Vui lòng thử lại.'
+    toast.add({
+      title: 'Lỗi',
+      description: errorMessage,
+      color: 'error'
+    })
+  } finally {
+    isCreatingTransaction.value = false
   }
 }
 
-function applyPromoCode() {
-  console.log('Apply promo code:', promoCode.value)
+/**
+ * Bắt đầu polling transaction status mỗi 2 giây
+ */
+function startPollingTransactionStatus(transactionId: string) {
+  // Clear interval cũ nếu có
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+  }
+
+  // Polling mỗi 2 giây
+  pollingInterval.value = setInterval(async () => {
+    try {
+      const response = await cartService.getTransactionStatus(transactionId)
+
+      if (response && response.data) {
+        // payment_status: 0 = đang xử lý, 1 = thành công, 2 = thất bại
+        const paymentStatus = response.data.payment_status
+
+        // Nếu thành công (status = 1), dừng polling và redirect
+        if (paymentStatus === PaymentStatus.SUCCESS) {
+          stopPolling()
+          toast.add({
+            title: 'Thành công',
+            description: 'Thanh toán thành công!',
+            color: 'success'
+          })
+          checkoutModalOpen.value = false
+          // Redirect đến payment success page
+          router.push('/payment-success')
+        } else if (paymentStatus === PaymentStatus.FAILED) {
+          stopPolling()
+          toast.add({
+            title: 'Thất bại',
+            description: 'Giao dịch thanh toán thất bại',
+            color: 'error'
+          })
+        }
+        // PENDING (0): tiếp tục polling
+      }
+    } catch (error) {
+      console.error('Error checking transaction status:', error)
+      // Không hiển thị toast để tránh spam, chỉ log error
+    }
+  }, 2000) // 2 giây
 }
+
+/**
+ * Dừng polling transaction status
+ */
+function stopPolling() {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
+  }
+}
+
+/**
+ * Cleanup khi component unmount
+ */
+onUnmounted(() => {
+  stopPolling()
+})
+
+// TODO: Mã giảm giá - tạm thời comment vì chưa cần dùng
+// async function applyPromoCode() {
+//   if (!promoCode.value.trim()) {
+//     return
+//   }
+
+//   // Lấy cart_ids từ selectedItems (phải có cartId)
+//   const selectedCartIds = selectedItems.value
+//     .map(item => item.cartId)
+//     .filter(Boolean) as string[]
+
+//   if (selectedCartIds.length === 0) {
+//     toast.add({
+//       title: 'Lỗi',
+//       description: 'Vui lòng chọn ít nhất một khóa học',
+//       color: 'error'
+//     })
+//     return
+//   }
+
+//   applyingDiscount.value = true
+//   discountError.value = ''
+
+//   try {
+//     // Gọi API apply discount với cart_ids và discount_code
+//     const response = await cartService.applyDiscount(selectedCartIds, promoCode.value.trim())
+
+//     if (response.data && response.data.is_valid) {
+//       appliedDiscount.value = {
+//         discount_code: response.data.discount_code,
+//         discount_percentage: response.data.discount_percentage,
+//         discount_amount: response.data.discount_amount,
+//         final_price: response.data.final_price
+//       }
+//       toast.add({
+//         title: 'Thành công',
+//         description: `Đã áp dụng mã giảm giá thành công! Giảm ${response.data.discount_percentage}%`,
+//         color: 'success'
+//       })
+//     } else {
+//       discountError.value = 'Mã giảm giá không hợp lệ'
+//       appliedDiscount.value = null
+//     }
+//   } catch (error) {
+//     console.error('Error applying discount code:', error)
+//     let errorMessage = 'Mã giảm giá không hợp lệ hoặc đã hết hạn'
+//     if (error && typeof error === 'object') {
+//       const err = error as { response?: { data?: { message?: string } }, message?: string }
+//       errorMessage = err?.response?.data?.message || err?.message || errorMessage
+//     }
+//     discountError.value = errorMessage
+//     appliedDiscount.value = null
+//     toast.add({
+//       title: 'Lỗi',
+//       description: errorMessage,
+//       color: 'error'
+//     })
+//   } finally {
+//     applyingDiscount.value = false
+//   }
+// }
+
+// function removeDiscountCode() {
+//   promoCode.value = ''
+//   appliedDiscount.value = null
+//   discountError.value = ''
+//   toast.add({
+//     title: 'Thông báo',
+//     description: 'Đã xóa mã giảm giá',
+//     color: 'info'
+//   })
+// }
 </script>
 
 <template>
@@ -304,7 +665,8 @@ function applyPromoCode() {
               </div>
             </div>
 
-            <div class="space-y-3">
+            <!-- TODO: Mã giảm giá - tạm thời comment vì chưa cần dùng -->
+            <!-- <div class="space-y-3">
               <div class="flex items-center gap-2">
                 <span class="text-lg">Mã giảm giá</span>
               </div>
@@ -313,20 +675,56 @@ function applyPromoCode() {
                   v-model="promoCode"
                   placeholder="Mã giảm giá"
                   class="flex-1 h-12 text-base"
+                  :disabled="applyingDiscount || !!appliedDiscount"
+                  @keyup.enter="applyPromoCode"
                 >
                   <template #leading>
                     <DiscountTagIcon class="size-5" />
                   </template>
                 </UInput>
                 <UButton
+                  v-if="!appliedDiscount"
                   class="text-base bg-button-gradient"
                   color="primary"
+                  :disabled="!promoCode.trim() || applyingDiscount || selectedItems.length === 0"
                   @click="applyPromoCode"
                 >
-                  Áp dụng
+                  <span v-if="applyingDiscount">Đang xử lý...</span>
+                  <span v-else>Áp dụng</span>
+                </UButton>
+                <UButton
+                  v-else
+                  class="text-base"
+                  color="error"
+                  variant="outline"
+                  @click="removeDiscountCode"
+                >
+                  Xóa
                 </UButton>
               </div>
+              <div
+                v-if="discountError"
+                class="text-sm text-red-500"
+              >
+                {{ discountError }}
+              </div>
+              <div
+                v-if="appliedDiscount"
+                class="text-sm text-green-600 font-medium"
+              >
+                ✓ Đã áp dụng mã giảm giá
+              </div>
             </div>
+
+            <div
+              v-if="appliedDiscount"
+              class="space-y-3"
+            >
+              <div class="flex justify-between text-green-600">
+                <span class="text-lg">Mã giảm giá ({{ appliedDiscount.discount_percentage }}%):</span>
+                <span class="text-lg font-medium">- {{ formatPrice(appliedDiscount.discount_amount) }}</span>
+              </div>
+            </div> -->
 
             <USeparator />
 
@@ -367,17 +765,67 @@ function applyPromoCode() {
                 </div>
               </div>
 
-              <UCheckbox
-                v-model="requestVATInvoice"
-                label="Yêu cầu xuất hóa đơn VAT"
-                :ui="{
-                  base: 'size-6',
-                  indicator: 'size-6',
-                  label: 'cursor-pointer font-semibold',
-                  wrapper: 'semibold text-lg font-semibold',
-                  root: 'items-center'
-                }"
-              />
+              <div class="space-y-4">
+                <UCheckbox
+                  v-model="requestVATInvoice"
+                  label="Yêu cầu xuất hóa đơn VAT"
+                  :ui="{
+                    base: 'size-6',
+                    indicator: 'size-6',
+                    label: 'cursor-pointer font-semibold',
+                    wrapper: 'semibold text-lg font-semibold',
+                    root: 'items-center'
+                  }"
+                />
+
+                <!-- VAT Invoice Form -->
+                <div
+                  v-if="requestVATInvoice"
+                  class="space-y-4 pl-8 border-l-2 border-primary-200"
+                >
+                  <UInput
+                    v-model="vatTaxCode"
+                    placeholder="Mã số thuế"
+                    maxlength="30"
+                    class="h-12 text-base w-full"
+                  />
+                  <UInput
+                    v-model="vatEmail"
+                    type="email"
+                    placeholder="Email nhận hóa đơn"
+                    maxlength="255"
+                    class="h-12 text-base w-full"
+                  />
+                  <UInput
+                    v-model="vatName"
+                    placeholder="Tên doanh nghiệp/cá nhân"
+                    maxlength="255"
+                    class="h-12 text-base w-full"
+                  />
+                  <UInput
+                    v-model="vatAddress"
+                    placeholder="Địa chỉ doanh nghiệp/cá nhân"
+                    maxlength="255"
+                    class="h-12 text-base w-full"
+                  />
+                  <UInput
+                    v-model="vatDeliveryAddress"
+                    placeholder="Địa chỉ nhận hóa đơn VAT"
+                    maxlength="255"
+                    class="h-12 text-base w-full"
+                  />
+                  <UCheckbox
+                    v-model="vatConfirmInfo"
+                    label="Tôi xác nhận các thông tin trên đã chính xác để xuất hóa đơn VAT"
+                    :ui="{
+                      base: 'size-4',
+                      indicator: 'size-4',
+                      label: 'text-sm cursor-pointer'
+                    }"
+                    class="w-full"
+                  />
+                </div>
+              </div>
             </div>
 
             <UButton
@@ -385,10 +833,11 @@ function applyPromoCode() {
               size="lg"
               block
               class="h-14 text-base font-semibold bg-button-gradient"
-              :disabled="selectedItems.length === 0"
+              :disabled="selectedItems.length === 0 || isCreatingTransaction"
               @click="handleCheckout"
             >
-              Tiến hành thanh toán
+              <span v-if="isCreatingTransaction">Đang xử lý...</span>
+              <span v-else>Tiến hành thanh toán</span>
             </UButton>
           </div>
         </div>
@@ -404,7 +853,7 @@ function applyPromoCode() {
 
         <div class="relative">
           <div
-            v-if="isLoading"
+            v-if="isLoadingRecommendedCourses"
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
           >
             <div
@@ -419,7 +868,7 @@ function applyPromoCode() {
             </div>
           </div>
           <div
-            v-else
+            v-else-if="recommendedCourses.length > 0"
             ref="carouselRef"
           >
             <UCarousel
@@ -438,7 +887,7 @@ function applyPromoCode() {
               }"
               :items="recommendedCourses"
               :ui="{
-                item: 'lg:basis-1/4',
+                item: 'basis-1/2 sm:basis-1/3 md:basis-1/2 lg:basis-1/3 xl:basis-1/4',
                 controls: 'md:absolute md:-top-6 md:right-12'
               }"
               class="w-full mx-auto"
@@ -449,9 +898,16 @@ function applyPromoCode() {
                 :duration="item.duration"
                 :price="item.price"
                 :image="item.image"
+                :to="item.to"
                 class="my-4"
               />
             </UCarousel>
+          </div>
+          <div
+            v-else
+            class="text-center py-8 text-neutral-500"
+          >
+            Không có khóa học đề xuất
           </div>
         </div>
       </div>
@@ -459,12 +915,18 @@ function applyPromoCode() {
 
     <SharedPaymentModal
       v-model="checkoutModalOpen"
-      :payment-amount="finalTotal"
+      :payment-amount="transactionData?.total_amount || finalTotal"
       :payment-content="paymentContent"
       :bank-account="bankAccount"
       :bank-name="bankName"
       :account-holder="accountHolder"
       :qr-code-url="qrCodeUrl"
+      @update:model-value="(value) => {
+        checkoutModalOpen = value
+        if (!value) {
+          stopPolling()
+        }
+      }"
     />
   </UContainer>
 </template>

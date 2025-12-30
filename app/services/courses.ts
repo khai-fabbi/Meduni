@@ -25,7 +25,8 @@ export const coursesService = {
           ...(queryParams.limit && { page_size: queryParams.limit }),
           ...(queryParams.sort && { sort: queryParams.sort }),
           ...(queryParams.category_id && { category_id: queryParams.category_id }),
-          ...(queryParams.keyword && { keyword: queryParams.keyword })
+          ...(queryParams.keyword && { keyword: queryParams.keyword }),
+          ...(queryParams.ignore && { ignore: queryParams.ignore })
         }
       })
     })

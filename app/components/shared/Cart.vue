@@ -1,6 +1,7 @@
 <script setup lang="ts">
 export interface CartItem {
   id: number
+  cartId?: string // cart_id gốc từ API để match lại
   title: string
   instructor: string | string[]
   price: number
@@ -30,6 +31,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+const cartStore = useCartStore()
 const checkoutModalOpen = ref(false)
 
 const paymentAmount = computed(() => {
@@ -86,6 +88,14 @@ function toggleItem(id: number) {
 
 function handleCheckout() {
   if (props.isProfileCart) {
+    // Lưu selected cart_ids vào store
+    const selectedIds = selectedItems.value
+      .map(item => item.cartId || item.id.toString())
+      .filter(Boolean)
+
+    if (selectedIds.length > 0) {
+      cartStore.setSelectedCartIds(selectedIds)
+    }
     router.push('/carts')
   } else {
     if (props.finalTotal > 0) {
@@ -174,7 +184,7 @@ const isCheckoutDisabled = computed(() => {
                     Giảng viên: {{ formatInstructor(item.instructor) }}
                   </p>
                   <p class="text-xs md:text-base text-neutral-600">
-                    {{ item.videoCount }} video • {{ item.duration }}
+                    {{ item.videoCount && item.videoCount > 0 ? `${item.videoCount} video` : '' }} • {{ item.duration }}
                   </p>
                 </div>
               </NuxtLink>
@@ -184,7 +194,10 @@ const isCheckoutDisabled = computed(() => {
               <span class="text-lg md:text-xl font-bold text-secondary">
                 {{ formatPrice(item.price) }}
               </span>
-              <span class="text-sm md:text-lg text-neutral-400 line-through">
+              <span
+                v-if="item.originalPrice && item.originalPrice !== item.price"
+                class="text-sm md:text-lg text-neutral-400 line-through"
+              >
                 {{ formatPrice(item.originalPrice) }}
               </span>
             </div>
