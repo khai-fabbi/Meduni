@@ -4,6 +4,7 @@ import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '~/utils/auth'
 import type { UserInfoResponse } from '~/types/user'
 import type { ApiResponse } from '~/types/common'
 import { authService } from '~/services/auth'
+import { userService } from '~/services/user'
 import { getAvatarUrl } from '~/utils/helpers'
 import { ApiEndpoint } from '~/utils/apiEndpoint'
 
@@ -24,7 +25,7 @@ export const useAuthStore = defineStore('auth', {
      */
     async fetchUserInfo(accessToken?: string) {
       try {
-        const token = accessToken || this.accessToken || useCookie(ACCESS_TOKEN_KEY).value
+        const token = accessToken || useCookie(ACCESS_TOKEN_KEY).value
         if (!token) {
           throw new Error('No access token available')
         }
@@ -44,12 +45,8 @@ export const useAuthStore = defineStore('auth', {
           const userData = response.data
 
           this.user = {
-            userId: userData.userId,
-            user_name: userData.user_name,
-            email: userData.email,
-            phone: userData.phone,
-            avatar: getAvatarUrl(userData.avatar),
-            total_cart: userData.total_cart?.toString() || '0'
+            ...userData,
+            avatar: getAvatarUrl(userData.avatar)
           }
         }
       } catch (error) {
@@ -66,22 +63,26 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await authService.login(payload)
         const loginData = response.data
-        if (loginData) {
-          // Lưu token vào cookie
-          const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY, {
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 7 // 7 days
-          })
-          accessTokenCookie.value = loginData.accessToken
+        if (!loginData) {
+          throw new Error('No login data received')
+        }
 
-          const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY, {
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 60 * 60 * 24 * 30 // 30 days
-          })
-          refreshTokenCookie.value = loginData.refreshToken
+        // Lưu token vào cookie
+        const accessTokenCookie = useCookie(ACCESS_TOKEN_KEY, {
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 60 * 60 * 24 * 7 // 7 days
+        })
+        accessTokenCookie.value = loginData.accessToken
 
+        const refreshTokenCookie = useCookie(REFRESH_TOKEN_KEY, {
+          secure: true,
+          sameSite: 'strict',
+          maxAge: 60 * 60 * 24 * 30 // 30 days
+        })
+        refreshTokenCookie.value = loginData.refreshToken
+
+        try {
           const userInfoResponse = await userService.getInfo(loginData.accessToken)
 
           // Cập nhật state với thông tin user
@@ -91,6 +92,8 @@ export const useAuthStore = defineStore('auth', {
               avatar: getAvatarUrl(userInfoResponse.data.avatar)
             }
           }
+          this.isAuthenticated = true
+        } catch {
           this.isAuthenticated = true
         }
 
@@ -132,6 +135,20 @@ export const useAuthStore = defineStore('auth', {
 
         this.isLoading = false
       }
+    },
+
+    /**
+     * Update cart count trong user info
+     * @param delta - Số lượng thay đổi (dương để tăng, âm để giảm)
+     */
+    updateCartCount(delta: number) {
+      if (!this.user) {
+        return
+      }
+
+      const currentCount = this.user.total_cart || 0
+      const newCount = Math.max(0, currentCount + delta)
+      this.user.total_cart = newCount
     }
   },
   persist: true

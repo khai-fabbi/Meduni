@@ -95,6 +95,7 @@ function mapCartItem(apiItem: CartApiItem, index: number): CartItem {
   return {
     id,
     cartId: apiItem.cart_id, // Lưu cart_id gốc để match lại
+    course_id: apiItem.course_id, // Lưu course_id để dùng cho link và check
     title: apiItem.course_name,
     instructor: apiItem.teacher_name || 'Giảng viên',
     price: finalPrice, // Giá sau khi giảm giá
@@ -157,6 +158,31 @@ async function fetchCartItems() {
   }
 }
 
+async function handleDeleteItem(cartId: string, item: CartItem) {
+  try {
+    await cartService.deleteItem(cartId)
+
+    cartItems.value = cartItems.value.filter(cartItem => cartItem.id !== item.id)
+
+    // Update cart count in auth store
+    const authStore = useAuthStore()
+    authStore.updateCartCount(-1)
+
+    toast.add({
+      title: 'Thành công',
+      description: 'Đã xóa sản phẩm khỏi giỏ hàng',
+      color: 'success'
+    })
+  } catch (error) {
+    console.error('Error deleting cart item:', error)
+    toast.add({
+      title: 'Lỗi',
+      description: 'Không thể xóa sản phẩm khỏi giỏ hàng',
+      color: 'error'
+    })
+  }
+}
+
 onMounted(async () => {
   // Fetch commission rates trước để có thể tính commission khi map cart items
   await fetchCommissionRates()
@@ -189,6 +215,7 @@ function handleCheckout(items: CartItem[]) {
       :is-profile-cart="true"
       @update:items="cartItems = $event"
       @checkout="handleCheckout"
+      @delete="handleDeleteItem"
     />
   </div>
 </template>

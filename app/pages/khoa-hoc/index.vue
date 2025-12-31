@@ -75,7 +75,8 @@ const courses = computed(() => {
     duration: course.overview?.study_duration || '0 giờ',
     price: course.price || 0,
     image: course.course_image ? getLinkFromS3(course.course_image) : undefined,
-    slug: course.slug || course.course_id
+    slug: course.slug || course.course_id,
+    is_owned: course.is_owned
   }))
 })
 
@@ -275,6 +276,7 @@ const activeCategoryClass = computed(() => {
               :price="course.price"
               :image="course.image"
               :to="`/khoa-hoc/${course.id}`"
+              :is-owned="course.is_owned || false"
             />
           </motion.div>
         </motion.div>

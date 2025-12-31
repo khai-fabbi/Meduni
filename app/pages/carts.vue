@@ -14,6 +14,10 @@ import CourseCard from '~/components/course/CourseCard.vue'
 // import DiscountTagIcon from '~/assets/icons/discount-tag.svg'
 import ScanIcon from '~/assets/icons/scan.svg'
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 useSeoMeta({
   title: 'Giỏ hàng',
   description: 'Giỏ hàng của bạn'
@@ -42,6 +46,7 @@ const recommendedCourses = ref<Array<{
   price: number
   image?: string
   to?: string
+  is_owned?: boolean
 }>>([])
 const commissionRates = ref<CommissionRates | null>(null)
 const toast = useToast()
@@ -103,6 +108,7 @@ function mapCartItem(apiItem: CartApiItem, index: number): CartItem {
   return {
     id,
     cartId: apiItem.cart_id, // Lưu cart_id gốc để match lại
+    course_id: apiItem.course_id, // Lưu course_id để dùng cho link và check
     title: apiItem.course_name,
     instructor: apiItem.teacher_name || 'Giảng viên',
     price: finalPrice, // Giá sau khi giảm giá
@@ -221,6 +227,7 @@ const checkoutModalOpen = ref(false)
 const isCreatingTransaction = ref(false)
 const transactionData = ref<SePayTransactionResponse | null>(null)
 const pollingInterval = ref<NodeJS.Timeout | null>(null)
+const paidCartIds = ref<string[]>([])
 const router = useRouter()
 
 // VAT Invoice form fields
@@ -330,7 +337,8 @@ async function fetchRecommendedCourses() {
           duration,
           price,
           image: course.course_image ? getLinkFromS3(course.course_image) : undefined,
-          to: `/khoa-hoc/${course.course_id}`
+          to: `/khoa-hoc/${course.course_id}`,
+          is_owned: course.is_owned || false
         }
       })
     } else {
@@ -350,6 +358,35 @@ function formatPrice(price: number): string {
     currency: 'VND',
     minimumFractionDigits: 0
   }).format(price)
+}
+
+async function handleDeleteItem(cartId: string, item: CartItem) {
+  try {
+    await cartService.deleteItem(cartId)
+
+    cartItems.value = cartItems.value.filter(cartItem => cartItem.id !== item.id)
+    cartApiItems.value = cartApiItems.value.filter(apiItem => apiItem.cart_id !== cartId)
+
+    const cartStore = useCartStore()
+    cartStore.cartApiItems = cartStore.cartApiItems.filter(apiItem => apiItem.cart_id !== cartId)
+
+    // Update cart count in auth store
+    const authStore = useAuthStore()
+    authStore.updateCartCount(-1)
+
+    toast.add({
+      title: 'Thành công',
+      description: 'Đã xóa sản phẩm khỏi giỏ hàng',
+      color: 'success'
+    })
+  } catch (error) {
+    console.error('Error deleting cart item:', error)
+    toast.add({
+      title: 'Lỗi',
+      description: 'Không thể xóa sản phẩm khỏi giỏ hàng',
+      color: 'error'
+    })
+  }
 }
 
 onMounted(async () => {
@@ -437,9 +474,9 @@ async function handleCheckout() {
 
     if (response && response.data) {
       transactionData.value = response.data
+      paidCartIds.value = cartIds
       checkoutModalOpen.value = true
 
-      // Bắt đầu polling status mỗi 1 giây
       startPollingTransactionStatus(response.data.transaction_id)
     } else {
       throw new Error('Không nhận được dữ liệu từ API')
@@ -475,16 +512,28 @@ function startPollingTransactionStatus(transactionId: string) {
         // payment_status: 0 = đang xử lý, 1 = thành công, 2 = thất bại
         const paymentStatus = response.data.payment_status
 
-        // Nếu thành công (status = 1), dừng polling và redirect
         if (paymentStatus === PaymentStatus.SUCCESS) {
           stopPolling()
+
+          const cartStore = useCartStore()
+          const authStore = useAuthStore()
+
+          cartItems.value = cartItems.value.filter(item => !paidCartIds.value.includes(item.cartId || ''))
+          cartApiItems.value = cartApiItems.value.filter(item => !paidCartIds.value.includes(item.cart_id))
+          cartStore.cartApiItems = cartStore.cartApiItems.filter(item => !paidCartIds.value.includes(item.cart_id))
+
+          if (authStore.user && paidCartIds.value.length > 0) {
+            authStore.updateCartCount(-paidCartIds.value.length)
+          }
+
+          paidCartIds.value = []
+
           toast.add({
             title: 'Thành công',
             description: 'Thanh toán thành công!',
             color: 'success'
           })
           checkoutModalOpen.value = false
-          // Redirect đến payment success page
           router.push('/payment-success')
         } else if (paymentStatus === PaymentStatus.FAILED) {
           stopPolling()
@@ -618,6 +667,7 @@ onUnmounted(() => {
             :final-total="finalTotal"
             @update:items="cartItems = $event"
             @checkout="handleCheckout"
+            @delete="handleDeleteItem"
           />
         </div>
 
@@ -766,7 +816,7 @@ onUnmounted(() => {
               </div>
 
               <div class="space-y-4">
-                <UCheckbox
+                <!-- <UCheckbox
                   v-model="requestVATInvoice"
                   label="Yêu cầu xuất hóa đơn VAT"
                   :ui="{
@@ -776,7 +826,7 @@ onUnmounted(() => {
                     wrapper: 'semibold text-lg font-semibold',
                     root: 'items-center'
                   }"
-                />
+                /> -->
 
                 <!-- VAT Invoice Form -->
                 <div
@@ -834,10 +884,10 @@ onUnmounted(() => {
               block
               class="h-14 text-base font-semibold bg-button-gradient"
               :disabled="selectedItems.length === 0 || isCreatingTransaction"
+              :loading="isCreatingTransaction"
               @click="handleCheckout"
             >
-              <span v-if="isCreatingTransaction">Đang xử lý...</span>
-              <span v-else>Tiến hành thanh toán</span>
+              Tiến hành thanh toán
             </UButton>
           </div>
         </div>
@@ -899,6 +949,7 @@ onUnmounted(() => {
                 :price="item.price"
                 :image="item.image"
                 :to="item.to"
+                :is-owned="item.is_owned || false"
                 class="my-4"
               />
             </UCarousel>

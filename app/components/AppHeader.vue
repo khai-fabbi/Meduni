@@ -107,9 +107,8 @@ const userLastName = computed(() => {
 
 const cartCount = computed(() => {
   if (!user.value?.total_cart) return 0
-  // const count = parseInt(user.value.total_cart, 10)
-  // return isNaN(count) ? 0 : count
-  return 0
+  const count = parseInt(user.value.total_cart, 10)
+  return isNaN(count) ? 0 : count
 })
 
 const userAvatar = computed(() => {
