@@ -54,6 +54,7 @@ export const ApiEndpoint = {
     GetList: `${prefix}/cart`,
     Add: `${prefix}/cart`,
     Update: `${prefix}/cart`,
+    Delete: `${prefix}/cart`,
     Estimate: `${prefix}/cart/est-cart`,
     ApplyDiscount: `${prefix}/packages/apply-discount`
   },

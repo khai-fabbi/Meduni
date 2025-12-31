@@ -22,6 +22,24 @@ export const cartService = {
   },
 
   /**
+   * Thêm khóa học vào giỏ hàng
+   * @param courseId - ID khóa học cần thêm
+   */
+  addToCart: async (courseId: string) => {
+    const { $api } = useNuxtApp()
+    return $api<ApiResponse<any>>(ApiEndpoint.Cart.Add, {
+      method: 'POST',
+      body: {
+        course_info: [
+          {
+            course_id: courseId
+          }
+        ]
+      }
+    })
+  },
+
+  /**
    * Áp dụng mã giảm giá cho cart
    * Sử dụng API /v1/cart/apply-discount với cart_ids và discount_code
    */
@@ -93,5 +111,21 @@ export const cartService = {
         method: 'GET'
       }
     )
+  },
+
+  /**
+   * Xóa sản phẩm khỏi giỏ hàng
+   * Sử dụng PUT với amount: 0 để xóa item
+   * @param cartId - ID giỏ hàng cần xóa
+   */
+  deleteItem: async (cartId: string) => {
+    const { $api } = useNuxtApp()
+    return $api<ApiResponse<{ carts: unknown[], count: number }>>(ApiEndpoint.Cart.Update, {
+      method: 'PUT',
+      body: {
+        cart_id: cartId,
+        amount: 0
+      }
+    })
   }
 }

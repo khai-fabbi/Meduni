@@ -1,7 +1,8 @@
 <script setup lang="ts">
 export interface CartItem {
   id: number
-  cartId?: string // cart_id gốc từ API để match lại
+  cartId?: string
+  course_id: string
   title: string
   instructor: string | string[]
   price: number
@@ -28,11 +29,14 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'update:items': [items: CartItem[]]
   'checkout': [items: CartItem[]]
+  'delete': [cartId: string, item: CartItem]
 }>()
 
 const router = useRouter()
 const cartStore = useCartStore()
 const checkoutModalOpen = ref(false)
+const deleteModalOpen = ref(false)
+const itemToDelete = ref<CartItem | null>(null)
 
 const paymentAmount = computed(() => {
   return props.finalTotal > 0 ? props.finalTotal : totalPrice.value
@@ -110,6 +114,26 @@ const isCheckoutDisabled = computed(() => {
   }
   return selectedItems.value.length === 0 || props.finalTotal <= 0
 })
+
+function handleDeleteClick(item: CartItem) {
+  itemToDelete.value = item
+  deleteModalOpen.value = true
+}
+
+function confirmDelete() {
+  if (!itemToDelete.value || !itemToDelete.value.cartId) {
+    return
+  }
+
+  emit('delete', itemToDelete.value.cartId, itemToDelete.value)
+  deleteModalOpen.value = false
+  itemToDelete.value = null
+}
+
+function cancelDelete() {
+  deleteModalOpen.value = false
+  itemToDelete.value = null
+}
 </script>
 
 <template>
@@ -162,7 +186,7 @@ const isCheckoutDisabled = computed(() => {
                 @update:model-value="toggleItem(item.id)"
               />
               <NuxtLink
-                to="/khoa-hoc/1"
+                :to="`/khoa-hoc/${item.course_id}`"
                 class="flex gap-4 items-center flex-1 min-w-0"
               >
 
@@ -190,16 +214,28 @@ const isCheckoutDisabled = computed(() => {
               </NuxtLink>
             </div>
 
-            <div class="flex items-center justify-between md:flex-col md:items-end gap-1 shrink-0 pl-8 md:pl-0">
-              <span class="text-lg md:text-xl font-bold text-secondary">
-                {{ formatPrice(item.price) }}
-              </span>
-              <span
-                v-if="item.originalPrice && item.originalPrice !== item.price"
-                class="text-sm md:text-lg text-neutral-400 line-through"
+            <div class="flex items-start gap-2 md:flex-col md:items-end shrink-0 pl-8 md:pl-0">
+              <div class="flex flex-col items-end gap-1">
+                <span class="text-lg md:text-xl font-bold text-secondary">
+                  {{ formatPrice(item.price) }}
+                </span>
+                <span
+                  v-if="item.originalPrice && item.originalPrice !== item.price"
+                  class="text-sm md:text-lg text-neutral-400 line-through"
+                >
+                  {{ formatPrice(item.originalPrice) }}
+                </span>
+              </div>
+              <button
+                type="button"
+                class="shrink-0 text-neutral-500 hover:text-error p-2 pb-0 rounded-md hover:bg-neutral-100 transition-colors relative z-10 cursor-pointer -mt-1"
+                @click.stop.prevent="handleDeleteClick(item)"
               >
-                {{ formatPrice(item.originalPrice) }}
-              </span>
+                <UIcon
+                  name="i-lucide-x"
+                  class="size-5"
+                />
+              </button>
             </div>
           </div>
           <USeparator />
@@ -291,4 +327,61 @@ const isCheckoutDisabled = computed(() => {
     :account-holder="accountHolder"
     :qr-code-url="qrCodeUrl"
   />
+
+  <UModal
+    v-model:open="deleteModalOpen"
+    :ui="{
+      content: 'sm:max-w-lg',
+      overlay: 'bg-black/40 backdrop-blur-[2px]',
+      body: 'py-8 px-6',
+      header: 'pb-6 pt-6 px-6',
+      footer: 'pt-6 px-6 pb-6',
+      title: 'text-xl font-bold text-gray-900 dark:text-white',
+      description: 'text-base text-gray-600 dark:text-gray-400'
+    }"
+  >
+    <template #header>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20">
+          <UIcon
+            name="i-lucide-alert-triangle"
+            class="w-6 h-6 text-red-600 dark:text-red-400"
+          />
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+          Xác nhận xóa
+        </h3>
+      </div>
+    </template>
+
+    <template #body>
+      <p class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+        Bạn có chắc chắn muốn xóa sản phẩm
+        <span class="font-semibold text-gray-900 dark:text-white">{{ itemToDelete?.title }}</span>
+        khỏi giỏ hàng?
+      </p>
+    </template>
+
+    <template #footer>
+      <div class="flex gap-4 justify-end w-full">
+        <UButton
+          color="neutral"
+          variant="outline"
+          size="xl"
+          class="min-h-14 px-8 text-base font-medium"
+          @click="cancelDelete"
+        >
+          Hủy
+        </UButton>
+        <UButton
+          color="error"
+          size="xl"
+          class="min-h-14 px-10 text-base font-semibold"
+          @click="confirmDelete"
+        >
+          Xóa
+        </UButton>
+      </div>
+    </template>
+  </UModal>
 </template>

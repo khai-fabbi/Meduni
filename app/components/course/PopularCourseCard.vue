@@ -8,6 +8,7 @@ interface Props {
   description?: string
   image?: string
   to?: string
+  isOwned?: boolean
 }
 
 defineProps<Props>()
@@ -45,7 +46,7 @@ const formatPrice = (price: number) => {
 
       <div class="text-right">
         <p class="text-xl md:text-2xl font-bold text-secondary">
-          {{ formatPrice(price) }}
+          {{ isOwned ? 'Đã sở hữu' : formatPrice(price) }}
         </p>
       </div>
     </div>

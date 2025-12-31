@@ -90,7 +90,8 @@ async function fetchRecommendedCourses() {
           duration,
           price,
           image: course.course_image ? getLinkFromS3(course.course_image) : undefined,
-          to: `/khoa-hoc/${course.course_id}`
+          to: `/khoa-hoc/${course.course_id}`,
+          is_owned: course.is_owned || false
         }
       })
     } else {
@@ -235,6 +236,7 @@ onMounted(async () => {
                 :price="item.price"
                 :image="item.image"
                 :to="item.to"
+                :is-owned="item.is_owned || false"
                 class="my-4"
               />
             </UCarousel>

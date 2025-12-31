@@ -132,6 +132,7 @@ export interface Course {
   category_id: string
   category_name: string
   category_color: string
+  is_owned?: boolean
 }
 
 export interface Page {

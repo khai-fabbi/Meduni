@@ -7,6 +7,15 @@ export const useCartStore = defineStore('cart', {
     cartApiItems: [] as CartApiItem[] // Lưu cart items để dùng cho recommended courses
   }),
 
+  getters: {
+    /**
+     * Check xem course đã có trong cart chưa (theo course_id)
+     */
+    isCourseInCart: state => (courseId: string) => {
+      return state.cartApiItems.some(item => item.course_id === courseId)
+    }
+  },
+
   actions: {
     /**
      * Set selected cart IDs từ profile cart
@@ -42,6 +51,18 @@ export const useCartStore = defineStore('cart', {
      */
     clearCartApiItems() {
       this.cartApiItems = []
+    },
+
+    /**
+     * Add single cart item vào store
+     * @param item - Cart item từ API
+     */
+    addCartItem(item: CartApiItem) {
+      // Check xem đã tồn tại chưa (theo cart_id)
+      const exists = this.cartApiItems.some(existingItem => existingItem.cart_id === item.cart_id)
+      if (!exists) {
+        this.cartApiItems.push(item)
+      }
     }
   }
 })

@@ -18,9 +18,15 @@ interface Props {
   courseInfo: CourseInfo
   isOwned: boolean
   firstLessonId: string
+  isLoading?: boolean
 }
 
 defineProps<Props>()
+
+defineEmits<{
+  'add-to-cart': [courseId: string]
+  'buy-now': [courseId: string]
+}>()
 </script>
 
 <template>
@@ -62,15 +68,40 @@ defineProps<Props>()
     </div>
 
     <USeparator />
-
-    <UButton
-      :label="isOwned ? 'Bắt đầu học' : 'Đăng ký khóa học'"
-      color="primary"
-      size="xl"
-      block
-      class="min-h-12 md:min-h-14 bg-gradient-to-b from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800"
-      icon="i-lucide-book-open"
-      :to="isOwned ? `/khoa-hoc/${courseInfo.courseId}/bai-hoc/${firstLessonId}` : '#'"
-    />
+    <template v-if="isOwned">
+      <UButton
+        label="Bắt đầu học"
+        color="primary"
+        size="xl"
+        block
+        class="min-h-12 md:min-h-14 bg-gradient-to-b from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800"
+        icon="i-lucide-book-open"
+        :to="`/khoa-hoc/${courseInfo.courseId}/bai-hoc/${firstLessonId}`"
+      />
+    </template>
+    <template v-else>
+      <div class="space-y-3">
+        <UButton
+          :label="isLoading ? 'Đang xử lý...' : 'Thêm vào giỏ hàng'"
+          color="primary"
+          size="xl"
+          block
+          :loading="isLoading"
+          :disabled="isLoading"
+          class="min-h-12 md:min-h-14 text-base rounded-xl bg-gradient-to-b from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white shadow-md hover:shadow-lg transition-all"
+          icon="i-lucide-shopping-cart"
+          @click="$emit('add-to-cart', courseInfo.courseId)"
+        />
+        <UButton
+          label="Mua ngay"
+          color="secondary"
+          size="xl"
+          block
+          class="min-h-12 md:min-h-14 text-base rounded-xl bg-gradient-to-b from-secondary-500 to-secondary-700 hover:from-secondary-600 hover:to-secondary-800 text-white shadow-md hover:shadow-lg transition-all"
+          icon="i-lucide-book-open"
+          @click="$emit('buy-now', courseInfo.courseId)"
+        />
+      </div>
+    </template>
   </div>
 </template>

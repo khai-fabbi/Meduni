@@ -55,7 +55,8 @@ const courses = computed(() => {
     title: course.course_name,
     duration: course.info?.total_duration?.toString() || '0',
     image: course.course_image ? getLinkFromS3(course.course_image) : undefined,
-    price: 0
+    price: 0,
+    is_owned: true
   }))
 })
 

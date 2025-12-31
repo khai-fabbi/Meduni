@@ -10,6 +10,10 @@ import { getAvatarUrl } from '~/utils/helpers'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import { CalendarDate } from '@internationalized/date'
+import { useAuthStore } from '~/stores/auth'
+import { storeToRefs } from 'pinia'
+import type { UserInfoResponse } from '~/types/user'
+import { Gender } from '~/utils/enums'
 
 dayjs.extend(customParseFormat)
 
@@ -70,6 +74,9 @@ const isFetching = ref(false)
 const isChangingPassword = ref(false)
 const changePasswordModalOpen = ref(false)
 const toast = useToast()
+
+const authStore = useAuthStore()
+const { user: storeUser } = storeToRefs(authStore)
 
 const profileForm = reactive<ProfileSchema>({
   goal: '',
@@ -185,14 +192,7 @@ const toggleEdit = () => {
   isEditing.value = !isEditing.value
 }
 
-async function fetchUserInfo() {
-  try {
-    isFetching.value = true
-    const response = await userService.getInfo()
-    console.log(response)
-
-    const userData = response.data
-
+function mapUserDataToForm(userData: UserInfoResponse) {
     currentUserId.value = userData.userId
 
     profileForm.fullName = userData.user_name || ''
@@ -240,16 +240,37 @@ async function fetchUserInfo() {
       profileForm.gender = undefined
     }
 
-    avatar.value = getAvatarUrl(userData.avatar)
+  avatar.value = getAvatarUrl(userData.avatar)
 
-    originalFormData.value = { ...profileForm }
+  originalFormData.value = { ...profileForm }
+}
+
+function mapUserDataFromStore() {
+  if (!storeUser.value) return
+
+  const user = storeUser.value
+  profileForm.fullName = user.user_name || ''
+  profileForm.email = user.email || ''
+  profileForm.phone = user.phone || ''
+  avatar.value = user.avatar || ''
+  currentUserId.value = user.userId || ''
+}
+
+async function fetchUserInfo() {
+  try {
+    isFetching.value = true
+    const response = await userService.getInfo()
+
+    if (response.data) {
+      const userData = response.data
+      mapUserDataToForm(userData)
+
+      if (authStore.fetchUserInfo) {
+        await authStore.fetchUserInfo()
+      }
+    }
   } catch (error) {
     console.error('Error fetching user info:', error)
-    toast.add({
-      title: 'Lỗi tải thông tin',
-      description: 'Không thể tải thông tin người dùng',
-      color: 'error'
-    })
   } finally {
     isFetching.value = false
   }
@@ -284,8 +305,9 @@ async function fetchCountries() {
 }
 
 onMounted(async () => {
+  mapUserDataFromStore()
   await fetchCountries()
-  await fetchUserInfo()
+  fetchUserInfo()
 })
 
 async function onSubmit(payload: FormSubmitEvent<ProfileSchema>) {

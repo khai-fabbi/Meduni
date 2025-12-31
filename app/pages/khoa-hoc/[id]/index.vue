@@ -5,8 +5,14 @@ import CourseOverview from '~/components/course/CourseOverview.vue'
 import CourseContent from '~/components/course/CourseContent.vue'
 import CourseDetails from '~/components/course/CourseDetails.vue'
 import InstructorInfo from '~/components/course/InstructorInfo.vue'
+import SharedConfettiEffect from '~/components/shared/ConfettiEffect.vue'
 import { services } from '~/services'
+import { cartService } from '~/services/cart'
+import { useAuthStore } from '~/stores/auth'
+import { useCartStore } from '~/stores/cart'
 import type { CourseDetail, Chapter as ApiChapter, Lesson as ApiLesson } from '~/types/course'
+import type { CartApiItem, SePayTransactionResponse } from '~/types/cart'
+import { PaymentStatus } from '~/types/cart'
 import { getLinkFromS3, formatDuration } from '~/utils/helpers'
 
 const route = useRoute()
@@ -28,7 +34,6 @@ interface Chapter {
   totalDuration: string
 }
 
-// Fetch course detail
 const {
   data: courseData,
   pending: isLoadingCourse,
@@ -43,7 +48,6 @@ if (!courseData.value) {
     fatal: true
   })
 }
-// Map API data to component format
 const course = computed(() => {
   if (!courseData.value?.data) {
     return null
@@ -63,7 +67,6 @@ const course = computed(() => {
   }
 })
 
-// Map chapters from API to component format
 const chapters = computed<Chapter[]>(() => {
   if (!courseData.value?.data) {
     return []
@@ -95,7 +98,6 @@ const chapters = computed<Chapter[]>(() => {
   })
 })
 
-// Mock instructor data (không có trong API)
 const instructor = {
   name: courseData.value?.data?.teacher?.teacher_name || '',
   avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -108,7 +110,6 @@ const instructor = {
   ]
 }
 
-// Breadcrumbs
 const items = computed<BreadcrumbItem[]>(() => [
   {
     label: 'Trang chủ',
@@ -125,7 +126,6 @@ const items = computed<BreadcrumbItem[]>(() => [
   }
 ])
 
-// SEO
 const title = computed(() => course.value ? `${course.value.title} - MedUni.ai` : 'Chi tiết khóa học - MedUni.ai')
 const description = computed(() => course.value?.overview || '')
 
@@ -147,6 +147,236 @@ const courseInfo = computed(() => ({
 
 const isOwned = computed(() => !!courseData.value?.data?.my_course_id)
 const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.toString() || '')
+
+const toast = useToast()
+const authStore = useAuthStore()
+const cartStore = useCartStore()
+const isAddingToCart = ref(false)
+const confettiRef = ref<InstanceType<typeof SharedConfettiEffect> | null>(null)
+
+const confirmPaymentModalOpen = ref(false)
+const paymentModalOpen = ref(false)
+const isCreatingTransaction = ref(false)
+const transactionData = ref<SePayTransactionResponse | null>(null)
+const pollingInterval = ref<NodeJS.Timeout | null>(null)
+const paymentStatus = ref<PaymentStatus>(PaymentStatus.PENDING)
+
+const coursePrice = computed(() => {
+  if (!courseData.value?.data) return 0
+  const apiCourse = courseData.value.data as unknown as CourseDetail
+
+  if (apiCourse.effective_duration && apiCourse.effective_duration.length > 0) {
+    const defaultDuration = apiCourse.effective_duration.find(d => d.is_default)
+    if (defaultDuration) {
+      return defaultDuration.price
+    }
+    const firstDuration = apiCourse.effective_duration[0]
+    if (firstDuration) {
+      return firstDuration.price
+    }
+  }
+
+  return apiCourse.price || 0
+})
+
+const originalPrice = computed(() => {
+  if (!courseData.value?.data) return 0
+  const apiCourse = courseData.value.data as unknown as CourseDetail
+  return apiCourse.price || 0
+})
+
+const finalPrice = computed(() => {
+  return coursePrice.value
+})
+
+const discount = computed(() => {
+  const discountAmount = originalPrice.value - finalPrice.value
+  return Math.max(0, discountAmount)
+})
+
+onMounted(async () => {
+  if (import.meta.client && authStore.isAuthenticated) {
+    try {
+      const cartResponse = await cartService.getList()
+      if (cartResponse.data?.carts) {
+        cartStore.setCartApiItems(cartResponse.data.carts)
+      }
+    } catch (error) {
+      console.error('Error fetching cart:', error)
+    }
+  }
+})
+
+async function handleAddToCart(courseId: string) {
+  if (cartStore.isCourseInCart(courseId)) {
+    toast.add({
+      title: 'Thông báo',
+      description: 'Khóa học đã có trong giỏ hàng',
+      color: 'warning'
+    })
+    return
+  }
+
+  try {
+    isAddingToCart.value = true
+    await cartService.addToCart(courseId)
+
+    authStore.updateCartCount(1)
+
+    try {
+      const cartResponse = await cartService.getList()
+      if (cartResponse.data?.carts) {
+        const newCartItem = cartResponse.data.carts.find((item: CartApiItem) => item.course_id === courseId)
+        if (newCartItem) {
+          cartStore.addCartItem(newCartItem)
+        } else {
+          cartStore.setCartApiItems(cartResponse.data.carts)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching cart after add:', error)
+    }
+
+    toast.add({
+      title: 'Thành công',
+      description: 'Đã thêm khóa học vào giỏ hàng',
+      color: 'success'
+    })
+  } catch (error) {
+    console.error('Error adding to cart:', error)
+    toast.add({
+      title: 'Lỗi',
+      description: 'Không thể thêm khóa học vào giỏ hàng. Vui lòng thử lại.',
+      color: 'error'
+    })
+  } finally {
+    isAddingToCart.value = false
+  }
+}
+
+function handleBuyNow() {
+  confirmPaymentModalOpen.value = true
+}
+
+async function confirmPayment() {
+  try {
+    isCreatingTransaction.value = true
+
+    let cartId: string | null = null
+
+    if (!cartStore.isCourseInCart(courseId)) {
+      await cartService.addToCart(courseId)
+
+      const cartResponse = await cartService.getList()
+      if (cartResponse.data?.carts) {
+        const newCartItem = cartResponse.data.carts.find((item: CartApiItem) => item.course_id === courseId)
+        if (newCartItem) {
+          cartId = newCartItem.cart_id
+          cartStore.addCartItem(newCartItem)
+        }
+      }
+    } else {
+      const existingItem = cartStore.cartApiItems.find(item => item.course_id === courseId)
+      if (existingItem) {
+        cartId = existingItem.cart_id
+      }
+    }
+
+    if (!cartId) {
+      throw new Error('Không tìm thấy cart_id')
+    }
+
+    const requestBody = {
+      language: 'vn' as const,
+      carts: [cartId]
+    }
+
+    const response = await cartService.createSePayTransaction(requestBody)
+
+    if (response && response.data) {
+      transactionData.value = response.data
+      paymentStatus.value = PaymentStatus.PENDING
+
+      confirmPaymentModalOpen.value = false
+      paymentModalOpen.value = true
+
+      startPollingTransactionStatus(response.data.transaction_id)
+    } else {
+      throw new Error('Không nhận được dữ liệu từ API')
+    }
+  } catch (error: unknown) {
+    console.error('Error creating transaction:', error)
+    const errorMessage = (error as { data?: { error?: { message?: string } } })?.data?.error?.message || 'Không thể tạo giao dịch thanh toán. Vui lòng thử lại.'
+    toast.add({
+      title: 'Lỗi',
+      description: errorMessage,
+      color: 'error'
+    })
+    confirmPaymentModalOpen.value = false
+  } finally {
+    isCreatingTransaction.value = false
+  }
+}
+
+function startPollingTransactionStatus(transactionId: string) {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+  }
+
+  pollingInterval.value = setInterval(async () => {
+    try {
+      const response = await cartService.getTransactionStatus(transactionId)
+
+      if (response && response.data) {
+        paymentStatus.value = response.data.payment_status
+
+        if (response.data.payment_status === PaymentStatus.SUCCESS) {
+          stopPolling()
+          paymentModalOpen.value = false
+          await nextTick()
+          confettiRef.value?.trigger()
+          toast.add({
+            title: 'Thành công',
+            description: 'Thanh toán thành công!',
+            color: 'success'
+          })
+          await refreshCourse()
+        } else if (response.data.payment_status === PaymentStatus.FAILED) {
+          stopPolling()
+          toast.add({
+            title: 'Thất bại',
+            description: 'Giao dịch thanh toán thất bại',
+            color: 'error'
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Error checking transaction status:', error)
+    }
+  }, 2000)
+}
+
+function stopPolling() {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value)
+    pollingInterval.value = null
+  }
+}
+
+onUnmounted(() => {
+  stopPolling()
+})
+
+const qrCodeUrl = computed(() => transactionData.value?.qr_code_url || transactionData.value?.qr_code_data || 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=payment')
+const totalAmount = computed(() => transactionData.value?.total_amount || coursePrice.value)
+
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    minimumFractionDigits: 0
+  }).format(price)
+}
 </script>
 
 <template>
@@ -155,7 +385,6 @@ const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.t
       :items="items"
     />
 
-    <!-- Loading state -->
     <div
       v-if="isLoadingCourse"
       class="flex justify-center items-center py-20"
@@ -181,7 +410,6 @@ const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.t
       </div>
     </div>
 
-    <!-- Content -->
     <div
       v-else-if="course"
       class="grid grid-cols-1 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px] 2xl:grid-cols-[1fr_530px] gap-6 md:gap-7"
@@ -224,13 +452,6 @@ const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.t
           >
             {{ course.title }}
           </Heading>
-
-          <!-- <p
-            v-if="course.subtitle"
-            class="text-lg text-muted"
-          >
-            {{ course.subtitle }}
-          </p> -->
         </motion.div>
 
         <motion.div
@@ -266,6 +487,9 @@ const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.t
             :course-info="courseInfo"
             :is-owned="isOwned"
             :first-lesson-id="firstLessonId"
+            :is-loading="isAddingToCart"
+            @add-to-cart="handleAddToCart"
+            @buy-now="handleBuyNow"
           />
         </motion.div>
 
@@ -284,7 +508,6 @@ const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.t
       </div>
     </div>
 
-    <!-- Not found -->
     <div
       v-else
       class="flex justify-center items-center py-20"
@@ -293,5 +516,167 @@ const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.t
         Không tìm thấy khóa học
       </p>
     </div>
+
+    <UModal
+      v-model:open="confirmPaymentModalOpen"
+      :ui="{
+        content: 'sm:max-w-2xl',
+        header: 'border-b-0 justify-center',
+        body: 'items-center border-0',
+        footer: 'border-0 items-center mx-auto'
+      }"
+    >
+      <template #header>
+        <div class="flex items-center justify-center gap-3">
+          <UIcon
+            name="i-lucide-alert-circle"
+            class="size-6 text-primary"
+          />
+          <h3 class="text-lg font-bold text-center">
+            Xác nhận thanh toán
+          </h3>
+        </div>
+      </template>
+
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-base text-neutral-600 text-center">
+            Vui lòng kiểm tra lại thông tin đơn hàng trước khi thanh toán
+          </p>
+          <div class="bg-neutral-50 rounded-lg p-4 space-y-3">
+            <div>
+              <p class="font-semibold text-base mb-2">
+                Khóa học
+              </p>
+              <p class="text-base text-neutral-700 font-bold">
+                {{ course?.title }}
+              </p>
+            </div>
+            <div class="space-y-2">
+              <div
+                v-if="discount > 0"
+                class="flex justify-between items-center"
+              >
+                <span class="text-sm text-neutral-600">
+                  Giá gốc:
+                </span>
+                <span class="text-sm font-medium text-neutral-700 line-through">
+                  {{ formatPrice(originalPrice) }}
+                </span>
+              </div>
+              <div class="flex justify-between items-center pt-2 border-t border-neutral-200">
+                <span class="text-base font-semibold text-neutral-800">
+                  Tổng thanh toán:
+                </span>
+                <span class="text-lg font-bold text-primary">
+                  {{ formatPrice(finalPrice) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex gap-5 justify-center">
+          <UButton
+            color="neutral"
+            variant="outline"
+            size="lg"
+            class="min-w-64 px-10 py-5 text-center justify-center"
+            @click="confirmPaymentModalOpen = false"
+          >
+            Hủy bỏ
+          </UButton>
+          <UButton
+            color="primary"
+            size="lg"
+            class="min-w-64 px-10 py-5 text-center justify-center"
+            :loading="isCreatingTransaction"
+            @click="confirmPayment"
+          >
+            Xác nhận thanh toán
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <UModal
+      v-model:open="paymentModalOpen"
+      :ui="{
+        content: 'sm:max-w-2xl',
+        header: 'border-b-0 justify-center',
+        body: 'border-0 items-center',
+        footer: 'border-0 items-center mx-auto'
+      }"
+    >
+      <template #header>
+        <div class="flex items-center justify-center gap-3">
+          <UIcon
+            name="i-lucide-check-circle"
+            class="size-6 text-success"
+          />
+          <h3 class="text-lg font-bold text-center">
+            Giao dịch đã được tạo thành công
+          </h3>
+        </div>
+      </template>
+
+      <template #body>
+        <div class="space-y-4">
+          <p class="text-base text-neutral-600 text-center">
+            Vui lòng quét mã QR để tiến hành thanh toán
+          </p>
+
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-neutral-700">
+              Trạng thái:
+            </span>
+            <span class="text-sm text-neutral-600">
+              Chờ thanh toán
+            </span>
+            <UIcon
+              name="i-lucide-loader-circle"
+              class="size-4 text-primary animate-spin"
+            />
+          </div>
+
+          <div class="flex justify-center">
+            <div class="bg-white rounded-lg p-4 border-2 border-neutral-200">
+              <NuxtImg
+                :src="qrCodeUrl"
+                alt="QR Code"
+                class="w-64 h-64"
+              />
+            </div>
+          </div>
+
+          <!-- Total amount -->
+          <div class="bg-primary-50 rounded-lg p-4 border border-primary-200">
+            <p class="text-base font-semibold text-primary-700 text-center">
+              Tổng thanh toán: {{ formatPrice(totalAmount) }}
+            </p>
+          </div>
+        </div>
+      </template>
+
+      <template #footer>
+        <div class="flex gap-5 justify-center">
+          <UButton
+            color="neutral"
+            size="lg"
+            class="min-w-64 px-10 py-5 text-center justify-center"
+            @click="paymentModalOpen = false; stopPolling()"
+          >
+            Đóng
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <SharedConfettiEffect
+      ref="confettiRef"
+      :auto-trigger="false"
+    />
   </UContainer>
 </template>
