@@ -6,7 +6,9 @@ import type {
   CourseCategory,
   CourseDetail,
   MyCourse,
-  LessonDetail
+  LessonDetail,
+  ContentByKeywordAiResponse,
+  DataContentByKeywordAiRequest
 } from '~/types/course'
 import type { ApiResponse } from '~/types/common'
 import type { Ref } from 'vue'
@@ -101,5 +103,18 @@ export const coursesService = {
         method: 'GET'
       }
     )
+  },
+  getContentByKeywordAi: (payload: DataContentByKeywordAiRequest) => {
+    const config = useRuntimeConfig()
+    const beCesintelligentUrl = config.public.beCesintelligentUrl as string
+    const beCesintelligentApiKey = config.public.beCesintelligentApiKey as string
+    return $fetch<ContentByKeywordAiResponse>(`${beCesintelligentUrl}/v1/chat-messages`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: new Headers({
+        'Authorization': `Bearer ${beCesintelligentApiKey}`,
+        'Content-Type': 'application/json'
+      })
+    })
   }
 }

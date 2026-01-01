@@ -64,9 +64,9 @@ interface Lesson {
   title: string
   duration: string
   videoUrl: string
+  description: string
   content: string
   summary: string
-  keywords: string[]
   statusText?: string
   document?: LessonResourceLink
   quiz?: LessonResourceLink
@@ -99,9 +99,7 @@ const currentLesson = computed<Lesson>(() => {
     videoUrl: apiLesson?.lesson_path
       ? getLinkFromS3(apiLesson.lesson_path)
       : 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    keywords: apiLesson?.outstanding_quote
-      ? [apiLesson.outstanding_quote]
-      : ['AI', 'Kinh doanh', 'Tự động hóa', 'Phân tích dữ liệu'],
+    description: apiLesson?.description || '',
     content: apiLesson?.description
       || 'Video này là một phần của: Ứng dụng AI Chìa khóa kinh doanh bứt phá. Khóa học này sẽ giúp bạn hiểu rõ về tác động của trí tuệ nhân tạo đến hoạt động kinh doanh hiện đại. Chúng ta sẽ khám phá cách AI đang thay đổi cách các doanh nghiệp vận hành, từ tự động hóa quy trình đến phân tích dữ liệu thông minh.',
     summary: apiLesson?.description
@@ -167,8 +165,8 @@ const chapters = computed<Chapter[]>(() => {
           id: lesson.lesson_id.toString(),
           title: lesson.lesson_name,
           duration: formatDuration(lesson.lesson_duration || 0),
+          description: '',
           videoUrl: '',
-          keywords: [],
           content: '',
           summary: '',
           statusText: isCurrentLesson ? 'Đang phát' : undefined,
@@ -185,7 +183,7 @@ const isLoading = computed(() => isLoadingCourse.value || isLoadingLesson.value)
 const hasError = computed(() => courseError.value || lessonError.value)
 
 // SEO
-const title = computed(() => `${currentLesson.value.title} - MedUni.ai`)
+const title = computed(() => `${currentLesson.value.title}`)
 const description = computed(() => currentLesson.value.summary || '')
 
 useSeoMeta({
@@ -219,7 +217,7 @@ useSeoMeta({
       class="flex justify-center items-center py-20"
     >
       <div class="text-center">
-        <p class="text-error mb-4">
+        <p class="mb-4 text-error">
           Có lỗi xảy ra khi tải dữ liệu
         </p>
         <div class="flex gap-2 justify-center">
@@ -262,7 +260,7 @@ useSeoMeta({
         >
           <LessonInfo
             :course-id="courseId"
-            :keywords="currentLesson.keywords"
+            :description="currentLesson.description"
             :total-videos="courseInfo.totalVideos || 0"
             :total-duration="courseInfo.totalDuration"
             :title="currentLesson.title"

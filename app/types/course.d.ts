@@ -224,3 +224,24 @@ export interface LessonDetail {
   is_locked: boolean
   lesson_material: unknown[]
 }
+
+export interface DataContentByKeywordAiRequest {
+  inputs?: {
+    transcript?: string
+    hint?: string
+  }
+  query?: string
+  response_mode?: string
+  conversation_id?: string
+  user?: string
+}
+export interface ContentByKeywordAiResponse {
+  event: string
+  task_id: string
+  id: string
+  message_id: string
+  conversation_id: string
+  mode: string
+  answer: string
+  created_at: number
+}

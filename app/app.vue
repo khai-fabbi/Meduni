@@ -35,7 +35,7 @@ useSeoMeta({
     </NuxtLayout>
 
     <ClientOnly>
-      <!-- Chatbot -->
+      <ChatBot />
     </ClientOnly>
   </UApp>
 </template>

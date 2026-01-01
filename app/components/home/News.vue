@@ -189,14 +189,14 @@ const partners: Partner[] = [
       <div class="border-t border-neutral-200 pt-8">
         <UMarquee
           pause-on-hover
-          :overlay="true"
+          :overlay="false"
           :ui="{ root: '[--gap:--spacing(6)] [--duration:30s]', content: 'w-auto py-2' }"
           :repeat="2"
         >
           <div
             v-for="partner in partners"
             :key="partner.id"
-            class="flex items-center gap-3 md:gap-4 bg-white rounded-lg p-3 md:p-4 border border-neutral-200 shadow-partner-item hover:shadow-md transition-shadow shrink-0 min-w-[200px] md:min-w-[250px]"
+            class="flex items-center gap-3 md:gap-4 bg-white rounded-lg p-3 md:p-4 border border-neutral-200 shadow-partner-item hover:shadow transition-shadow shrink-0 min-w-[200px] md:min-w-[250px]"
           >
             <div
               class="w-16 h-16 md:w-20 md:h-20 shrink-0 rounded-lg bg-neutral-100 flex items-center justify-center"

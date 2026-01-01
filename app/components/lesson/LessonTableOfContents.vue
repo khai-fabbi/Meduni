@@ -31,6 +31,8 @@ const props = defineProps<Props>()
 
 const accordionItems = shallowRef<AccordionItem[]>([])
 const activeChapter = ref<string[]>(['0'])
+const scrollContainer = ref<HTMLElement | null>(null)
+
 onMounted(() => {
   accordionItems.value = props.chapters.map(chapter => ({
     label: chapter.title,
@@ -44,6 +46,23 @@ onMounted(() => {
   // Find active chapter
   const foundChapterIndex = props.chapters.findIndex(chapter => chapter.lessons.some(lesson => lesson.id === props.currentLessonId)) || 0
   activeChapter.value = [foundChapterIndex.toString()]
+
+  // Scroll to active chapter within the container only
+  setTimeout(() => {
+    const activeChapterElement = document.getElementById(`lesson-${props.currentLessonId}`)
+    if (activeChapterElement && scrollContainer.value) {
+      const container = scrollContainer.value
+      const elementTop = activeChapterElement.offsetTop
+      const elementHeight = activeChapterElement.offsetHeight
+      const containerHeight = container.clientHeight
+      const scrollTop = elementTop - (containerHeight / 2) + (elementHeight / 2)
+
+      container.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth'
+      })
+    }
+  }, 300)
 })
 
 const progress = 50
@@ -61,84 +80,90 @@ const progress = 50
 
       <SharedProcessLearning :progress="progress" />
     </div>
-
-    <UAccordion
-      v-model="activeChapter"
-      :items="accordionItems"
-      type="multiple"
-      :ui="{
-        root: 'bg-white rounded-sm md:rounded-sm overflow-hidden',
-        leadingIcon: 'size-5 md:size-6',
-        item: 'border-0',
-        label: 'text-base md:text-xl font-semibold',
-        header: 'py-1 rounded-sm md:py-1 px-3 md:px-4 cursor-pointer transition-colors data-[state=open]:bg-neutral-200',
-        trigger: 'gap-3 md:gap-4 cursor-pointer',
-        trailingIcon: 'size-6',
-        content: 'py-1'
-      }"
+    <div
+      ref="scrollContainer"
+      class="max-h-[520px] overflow-y-auto"
     >
-      <template #content="{ item }">
-        <ul class="space-y-1">
-          <template
-            v-for="lesson in item.lessons"
-            :key="lesson.id"
-          >
-            <li
-              :class="[
-                lesson.quiz?.done
-                  ? 'bg-learning-done'
-                  : lesson.id === currentLessonId
-                    ? 'bg-sky-100'
-                    : ''
-              ]"
+      <UAccordion
+        v-model="activeChapter"
+        :items="accordionItems"
+        type="multiple"
+        :ui="{
+          root: 'bg-white rounded-sm md:rounded-sm overflow-hidden',
+          leadingIcon: 'size-5 md:size-6',
+          item: 'border-0',
+          label: 'text-base md:text-xl font-semibold',
+          header: 'py-1 rounded-sm md:py-1 px-3 md:px-4 cursor-pointer transition-colors data-[state=open]:bg-neutral-200',
+          trigger: 'gap-3 md:gap-4 cursor-pointer',
+          trailingIcon: 'size-6',
+          content: 'py-1'
+        }"
+      >
+        <template #content="{ item }">
+          <ul class="space-y-1">
+            <template
+              v-for="lesson in item.lessons"
+              :key="lesson.id"
             >
-              <NuxtLink
-                :to="`/khoa-hoc/${courseId}/bai-hoc/${lesson.id}`"
+              <li
+                :id="`lesson-${lesson.id}`"
                 :class="[
-                  'flex rounded-sm items-center gap-4 min-h-14 md:min-h-15 px-3 md:px-5 hover:bg-primary-50 hover:text-primary transition-colors',
-                  lesson.quiz?.done ? 'bg-learning-done hover:bg-learning-done' : (lesson.id === currentLessonId ? 'bg-sky-100' : '')
+                  lesson.quiz?.done
+                    ? 'bg-learning-done'
+                    : lesson.id === currentLessonId
+                      ? 'bg-sky-100'
+                      : ''
                 ]"
+                class="-scroll-mt-30"
               >
-                <div
-                  class="text-primary flex items-center gap-2"
+                <NuxtLink
+                  :to="`/khoa-hoc/${courseId}/bai-hoc/${lesson.id}`"
+                  :class="[
+                    'flex rounded-sm items-center gap-4 min-h-14 md:min-h-15 px-3 md:px-5 hover:bg-primary-50 hover:text-primary transition-colors',
+                    lesson.quiz?.done ? 'bg-learning-done hover:bg-learning-done' : (lesson.id === currentLessonId ? 'bg-sky-100' : '')
+                  ]"
                 >
-                  <LearningDoneIcon
-                    v-if="lesson.quiz?.done"
-                    class="size-5"
-                  />
-                  <UIcon
-                    v-else-if="lesson.id === currentLessonId"
-                    name="i-lucide-circle-pause"
-                    class="size-5"
-                  />
-                  <UIcon
-                    v-else
-                    name="i-lucide-circle-play"
-                    class="size-5"
+                  <div
+                    class="text-primary flex items-center gap-2"
+                  >
+                    <LearningDoneIcon
+                      v-if="lesson.quiz?.done"
+                      class="size-5"
+                    />
+                    <UIcon
+                      v-else-if="lesson.id === currentLessonId"
+                      name="i-lucide-circle-pause"
+                      class="size-5"
+                    />
+                    <UIcon
+                      v-else
+                      name="i-lucide-circle-play"
+                      class="size-5"
+                    />
+                  </div>
+                  <span class="text-base md:text-lg flex-1 font-medium line-clamp-1">
+                    {{ lesson.title }}
+                  </span>
+                  <span class="text-sm md:text-base font-semibold text-neutral-600">
+                    {{ lesson.duration }}
+                  </span>
+                </NuxtLink>
+
+                <div
+                  v-if="lesson.document || lesson.quiz"
+                  class="px-3 md:px-5 pt-2"
+                >
+                  <LessonResources
+                    :document="lesson.document"
+                    :quiz="lesson.quiz"
+                    :is-active="lesson.id === currentLessonId"
                   />
                 </div>
-                <span class="text-base md:text-lg flex-1 font-medium line-clamp-1">
-                  {{ lesson.title }}
-                </span>
-                <span class="text-sm md:text-base font-semibold text-neutral-600">
-                  {{ lesson.duration }}
-                </span>
-              </NuxtLink>
-
-              <div
-                v-if="lesson.document || lesson.quiz"
-                class="px-3 md:px-5 pt-2"
-              >
-                <LessonResources
-                  :document="lesson.document"
-                  :quiz="lesson.quiz"
-                  :is-active="lesson.id === currentLessonId"
-                />
-              </div>
-            </li>
-          </template>
-        </ul>
-      </template>
-    </UAccordion>
+              </li>
+            </template>
+          </ul>
+        </template>
+      </UAccordion>
+    </div>
   </div>
 </template>
