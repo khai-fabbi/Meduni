@@ -8,7 +8,9 @@ definePageMeta({
 
 useSeoMeta({
   title: 'Xác thực tài khoản',
-  description: 'Xác thực tài khoản'
+  description: 'Xác thực tài khoản',
+  ogTitle: 'Xác thực tài khoản',
+  ogDescription: 'Xác thực tài khoản'
 })
 
 const route = useRoute()

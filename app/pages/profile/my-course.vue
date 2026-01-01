@@ -9,7 +9,9 @@ import { ApiEndpoint } from '~/utils/apiEndpoint'
 
 useSeoMeta({
   title: 'Khoá học đã mua',
-  description: 'Khoá học của bạn'
+  description: 'Khoá học của bạn',
+  ogTitle: 'Khoá học đã mua',
+  ogDescription: 'Khoá học của bạn'
 })
 
 const items = ref<BreadcrumbItem[]>([

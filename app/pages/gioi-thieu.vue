@@ -1,4 +1,8 @@
 <script setup lang="ts">
+useSeoMeta({
+  title: 'Giới thiệu',
+  description: 'Giới thiệu về MedUni.vn'
+})
 </script>
 
 <template>

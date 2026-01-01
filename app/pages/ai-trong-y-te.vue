@@ -2,9 +2,9 @@
 import { motion } from 'motion-v'
 
 useSeoMeta({
-  title: 'AI trong Y tế - MedUni.ai',
+  title: 'AI trong Y tế',
   description: 'Khám phá ứng dụng của Trí tuệ Nhân tạo trong lĩnh vực Y tế và chăm sóc sức khỏe',
-  ogTitle: 'AI trong Y tế - MedUni.ai',
+  ogTitle: 'AI trong Y tế',
   ogDescription: 'Khám phá ứng dụng của Trí tuệ Nhân tạo trong lĩnh vực Y tế và chăm sóc sức khỏe'
 })
 

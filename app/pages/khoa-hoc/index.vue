@@ -9,7 +9,7 @@ import { getLinkFromS3, goToTop } from '~/utils/helpers'
 const route = useRoute()
 const router = useRouter()
 
-const title = 'Tất cả khóa học - MedUni.ai'
+const title = 'Tất cả khóa học'
 const description = 'Khám phá các khóa học về trí tuệ nhân tạo, công nghệ và y tế. Trang bị kiến thức, kỹ năng và tư duy công nghệ cho thế hệ tương lai.'
 
 useSeoMeta({

@@ -12,7 +12,9 @@ definePageMeta({
 
 useSeoMeta({
   title: 'Đăng ký',
-  description: 'Tạo tài khoản mới để bắt đầu'
+  description: 'Tạo tài khoản mới để bắt đầu',
+  ogTitle: 'Đăng ký',
+  ogDescription: 'Tạo tài khoản mới để bắt đầu'
 })
 
 const toast = useToast()

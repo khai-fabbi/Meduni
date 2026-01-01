@@ -11,7 +11,9 @@ definePageMeta({
 
 useSeoMeta({
   title: 'Xác thực mật khẩu',
-  description: 'Xác thực mật khẩu'
+  description: 'Xác thực mật khẩu',
+  ogTitle: 'Xác thực mật khẩu',
+  ogDescription: 'Xác thực mật khẩu'
 })
 
 const route = useRoute()

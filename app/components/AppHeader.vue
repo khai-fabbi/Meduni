@@ -13,12 +13,12 @@ const baseItems = [
     label: 'Giới thiệu',
     to: '/gioi-thieu'
   },
+  // {
+  //   label: 'E-Learning',
+  //   to: '/e-learning'
+  // },
   {
     label: 'E-Learning',
-    to: '/e-learning'
-  },
-  {
-    label: 'Khoá học',
     to: '/khoa-hoc'
   },
   {
@@ -75,6 +75,11 @@ const userMenuItems = computed(() => [
       label: 'Hồ sơ',
       icon: UserIcon,
       to: '/profile'
+    },
+    {
+      label: 'Khoá học của tôi',
+      icon: 'i-lucide-zap',
+      to: '/my-course'
     }
   ],
   [
@@ -107,8 +112,8 @@ const userLastName = computed(() => {
 
 const cartCount = computed(() => {
   if (!user.value?.total_cart) return 0
-  const count = parseInt(user.value.total_cart, 10)
-  return isNaN(count) ? 0 : count
+  const count = user.value.total_cart
+  return count || 0
 })
 
 const userAvatar = computed(() => {
@@ -117,7 +122,12 @@ const userAvatar = computed(() => {
 </script>
 
 <template>
-  <UHeader class="rounded-b-xl border-b-none shadow-lg h-16 md:h-[100px] bg-white header-compact">
+  <UHeader
+    class="rounded-b-xl border-b-none shadow-lg h-16 md:h-[100px] bg-white header-compact"
+    :ui="{
+      right: 'shrink-0'
+    }"
+  >
     <template #left>
       <div class="flex items-center gap-3 md:gap-4 lg:gap-6 min-w-0">
         <NuxtLink
@@ -171,10 +181,8 @@ const userAvatar = computed(() => {
               {{ cartCount }}
             </span>
           </NuxtLink>
-        </ClientOnly>
-        <span class="hidden lg:block text-line-gray shrink-0">|</span>
-        <div class="flex items-center gap-2 md:gap-3 min-w-0">
-          <ClientOnly>
+          <span class="hidden lg:block text-line-gray shrink-0">|</span>
+          <div class="flex items-center gap-2 md:gap-3 min-w-0">
             <template v-if="isLoggedIn">
               <div class="hidden lg:flex items-center gap-2 xl:gap-3 min-w-0">
                 <span class="text-sm xl:text-base text-default whitespace-nowrap">
@@ -217,11 +225,11 @@ const userAvatar = computed(() => {
                 size="sm"
               />
 
-              <div class="hidden lg:flex items-center gap-2 md:gap-3 min-w-0">
+              <div class="hidden lg:flex items-center gap-2 md:gap-3">
                 <UButton
                   label="Đăng ký"
                   variant="subtle"
-                  class="min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
+                  class="min-h-10 lg:min-h-12 max-w-25 text-sm shrink-0"
                   to="/signup"
                   size="xl"
                   block
@@ -230,14 +238,14 @@ const userAvatar = computed(() => {
                   label="Đăng nhập"
                   variant="solid"
                   to="/login"
-                  class="min-h-10 lg:min-h-12 max-w-[100px] lg:max-w-[120px] text-sm lg:text-base shrink-0"
+                  class="min-h-10 lg:min-h-12 max-w-25 text-sm shrink-0"
                   size="xl"
                   block
                 />
               </div>
             </template>
-          </ClientOnly>
-        </div>
+          </div>
+        </ClientOnly>
       </div>
     </template>
 
@@ -350,23 +358,6 @@ const userAvatar = computed(() => {
     flex: 0 0.1 auto !important;
     min-width: 0 !important;
     overflow: hidden !important;
-  }
-
-  .header-compact [data-slot="right"] {
-    flex: 0 0.1 auto !important;
-    min-width: 0 !important;
-    margin: auto;
-  }
-}
-
-@media (max-width: 1300px) {
-  .header-search-btn,
-  .header-separator-1 {
-    display: none !important;
-  }
-
-  .header-compact [data-slot="right"] {
-    justify-content: flex-start !important;
   }
 }
 </style>

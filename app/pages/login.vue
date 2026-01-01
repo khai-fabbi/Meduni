@@ -8,8 +8,10 @@ definePageMeta({
 })
 
 useSeoMeta({
-  title: 'Login',
-  description: 'Login to your account to continue'
+  title: 'Đăng nhập',
+  description: 'Đăng nhập vào tài khoản của bạn để tiếp tục',
+  ogTitle: 'Đăng nhập',
+  ogDescription: 'Đăng nhập vào tài khoản của bạn để tiếp tục'
 })
 
 const router = useRouter()

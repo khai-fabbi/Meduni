@@ -18,9 +18,10 @@ useHead({
 })
 
 useSeoMeta({
-  titleTemplate: 'MEDUNI - AI-Powered Medical Transcription',
-  ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/saas-light.png',
-  twitterImage: 'https://ui.nuxt.com/assets/templates/nuxt/saas-light.png',
+  title: 'MedUni.vn',
+  titleTemplate: '%s - MedUni.vn',
+  ogImage: 'https://meduni.vn/favicon.ico',
+  twitterImage: 'https://meduni.vn/favicon.ico',
   twitterCard: 'summary_large_image'
 })
 </script>

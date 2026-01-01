@@ -46,11 +46,9 @@ const items = computed<BreadcrumbItem[]>(() => [
 
 // SEO Meta
 useSeoMeta({
-  title: newsDetail.value?.title
-    ? `${newsDetail.value.title} - MedUni.ai`
-    : 'Chi tiết bài viết - MedUni.ai',
+  title: newsDetail.value?.title || 'Chi tiết bài viết',
   description: newsDetail.value?.short_description || '',
-  ogTitle: newsDetail.value?.title || '',
+  ogTitle: newsDetail.value?.title || 'Chi tiết bài viết',
   ogDescription: newsDetail.value?.short_description || '',
   ogImage: newsDetail.value?.cover_image
     ? getLinkFromS3(newsDetail.value.cover_image)

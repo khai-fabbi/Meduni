@@ -7,7 +7,7 @@ import { services } from '~/services'
 import type { News } from '~/types/news'
 import { formatDate, DATE_FORMAT } from '~/utils/date'
 
-const title = 'Y tế cộng đồng - MedUni.ai'
+const title = 'Y tế cộng đồng'
 const description = 'Khám phá các bài viết về y tế cộng đồng, trí tuệ nhân tạo trong y tế và các chủ đề liên quan.'
 
 useSeoMeta({

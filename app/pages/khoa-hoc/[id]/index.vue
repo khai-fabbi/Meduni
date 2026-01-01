@@ -126,14 +126,15 @@ const items = computed<BreadcrumbItem[]>(() => [
   }
 ])
 
-const title = computed(() => course.value ? `${course.value.title} - MedUni.ai` : 'Chi tiết khóa học - MedUni.ai')
+const title = computed(() => course.value ? `${course.value.title} - MedUni.vn` : 'Chi tiết khóa học - MedUni.vn')
 const description = computed(() => course.value?.overview || '')
 
 useSeoMeta({
   title: title.value,
   ogTitle: title.value,
   description: description.value,
-  ogDescription: description.value
+  ogDescription: description.value,
+  ogImage: course.value?.image || ''
 })
 
 const courseInfo = computed(() => ({
