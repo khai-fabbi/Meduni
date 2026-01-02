@@ -2,6 +2,9 @@
 import { motion } from 'motion-v'
 import { useIntervalFn } from '@vueuse/core'
 
+definePageMeta({
+  middleware: 'auth'
+})
 const route = useRoute()
 const courseId = Array.isArray(route.params.id)
   ? route.params.id[0]
@@ -298,33 +301,33 @@ onMounted(() => {
     v-else
     class="min-h-screen bg-neutral-100"
   >
-    <div class="px-4 md:px-6 py-4 mt-6 mb-0">
-      <div class="flex items-center justify-between max-w-7xl mx-auto gap-2 md:gap-4">
-        <div class="flex items-center gap-2 md:gap-4 flex-1 min-w-0">
+    <div class="px-4 py-4 mt-6 mb-0 md:px-6">
+      <div class="flex gap-2 justify-between items-center mx-auto max-w-7xl md:gap-4">
+        <div class="flex flex-1 gap-2 items-center min-w-0 md:gap-4">
           <UButton
             icon="i-lucide-arrow-left"
             variant="solid"
-            class="text-sm md:text-base bg-white text-neutral-900 hover:bg-neutral-50 border border-neutral-200 shrink-0"
+            class="text-sm bg-white border md:text-base text-neutral-900 hover:bg-neutral-50 border-neutral-200 shrink-0"
             @click="goBack"
           >
             <span class="hidden md:inline">Quay lại bài giảng</span>
             <span class="md:hidden">Quay lại</span>
           </UButton>
-          <span class="text-lg md:text-2xl font-bold text-primary line-clamp-1 flex-1 min-w-0">
+          <span class="flex-1 min-w-0 text-lg font-bold md:text-2xl text-primary line-clamp-1">
             {{ quizTitle }}
           </span>
         </div>
-        <div class="flex items-center gap-2 shrink-0">
-          <span class="text-sm md:text-lg font-semibold text-primary">
+        <div class="flex gap-2 items-center shrink-0">
+          <span class="text-sm font-semibold md:text-lg text-primary">
             {{ currentQuestion }}/{{ totalQuestions }}
           </span>
           <span class="text-dot-gray">•</span>
-          <div class="flex items-center gap-1.5">
+          <div class="flex gap-1.5 items-center">
             <UIcon
               name="i-lucide-clock"
               class="size-3.5 md:size-4 text-primary"
             />
-            <span class="text-sm md:text-lg font-semibold text-primary">
+            <span class="text-sm font-semibold md:text-lg text-primary">
               {{ formatTime(timeRemaining) }}<span class="hidden md:inline"> phút</span>
             </span>
           </div>
@@ -332,22 +335,22 @@ onMounted(() => {
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-6">
+    <div class="px-4 py-6 mx-auto max-w-7xl md:px-6">
       <div class="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
         <motion.div
           :initial="{ opacity: 0, x: 100 }"
           :animate="{ opacity: 1, x: 0 }"
           :transition="{ duration: 0.3, ease: 'easeOut' }"
         >
-          <div class="bg-white rounded-lg shadow-md p-5 md:p-8">
-            <h2 class="text-xl md:text-2xl font-bold text-neutral-900 mb-3">
+          <div class="p-5 bg-white rounded-lg shadow-md md:p-8">
+            <h2 class="mb-3 text-xl font-bold md:text-2xl text-neutral-900">
               Câu {{ currentQuestion }}
             </h2>
-            <p class="text-base md:text-xl text-neutral-700 mb-3">
+            <p class="mb-3 text-base md:text-xl text-neutral-700">
               {{ questions[currentQuestion - 1]?.text }}
             </p>
 
-            <div class="space-y-4 mb-8">
+            <div class="mb-8 space-y-4">
               <div
                 v-for="option in questions[currentQuestion - 1]?.options"
                 :key="option.id"
@@ -359,29 +362,29 @@ onMounted(() => {
                 ]"
                 @click="selectAnswer(option.id)"
               >
-                <div class="flex items-start gap-3">
+                <div class="flex gap-3 items-start">
                   <span class="font-semibold text-neutral-900">{{ option.id }}.</span>
-                  <span class="text-base md:text-lg text-neutral-700 flex-1">{{ option.text }}</span>
+                  <span class="flex-1 text-base md:text-lg text-neutral-700">{{ option.text }}</span>
                   <div
                     v-if="selectedAnswer === option.id"
-                    class="size-6 rounded-full bg-primary flex items-center justify-center shrink-0"
+                    class="flex justify-center items-center rounded-full size-6 bg-primary shrink-0"
                   >
                     <UIcon
                       name="i-lucide-check"
-                      class="size-4 text-white"
+                      class="text-white size-4"
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="flex items-center justify-between">
+            <div class="flex justify-between items-center">
               <UButton
                 v-if="currentQuestion > 1"
                 icon="i-lucide-arrow-left"
                 variant="outline"
                 size="xl"
-                class="bg-white text-base border border-primary text-primary hover:bg-neutral-50"
+                class="text-base bg-white border border-primary text-primary hover:bg-neutral-50"
                 @click="previousQuestion"
               >
                 Quay lại
@@ -416,9 +419,9 @@ onMounted(() => {
           :animate="{ opacity: 1, x: 0 }"
           :transition="{ duration: 0.3, ease: 'easeOut', delay: 0.1 }"
         >
-          <div class="bg-white rounded-lg shadow-md p-5 space-y-6 sticky top-28">
-            <div class="flex items-center justify-between">
-              <div class="text-2xl md:text-3xl font-bold text-neutral-900">
+          <div class="sticky top-28 p-5 space-y-6 bg-white rounded-lg shadow-md">
+            <div class="flex justify-between items-center">
+              <div class="text-2xl font-bold md:text-3xl text-neutral-900">
                 {{ formatTime(timeRemaining) }}
               </div>
               <UButton
@@ -453,11 +456,11 @@ onMounted(() => {
                   Câu {{ num }}
                   <div
                     v-if="answeredQuestions[num]"
-                    class="absolute -top-1.5 -right-1.5 size-5 rounded-full bg-secondary-500 flex items-center justify-center"
+                    class="flex absolute -top-1.5 -right-1.5 justify-center items-center rounded-full size-5 bg-secondary-500"
                   >
                     <UIcon
                       name="i-lucide-check"
-                      class="size-2 text-white absolute top-1.75 right-1.75"
+                      class="absolute text-white size-2 top-1.75 right-1.75"
                     />
                   </div>
                 </button>

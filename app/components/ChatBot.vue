@@ -157,7 +157,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
         <NuxtImg
           src="/chatbot.png"
           alt="Trợ lý AI MedUni"
-          class="h-auto w-25"
+          class="h-auto transition-opacity cursor-pointer w-25 hover:opacity-90"
         />
 
         <!-- Welcome Alert -->
@@ -221,12 +221,12 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
           </div>
 
           <!-- Messages Area -->
-          <div class="overflow-y-auto flex-1 max-h-full">
+          <div class="overflow-y-auto relative flex-1 max-h-full">
             <UChatMessages
               :messages="messages"
               :status="status"
               :should-auto-scroll="true"
-              :should-scroll-to-bottom="false"
+              :should-scroll-to-bottom="true"
               auto-scroll-icon="i-lucide-chevron-down"
               class="my-4 h-full"
               :assistant="{

@@ -35,7 +35,10 @@ useSeoMeta({
     </NuxtLayout>
 
     <ClientOnly>
+      <!-- Chatbot component -->
       <ChatBot />
+      <!-- Go to top button -->
+      <GoToTop />
     </ClientOnly>
   </UApp>
 </template>
