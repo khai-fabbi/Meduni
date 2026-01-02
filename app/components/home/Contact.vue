@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { contactSchema, type ContactSchema } from '~/utils/schema/contact'
-import { contactService } from '~/services/contact'
+import { contactService, type ContactRequest } from '~/services/contact'
 
 const isLoading = ref(false)
 const toast = useToast()
+
+// Cookie để chống spam - thời hạn 5 phút (300 giây)
+const contactSubmitCookie = useCookie('contact_form_submitted', {
+  maxAge: 300, // 5 phút
+  sameSite: 'strict',
+  secure: true
+})
 
 const CONTACT_SOCIALS = [
   { icon: 'i-simple-icons-facebook' },
@@ -13,27 +20,75 @@ const CONTACT_SOCIALS = [
   { icon: 'i-simple-icons-apple' }
 ]
 
+const CONTACT_REASON_OPTIONS = [
+  {
+    value: 1,
+    label: 'Cần liên hệ phòng kinh doanh'
+  },
+  {
+    value: 2,
+    label: 'Cần liên hệ phòng kế toán'
+  },
+  {
+    value: 3,
+    label: 'Cần liên hệ phòng đào tạo'
+  },
+  {
+    value: 4,
+    label: 'Cần liên hệ chuyên gia'
+  },
+  {
+    value: 5,
+    label: 'Cần tư vấn về chương trình'
+  },
+  {
+    value: 6,
+    label: 'Khác...'
+  }
+]
+
 const contactForm = reactive<ContactSchema>({
   fullName: '',
   phone: '',
   email: '',
-  requirement: '',
+  reason: 6,
   message: ''
 })
 
 async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
-  try {
-    isLoading.value = true
+  // Kiểm tra cookie chống spam
+  if (contactSubmitCookie.value) {
+    toast.add({
+      title: 'Vui lòng đợi',
+      description: 'Bạn đã gửi form liên hệ gần đây. Vui lòng đợi 5 phút trước khi gửi lại.',
+      color: 'warning'
+    })
+    return
+  }
 
-    // Map form data to API format
-    const apiPayload = {
-      name: payload.data.fullName,
-      phone: payload.data.phone,
-      email: payload.data.email || '',
-      message: `Yêu cầu: ${payload.data.requirement}\n\nLời nhắn: ${payload.data.message}`
+  isLoading.value = true
+  try {
+    // Gọi API register
+    const country_number = '+84'
+    const phoneTrimmed = payload.data.phone.trim()
+    const phoneProcessed = phoneTrimmed.startsWith('0')
+      ? phoneTrimmed.substring(1)
+      : phoneTrimmed
+    const phoneConverted = country_number + phoneProcessed
+    const contactPayload: ContactRequest = {
+      full_name: payload.data.fullName,
+      phone: phoneConverted,
+      email: payload.data.email ?? '',
+      reason: payload.data.reason ?? 6,
+      message: payload.data.message,
+      contact_type: 'general',
+      country_number
     }
 
-    await contactService.postContact(apiPayload)
+    await contactService.postContact(contactPayload)
+
+    // Lưu cookie sau khi submit thành công - thời hạn 5 phút
+    contactSubmitCookie.value = 'submitted'
 
     toast.add({
       title: 'Gửi thành công',
@@ -45,12 +100,12 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
     contactForm.fullName = ''
     contactForm.phone = ''
     contactForm.email = ''
-    contactForm.requirement = ''
+    contactForm.reason = undefined
     contactForm.message = ''
-  } catch (error) {
+  } catch {
     toast.add({
       title: 'Gửi thất bại',
-      description: error instanceof Error ? error.message : 'Có lỗi xảy ra khi gửi thông tin liên hệ',
+      description: 'Có lỗi xảy ra khi gửi thông tin liên hệ',
       color: 'error'
     })
   } finally {
@@ -60,14 +115,14 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
 </script>
 
 <template>
-  <UContainer class="py-8 space-y-7.5 md:py-8 mb-6">
+  <UContainer class="py-8 mb-6 space-y-7.5 md:py-8">
     <Heading
       variant="h3"
       class="text-center"
     >
       Thông tin liên hệ
     </Heading>
-    <div class="max-w-7xl w-full mx-auto flex gap-4 flex-col-reverse md:flex-row items-center overflow-hidden">
+    <div class="flex overflow-hidden flex-col-reverse gap-4 items-center mx-auto w-full max-w-7xl md:flex-row">
       <!-- left section -->
       <div class="rounded-lg bg-white p-4 md:px-7.5 md:py-5 md:max-w-[808px]">
         <div class="md:max-w-5/6">
@@ -86,7 +141,7 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
             :disabled="isLoading"
             @submit="onSubmit"
           >
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <UFormField
                 label="Họ và tên"
                 name="fullName"
@@ -134,16 +189,16 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
 
               <UFormField
                 label="Yêu cầu"
-                name="requirement"
+                name="reason"
                 required
               >
-                <UInput
-                  v-model="contactForm.requirement"
-                  placeholder="Nhập yêu cầu của bạn"
+                <USelect
+                  v-model="contactForm.reason"
+                  :items="CONTACT_REASON_OPTIONS"
+                  placeholder="Chọn yêu cầu"
                   :disabled="isLoading"
                   size="xl"
-                  icon="i-lucide-file-text"
-                  class="w-full"
+                  class="w-full min-h-12"
                 />
               </UFormField>
 
@@ -195,13 +250,13 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
 
         <!-- contact info -->
         <div class="mt-6 space-y-4">
-          <div class="flex items-center gap-3 p-3 border border-neutral-200 bg-white/10 rounded-lg backdrop-blur-sm">
+          <div class="flex gap-3 items-center p-3 rounded-lg border backdrop-blur-sm border-neutral-200 bg-white/10">
             <UIcon
               name="i-lucide-phone"
               class="w-6 h-6 shrink-0"
             />
             <div>
-              <p class="text-base md:text-lg font-semibold">
+              <p class="text-base font-semibold md:text-lg">
                 Số điện thoại
               </p>
               <p class="text-base md:text-lg">
@@ -210,13 +265,13 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
             </div>
           </div>
 
-          <div class="flex items-center gap-3 p-3 border border-neutral-200 bg-white/10 rounded-lg backdrop-blur-sm">
+          <div class="flex gap-3 items-center p-3 rounded-lg border backdrop-blur-sm border-neutral-200 bg-white/10">
             <UIcon
               name="i-lucide-mail"
               class="w-6 h-6 shrink-0"
             />
             <div>
-              <p class="text-base md:text-lg font-semibold">
+              <p class="text-base font-semibold md:text-lg">
                 Email
               </p>
               <p class="text-base md:text-lg">
@@ -227,10 +282,10 @@ async function onSubmit(payload: FormSubmitEvent<ContactSchema>) {
 
           <USeparator class="my-6 border-neutral-100" />
           <div class="space-y-1">
-            <p class="text-base md:text-lg font-semibold">
+            <p class="text-base font-semibold md:text-lg">
               Theo dõi chúng tôi
             </p>
-            <div class="flex items-center gap-3">
+            <div class="flex gap-3 items-center">
               <NuxtLink
                 v-for="(item, index) in CONTACT_SOCIALS"
                 :key="index"

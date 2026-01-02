@@ -1,8 +1,11 @@
-interface ContactRequest {
-  name: string
-  email: string
+export interface ContactRequest {
+  full_name: string
   phone: string
+  email: string
   message: string
+  reason: number
+  contact_type: string
+  country_number: string
 }
 
 interface ContactResponse {
@@ -10,12 +13,9 @@ interface ContactResponse {
 }
 
 export const contactService = {
-  getContact: async () => {
-    return useApiFetch<ContactResponse>(ApiEndpoint.Contact.GetContact)
-  },
   postContact: async (payload: ContactRequest) => {
     const { $api } = useNuxtApp()
-    return $api<ContactResponse>(ApiEndpoint.Contact.PostContact, {
+    return $api<ContactResponse>(ApiEndpoint.Contact.SendContact, {
       method: 'POST',
       body: payload
     })

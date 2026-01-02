@@ -14,6 +14,7 @@ import type { CourseDetail, Chapter as ApiChapter, Lesson as ApiLesson } from '~
 import type { CartApiItem, SePayTransactionResponse } from '~/types/cart'
 import { PaymentStatus } from '~/types/cart'
 import { getLinkFromS3, formatDuration } from '~/utils/helpers'
+import { useAddToCart } from '~/composables/useAddToCart'
 
 const route = useRoute()
 const courseId = route.params.id as string
@@ -39,7 +40,7 @@ const {
   pending: isLoadingCourse,
   error: courseError,
   refresh: refreshCourse
-} = await services.courses.getCourseById(courseId, { server: false })
+} = await services.courses.getCourseById(courseId)
 
 if (!courseData.value) {
   throw createError({
@@ -152,7 +153,8 @@ const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.t
 const toast = useToast()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
-const isAddingToCart = ref(false)
+const { addToCart, isLoading } = useAddToCart()
+const isAddingToCart = computed(() => isLoading(courseId))
 const confettiRef = ref<InstanceType<typeof SharedConfettiEffect> | null>(null)
 
 const confirmPaymentModalOpen = ref(false)
@@ -209,50 +211,7 @@ onMounted(async () => {
 })
 
 async function handleAddToCart(courseId: string) {
-  if (cartStore.isCourseInCart(courseId)) {
-    toast.add({
-      title: 'Thông báo',
-      description: 'Khóa học đã có trong giỏ hàng',
-      color: 'warning'
-    })
-    return
-  }
-
-  try {
-    isAddingToCart.value = true
-    await cartService.addToCart(courseId)
-
-    authStore.updateCartCount(1)
-
-    try {
-      const cartResponse = await cartService.getList()
-      if (cartResponse.data?.carts) {
-        const newCartItem = cartResponse.data.carts.find((item: CartApiItem) => item.course_id === courseId)
-        if (newCartItem) {
-          cartStore.addCartItem(newCartItem)
-        } else {
-          cartStore.setCartApiItems(cartResponse.data.carts)
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching cart after add:', error)
-    }
-
-    toast.add({
-      title: 'Thành công',
-      description: 'Đã thêm khóa học vào giỏ hàng',
-      color: 'success'
-    })
-  } catch (error) {
-    console.error('Error adding to cart:', error)
-    toast.add({
-      title: 'Lỗi',
-      description: 'Không thể thêm khóa học vào giỏ hàng. Vui lòng thử lại.',
-      color: 'error'
-    })
-  } finally {
-    isAddingToCart.value = false
-  }
+  await addToCart(courseId)
 }
 
 function handleBuyNow() {

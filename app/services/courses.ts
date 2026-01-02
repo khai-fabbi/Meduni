@@ -19,7 +19,7 @@ export const coursesService = {
    * Lấy danh sách khóa học
    * @param query - Query parameters
    */
-  getList: (query?: CoursesListQueryParams | Ref<CoursesListQueryParams>) => {
+  getList: (query?: CoursesListQueryParams | Ref<CoursesListQueryParams>, options?: UseFetchOptions<ApiResponse<CoursesList>>) => {
     return useApiFetch<ApiResponse<CoursesList>>(ApiEndpoint.Courses.GetList, {
       query: computed(() => {
         const queryParams = unref(query) || {}
@@ -31,7 +31,8 @@ export const coursesService = {
           ...(queryParams.keyword && { keyword: queryParams.keyword }),
           ...(queryParams.ignore && { ignore: queryParams.ignore })
         }
-      })
+      }),
+      ...options
     })
   },
 

@@ -1,62 +1,37 @@
 <script setup lang="ts">
 import PopularCourseCard from '../course/PopularCourseCard.vue'
+import SkeletonCourseCard from '../skeleton/CourseCard.vue'
+import { services } from '~/services'
+import type { Course } from '~/types/course'
+import { getLinkFromS3 } from '~/utils/helpers'
 
-const popularCourses = [
-  {
-    id: 1,
-    title: 'Khóa học AI trong Y tế - Cơ bản',
-    description: 'Khóa học cung cấp kiến thức nền tảng về ứng dụng trí tuệ nhân tạo trong lĩnh vực y tế, giúp bạn hiểu rõ các khái niệm cơ bản và cách thức AI được áp dụng để cải thiện chất lượng chăm sóc sức khỏe.',
-    duration: '10 giờ',
-    price: 2990000,
-    image: '/images/course/course-placeholder.png',
-    to: '#'
-  },
-  {
-    id: 2,
-    title: 'Deep Learning cho Chẩn đoán Y khoa',
-    description: 'Học cách sử dụng các mô hình deep learning để phân tích hình ảnh y tế, chẩn đoán bệnh và hỗ trợ các bác sĩ trong việc đưa ra quyết định chính xác hơn. Khóa học bao gồm các case study thực tế từ các bệnh viện hàng đầu.',
-    duration: '15 giờ',
-    price: 3990000,
-    image: '/images/course/course-placeholder.png',
-    to: '#'
-  },
-  {
-    id: 3,
-    title: 'Machine Learning ứng dụng trong Y tế',
-    description: 'Khám phá các thuật toán machine learning được sử dụng để dự đoán bệnh, phân loại bệnh nhân và tối ưu hóa quy trình điều trị. Khóa học phù hợp cho cả người mới bắt đầu và những ai đã có kinh nghiệm.',
-    duration: '12 giờ',
-    price: 3490000,
-    image: '/images/course/course-placeholder.png',
-    to: '#'
-  },
-  {
-    id: 4,
-    title: 'Xử lý ảnh Y tế với AI',
-    description: 'Học các kỹ thuật xử lý và phân tích ảnh y tế như X-ray, CT scan, MRI bằng công nghệ AI. Khóa học cung cấp kiến thức từ cơ bản đến nâng cao về computer vision trong y tế.',
-    duration: '8 giờ',
-    price: 2490000,
-    image: '/images/course/course-placeholder.png',
-    to: '#'
-  },
-  {
-    id: 5,
-    title: 'AI trong Quản lý Bệnh viện',
-    description: 'Tìm hiểu cách ứng dụng AI để tối ưu hóa quy trình quản lý bệnh viện, lập lịch khám bệnh, quản lý tài nguyên và cải thiện trải nghiệm của bệnh nhân. Khóa học kết hợp lý thuyết và thực hành.',
-    duration: '14 giờ',
-    price: 3790000,
-    image: '/images/course/course-placeholder.png',
-    to: '#'
-  },
-  {
-    id: 6,
-    title: 'Phân tích Dữ liệu Y tế với Python',
-    description: 'Học cách sử dụng Python để phân tích dữ liệu y tế lớn, tìm kiếm patterns và insights quan trọng. Khóa học bao gồm các thư viện như Pandas, NumPy, Matplotlib và các công cụ visualization chuyên dụng.',
-    duration: '16 giờ',
-    price: 4290000,
-    image: '/images/course/course-placeholder.png',
-    to: '#'
-  }
-]
+const { addToCart, isLoading } = useAddToCart()
+
+// Fetch popular courses from API with limit=6 and sort=2
+const {
+  data: coursesData,
+  pending: isLoadingCourses,
+  error: coursesError
+} = services.courses.getList({
+  limit: 6,
+  sort: 2
+}, { server: false })
+
+// Map courses from API to PopularCourseCard format
+const popularCourses = computed(() => {
+  if (!coursesData.value?.data) return []
+  const apiCourses = coursesData.value.data.data || []
+  return apiCourses.map((course: Course) => ({
+    id: course.course_id,
+    title: course.course_name,
+    description: course.description || '',
+    duration: course.overview?.study_duration || '0 giờ',
+    price: course.price || 0,
+    image: course.course_image ? getLinkFromS3(course.course_image) : '/images/course/course-placeholder.png',
+    to: `/khoa-hoc/${course.course_id}`,
+    isOwned: course.is_owned || false
+  }))
+})
 </script>
 
 <template>
@@ -65,7 +40,48 @@ const popularCourses = [
       Khoá học <span class="text-secondary">được mua nhiều nhất</span>
     </Heading>
 
+    <!-- Loading State -->
+    <div
+      v-if="isLoadingCourses"
+      class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      <SkeletonCourseCard
+        v-for="i in 3"
+        :key="i"
+      />
+    </div>
+
+    <!-- Error State -->
+    <div
+      v-else-if="coursesError"
+      class="flex flex-col justify-center items-center py-12 text-center"
+    >
+      <UIcon
+        name="i-lucide-alert-circle"
+        class="mb-4 size-12 text-neutral-400"
+      />
+      <p class="text-base text-neutral-600">
+        Không thể tải khóa học. Vui lòng thử lại sau.
+      </p>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      v-else-if="popularCourses.length === 0"
+      class="flex flex-col justify-center items-center py-12 text-center"
+    >
+      <UIcon
+        name="i-lucide-book-open"
+        class="mb-4 size-12 text-neutral-400"
+      />
+      <p class="text-base text-neutral-600">
+        Chưa có khóa học nào.
+      </p>
+    </div>
+
+    <!-- Courses Carousel -->
     <UCarousel
+      v-else
       v-slot="{ item }"
       :items="popularCourses"
       wheel-gestures
@@ -83,7 +99,7 @@ const popularCourses = [
         class: 'shadow-sm'
       }"
       :ui="{
-        item: 'md:basis-[28.5%] xl:basis-[28.5%]',
+        item: 'sm:basis-1/2 md:basis-[45%] lg:basis-1/3 xl:basis-[28.5%]',
         container: 'py-3 relative',
         arrows: 'md:hidden',
         prev: 'sm:start-6',
@@ -97,6 +113,10 @@ const popularCourses = [
         :price="item.price"
         :image="item.image"
         :to="item.to"
+        :is-owned="item.isOwned"
+        :course-id="item.id"
+        :is-loading="isLoading(item.id)"
+        @add-to-cart="addToCart"
       />
     </UCarousel>
   </UContainer>

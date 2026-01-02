@@ -82,7 +82,7 @@ onUnmounted(() => {
 
 <template>
   <UContainer class="py-6 space-y-6 md:py-15 md:space-y-8">
-    <div class="text-center space-y-2">
+    <div class="space-y-2 text-center">
       <Heading
         variant="h3"
       >
@@ -95,9 +95,9 @@ onUnmounted(() => {
 
     <section
       ref="sectionRef"
-      class="rounded-md bg-gradient-to-b from-secondary to-secondary-700 p-4"
+      class="p-4 bg-gradient-to-b rounded-md from-secondary to-secondary-700"
     >
-      <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 lg:gap-7.5 text-white">
+      <ul class="grid grid-cols-1 gap-4 text-white sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 lg:gap-7.5">
         <li
           v-for="(achievement, index) in achievements"
           :key="achievement.description"
@@ -111,9 +111,9 @@ onUnmounted(() => {
               ease: [0.16, 1, 0.3, 1]
             }"
           >
-            <div class="flex items-center justify-center">
+            <div class="flex justify-center items-center">
               <motion.span
-                class="text-3xl md:text-4xl font-bold flex items-center gap-0.5"
+                class="flex gap-0.5 items-center text-3xl font-bold md:text-4xl"
                 :initial="{ scale: 0.5, opacity: 0 }"
                 :animate="{ scale: 1, opacity: 1 }"
                 :transition="{
@@ -141,7 +141,7 @@ onUnmounted(() => {
               </motion.span>
             </div>
             <motion.p
-              class="text-base md:text-lg text-center"
+              class="text-base text-center md:text-lg"
               :initial="{ opacity: 0 }"
               :animate="{ opacity: 1 }"
               :transition="{
@@ -160,8 +160,8 @@ onUnmounted(() => {
       <iframe
         width="100%"
         height="100%"
-        class="w-full h-full aspect-video object-cover rounded-md"
-        src="https://www.youtube.com/embed/watch?v=xFONPDwW-lU&list=RDxFONPDwW-lU&start_radio=1"
+        class="object-cover w-full h-full rounded-md aspect-video"
+        src="https://www.youtube.com/embed/xFONPDwW-lU?rel=0"
         title="YouTube video player"
         frameborder="0"
         allow="autoplay; encrypted-media"

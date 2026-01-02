@@ -16,8 +16,15 @@ export const contactSchema = z.object({
       val => !val || val.trim() === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
       'Email không hợp lệ'
     ),
-  requirement: z.string().min(1, 'Yêu cầu là bắt buộc'),
+  reason: z.number().optional(),
   message: z.string().min(1, 'Lời nhắn là bắt buộc')
+}).superRefine((data, ctx) => {
+  if (data.reason === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Yêu cầu là bắt buộc'
+    })
+  }
 })
 
 export type ContactSchema = z.infer<typeof contactSchema>

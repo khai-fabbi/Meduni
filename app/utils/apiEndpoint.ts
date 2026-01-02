@@ -16,8 +16,7 @@ export const ApiEndpoint = {
     GetProfile: `${prefix}/profile`
   },
   Contact: {
-    GetContact: `${prefix}/contact`,
-    PostContact: `${prefix}/contact`
+    SendContact: `${prefix}/contact`
   },
   News: {
     GetList: `${prefix}/news`,

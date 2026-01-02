@@ -154,11 +154,13 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
       :content="{ side: 'top', sideOffset: -120 }"
     >
       <div class="relative">
-        <NuxtImg
-          src="/chatbot.png"
-          alt="Trợ lý AI MedUni"
-          class="h-auto transition-opacity cursor-pointer w-25 hover:opacity-90"
-        />
+        <UTooltip text="Trợ lý AI MedUni">
+          <NuxtImg
+            src="/chatbot.png"
+            alt="Trợ lý AI MedUni"
+            class="h-auto transition-opacity cursor-pointer w-18 md:w-25 hover:opacity-90"
+          />
+        </UTooltip>
 
         <!-- Welcome Alert -->
         <Transition
@@ -183,7 +185,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
                 variant: 'ghost'
               }"
               :ui="{
-                root: 'bg-white/90 backdrop-blur-xs text-default'
+                root: 'bg-white/90 backdrop-blur-xs text-default shadow-lg'
               }"
               @update:open="showWelcomeAlert = false"
             />
