@@ -69,14 +69,6 @@ const totalPrice = computed(() => {
   return selectedItems.value.reduce((sum, item) => sum + item.price, 0)
 })
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(price)
-}
-
 function formatInstructor(instructor: string | string[]): string {
   if (Array.isArray(instructor)) {
     return instructor.join(', ')
@@ -140,9 +132,9 @@ function cancelDelete() {
   <div class="bg-white rounded-sm md:pb-10">
     <div
       v-if="cartItems.length === 0"
-      class="text-center py-12"
+      class="py-12 text-center"
     >
-      <p class="text-neutral-500 text-lg">
+      <p class="text-lg text-neutral-500">
         Giỏ hàng của bạn đang trống
       </p>
     </div>
@@ -151,8 +143,8 @@ function cancelDelete() {
       v-else
       class="space-y-6"
     >
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between h-auto md:h-18 rounded-sm rounded-b-none bg-primary-light py-3 md:py-0 mb-0 md:mb-6">
-        <div class="flex items-center gap-3 px-3">
+      <div class="flex flex-col py-3 mb-0 h-auto rounded-sm rounded-b-none md:flex-row md:items-center md:justify-between md:h-18 bg-primary-light md:py-0 md:mb-6">
+        <div class="flex gap-3 items-center px-3">
           <UIcon
             name="i-lucide-shopping-cart"
             class="size-5 text-secondary shrink-0"
@@ -161,7 +153,7 @@ function cancelDelete() {
             <span class="font-bold">{{ cartItems.length }} sản phẩm</span> đã được thêm vào giỏ hàng
           </span>
         </div>
-        <span class="hidden md:block text-sm md:text-lg font-medium px-3 mt-2 md:mt-0">
+        <span class="hidden px-3 mt-2 text-sm font-medium md:block md:text-lg md:mt-0">
           Giá tiền
         </span>
       </div>
@@ -172,9 +164,9 @@ function cancelDelete() {
           :key="item.id"
         >
           <div
-            class="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 p-3 md:pt-0 md:pb-0 rounded-lg mb-0 md:mb-4"
+            class="flex flex-col gap-3 p-3 mb-0 rounded-lg md:flex-row md:items-center md:gap-4 md:pt-0 md:pb-0 md:mb-4"
           >
-            <div class="flex gap-4 items-center flex-1 min-w-0">
+            <div class="flex flex-1 gap-4 items-center min-w-0">
               <UCheckbox
                 color="secondary"
                 :model-value="item.selected"
@@ -187,13 +179,13 @@ function cancelDelete() {
               />
               <NuxtLink
                 :to="`/khoa-hoc/${item.course_id}`"
-                class="flex gap-4 items-center flex-1 min-w-0"
+                class="flex flex-1 gap-4 items-center min-w-0"
               >
 
                 <NuxtImg
                   :src="item.image"
                   :alt="item.title"
-                  class="w-20 h-16 md:w-40 md:h-30 object-cover md:rounded-lg rounded-sm shrink-0"
+                  class="object-cover w-20 h-16 rounded-sm md:w-40 md:h-30 md:rounded-lg shrink-0"
                   :placeholder="[20, 20]"
                   width="160"
                   height="120"
@@ -201,10 +193,10 @@ function cancelDelete() {
                 />
 
                 <div class="flex-1 min-w-0">
-                  <h3 class="font-bold text-base leading-tight md:text-2xl text-primary mb-1 line-clamp-2">
+                  <h3 class="mb-1 text-base font-bold leading-tight md:text-2xl text-primary line-clamp-2">
                     {{ item.title }}
                   </h3>
-                  <p class="text-sm md:text-lg mb-1 line-clamp-1">
+                  <p class="mb-1 text-sm md:text-lg line-clamp-1">
                     Giảng viên: {{ formatInstructor(item.instructor) }}
                   </p>
                   <p class="text-xs md:text-base text-neutral-600">
@@ -214,21 +206,21 @@ function cancelDelete() {
               </NuxtLink>
             </div>
 
-            <div class="flex items-start gap-2 md:flex-col md:items-end shrink-0 pl-8 md:pl-0">
-              <div class="flex flex-col items-end gap-1">
-                <span class="text-lg md:text-xl font-bold text-secondary">
+            <div class="flex gap-2 items-start pl-8 md:flex-col md:items-end shrink-0 md:pl-0">
+              <div class="flex flex-col gap-1 items-end">
+                <span class="text-lg font-bold md:text-xl text-secondary">
                   {{ formatPrice(item.price) }}
                 </span>
                 <span
                   v-if="item.originalPrice && item.originalPrice !== item.price"
-                  class="text-sm md:text-lg text-neutral-400 line-through"
+                  class="text-sm line-through md:text-lg text-neutral-400"
                 >
                   {{ formatPrice(item.originalPrice) }}
                 </span>
               </div>
               <button
                 type="button"
-                class="shrink-0 text-neutral-500 hover:text-error p-2 pb-0 rounded-md hover:bg-neutral-100 transition-colors relative z-10 cursor-pointer -mt-1"
+                class="relative z-10 p-2 pb-0 -mt-1 rounded-md transition-colors cursor-pointer shrink-0 text-neutral-500 hover:text-error hover:bg-neutral-100"
                 @click.stop.prevent="handleDeleteClick(item)"
               >
                 <UIcon
@@ -242,7 +234,7 @@ function cancelDelete() {
         </template>
       </div>
 
-      <div class="hidden md:flex md:items-center md:justify-between pt-4 ps-4 pe-4 border-neutral-300">
+      <div class="hidden pt-4 md:flex md:items-center md:justify-between ps-4 pe-4 border-neutral-300">
         <UCheckbox
           v-model="allSelected"
           :ui="{
@@ -253,10 +245,10 @@ function cancelDelete() {
           color="secondary"
         />
 
-        <div class="flex flex-row items-center gap-4">
-          <div class="text-left md:text-right pr-0 md:pr-7.5">
-            <p class="text-base md:text-lg mb-1">
-              Tổng tiền tạm tính: <span class="text-secondary font-bold">
+        <div class="flex flex-row gap-4 items-center">
+          <div class="pr-0 text-left md:text-right md:pr-7.5">
+            <p class="mb-1 text-base md:text-lg">
+              Tổng tiền tạm tính: <span class="font-bold text-secondary">
                 {{ formatPrice(totalPrice) }}
               </span>
             </p>
@@ -280,7 +272,7 @@ function cancelDelete() {
 
   <div
     v-if="cartItems.length > 0 && isProfileCart"
-    class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-300 p-4 z-50 md:hidden shadow-lg"
+    class="fixed right-0 bottom-0 left-0 z-50 p-4 bg-white border-t shadow-lg border-neutral-300 md:hidden"
   >
     <div class="space-y-3">
       <UCheckbox
@@ -293,9 +285,9 @@ function cancelDelete() {
           indicator: 'size-5'
         }"
       />
-      <div class="flex items-center justify-between gap-3">
+      <div class="flex gap-3 justify-between items-center">
         <div class="flex-1">
-          <p class="text-sm text-neutral-600 mb-0.5">
+          <p class="mb-0.5 text-sm text-neutral-600">
             Tổng tiền tạm tính:
           </p>
           <p class="text-lg font-bold text-secondary">
@@ -341,8 +333,8 @@ function cancelDelete() {
     }"
   >
     <template #header>
-      <div class="flex items-center gap-3">
-        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/20">
+      <div class="flex gap-3 items-center">
+        <div class="flex justify-center items-center w-12 h-12 bg-red-100 rounded-full dark:bg-red-900/20">
           <UIcon
             name="i-lucide-alert-triangle"
             class="w-6 h-6 text-red-600 dark:text-red-400"
@@ -355,7 +347,7 @@ function cancelDelete() {
     </template>
 
     <template #body>
-      <p class="text-base text-gray-700 dark:text-gray-300 leading-relaxed">
+      <p class="text-base leading-relaxed text-gray-700 dark:text-gray-300">
         Bạn có chắc chắn muốn xóa sản phẩm
         <span class="font-semibold text-gray-900 dark:text-white">{{ itemToDelete?.title }}</span>
         khỏi giỏ hàng?
@@ -368,7 +360,7 @@ function cancelDelete() {
           color="neutral"
           variant="outline"
           size="xl"
-          class="min-h-14 px-8 text-base font-medium"
+          class="px-8 text-base font-medium min-h-14"
           @click="cancelDelete"
         >
           Hủy
@@ -376,7 +368,7 @@ function cancelDelete() {
         <UButton
           color="error"
           size="xl"
-          class="min-h-14 px-10 text-base font-semibold"
+          class="px-10 text-base font-semibold min-h-14"
           @click="confirmDelete"
         >
           Xóa

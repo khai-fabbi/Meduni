@@ -73,15 +73,15 @@ onMounted(() => {
               :key="lesson.lesson_id"
             >
               <NuxtLink
-                :to="`/khoa-hoc/${courseId}/bai-hoc/${lesson.lesson_id}`"
-                class="flex items-center gap-4 min-h-15 md:min-h-16 px-3 md:px-5 border-b border-neutral-200 hover:bg-primary-50 hover:text-primary transition-colors"
+                :to="isOwned ? `/khoa-hoc/${courseId}/bai-hoc/${lesson.lesson_id}` : '#'"
+                class="flex gap-4 items-center px-3 border-b transition-colors min-h-15 md:min-h-16 md:px-5 border-neutral-200 hover:bg-primary-50 hover:text-primary"
                 :class="[isOwned ? 'cursor-pointer' : 'cursor-default']"
               >
                 <PlayCircleIcon class="size-5" />
-                <span class="text-base md:text-lg flex-1 font-medium line-clamp-1">
+                <span class="flex-1 text-base font-medium md:text-lg line-clamp-1">
                   {{ lesson.title }}
                 </span>
-                <span class="text-sm md:text-base font-semibold text-neutral-600">
+                <span class="text-sm font-semibold md:text-base text-neutral-600">
                   {{ lesson.duration }}
                 </span>
               </NuxtLink>

@@ -352,14 +352,6 @@ async function fetchRecommendedCourses() {
   }
 }
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(price)
-}
-
 async function handleDeleteItem(cartId: string, item: CartItem) {
   try {
     await cartService.deleteItem(cartId)
@@ -645,7 +637,7 @@ onUnmounted(() => {
 
 <template>
   <UContainer>
-    <div class="space-y-6 mb-6">
+    <div class="mb-6 space-y-6">
       <UBreadcrumb
         :items="items"
       />
@@ -675,7 +667,7 @@ onUnmounted(() => {
           <SkeletonPaymentInfo v-if="isLoading" />
           <div
             v-else
-            class="bg-white rounded-sm p-6 px-3 space-y-6"
+            class="p-6 px-3 space-y-6 bg-white rounded-sm"
           >
             <Heading
               variant="h5"
@@ -696,8 +688,8 @@ onUnmounted(() => {
                 <span class="text-lg">Hoa hồng gián tiếp:</span>
                 <span class="text-lg font-medium">- {{ formatPrice(indirectCommission) }}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
+              <div class="flex justify-between items-center">
+                <div class="flex gap-2 items-center">
                   <UCheckbox
                     id="direct-commission"
                     v-model="useDirectCommission"
@@ -717,7 +709,7 @@ onUnmounted(() => {
 
             <!-- TODO: Mã giảm giá - tạm thời comment vì chưa cần dùng -->
             <!-- <div class="space-y-3">
-              <div class="flex items-center gap-2">
+              <div class="flex gap-2 items-center">
                 <span class="text-lg">Mã giảm giá</span>
               </div>
               <div class="flex gap-2">
@@ -760,7 +752,7 @@ onUnmounted(() => {
               </div>
               <div
                 v-if="appliedDiscount"
-                class="text-sm text-green-600 font-medium"
+                class="text-sm font-medium text-green-600"
               >
                 ✓ Đã áp dụng mã giảm giá
               </div>
@@ -785,7 +777,7 @@ onUnmounted(() => {
 
             <div class="space-y-4">
               <div>
-                <p class="text-lg mb-3 font-semibold">
+                <p class="mb-3 text-lg font-semibold">
                   Phương thức thanh toán
                 </p>
                 <div class="space-y-2">
@@ -796,7 +788,7 @@ onUnmounted(() => {
                     ]"
                     @click="paymentMethod = 'qr'"
                   >
-                    <div class="flex items-center gap-2">
+                    <div class="flex gap-2 items-center">
                       <ScanIcon class="size-5" />
                       <span class="text-base font-semibold">Thanh toán mã QR</span>
                     </div>
@@ -808,7 +800,7 @@ onUnmounted(() => {
                     >
                       <div
                         v-if="paymentMethod === 'qr'"
-                        class="size-2 rounded-full bg-primary"
+                        class="rounded-full size-2 bg-primary"
                       />
                     </div>
                   </button>
@@ -831,38 +823,38 @@ onUnmounted(() => {
                 <!-- VAT Invoice Form -->
                 <div
                   v-if="requestVATInvoice"
-                  class="space-y-4 pl-8 border-l-2 border-primary-200"
+                  class="pl-8 space-y-4 border-l-2 border-primary-200"
                 >
                   <UInput
                     v-model="vatTaxCode"
                     placeholder="Mã số thuế"
                     maxlength="30"
-                    class="h-12 text-base w-full"
+                    class="w-full h-12 text-base"
                   />
                   <UInput
                     v-model="vatEmail"
                     type="email"
                     placeholder="Email nhận hóa đơn"
                     maxlength="255"
-                    class="h-12 text-base w-full"
+                    class="w-full h-12 text-base"
                   />
                   <UInput
                     v-model="vatName"
                     placeholder="Tên doanh nghiệp/cá nhân"
                     maxlength="255"
-                    class="h-12 text-base w-full"
+                    class="w-full h-12 text-base"
                   />
                   <UInput
                     v-model="vatAddress"
                     placeholder="Địa chỉ doanh nghiệp/cá nhân"
                     maxlength="255"
-                    class="h-12 text-base w-full"
+                    class="w-full h-12 text-base"
                   />
                   <UInput
                     v-model="vatDeliveryAddress"
                     placeholder="Địa chỉ nhận hóa đơn VAT"
                     maxlength="255"
-                    class="h-12 text-base w-full"
+                    class="w-full h-12 text-base"
                   />
                   <UCheckbox
                     v-model="vatConfirmInfo"
@@ -904,7 +896,7 @@ onUnmounted(() => {
         <div class="relative">
           <div
             v-if="isLoadingRecommendedCourses"
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
           >
             <div
               v-for="i in 4"
@@ -912,9 +904,9 @@ onUnmounted(() => {
               class="space-y-3"
             >
               <USkeleton class="w-full h-48 rounded-lg" />
-              <USkeleton class="h-6 w-full" />
-              <USkeleton class="h-5 w-2/3" />
-              <USkeleton class="h-6 w-1/2" />
+              <USkeleton class="w-full h-6" />
+              <USkeleton class="w-2/3 h-5" />
+              <USkeleton class="w-1/2 h-6" />
             </div>
           </div>
           <div
@@ -940,7 +932,7 @@ onUnmounted(() => {
                 item: 'basis-1/2 sm:basis-1/3 md:basis-1/2 lg:basis-1/3 xl:basis-1/4',
                 controls: 'md:absolute md:-top-6 md:right-12'
               }"
-              class="w-full mx-auto"
+              class="mx-auto w-full"
             >
               <CourseCard
                 :key="item.id"
@@ -956,7 +948,7 @@ onUnmounted(() => {
           </div>
           <div
             v-else
-            class="text-center py-8 text-neutral-500"
+            class="py-8 text-center text-neutral-500"
           >
             Không có khóa học đề xuất
           </div>

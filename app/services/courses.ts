@@ -12,6 +12,7 @@ import type {
 } from '~/types/course'
 import type { ApiResponse } from '~/types/common'
 import type { Ref } from 'vue'
+import type { UseFetchOptions } from '#app'
 
 export const coursesService = {
   /**
@@ -56,9 +57,10 @@ export const coursesService = {
     )
   },
 
-  getCourseById: (courseId: string) => {
+  getCourseById: (courseId: string, options?: UseFetchOptions<ApiResponse<CourseDetail>>) => {
     return useApiFetch<ApiResponse<CourseDetail>>(ApiEndpoint.Courses.GetDetail(courseId), {
-      method: 'GET'
+      method: 'GET',
+      ...options
     })
   },
 

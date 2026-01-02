@@ -53,14 +53,15 @@ export default defineNuxtConfig({
     }
   },
 
-  routeRules: {},
+  routeRules: {
+    '/khoa-hoc/**': { prerender: false }
+  },
 
   compatibilityDate: '2024-07-11',
 
   nitro: {
     prerender: {
-      routes: ['/gioi-thieu'],
-      crawlLinks: true
+      routes: ['/gioi-thieu']
     }
   },
   vite: {

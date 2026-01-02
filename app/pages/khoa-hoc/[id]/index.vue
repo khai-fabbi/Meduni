@@ -39,7 +39,7 @@ const {
   pending: isLoadingCourse,
   error: courseError,
   refresh: refreshCourse
-} = await services.courses.getCourseById(courseId)
+} = await services.courses.getCourseById(courseId, { server: false })
 
 if (!courseData.value) {
   throw createError({
@@ -126,7 +126,7 @@ const items = computed<BreadcrumbItem[]>(() => [
   }
 ])
 
-const title = computed(() => course.value ? `${course.value.title} - MedUni.vn` : 'Chi tiết khóa học - MedUni.vn')
+const title = computed(() => course.value ? `${course.value.title}` : 'Chi tiết khóa học - MedUni.vn')
 const description = computed(() => course.value?.overview || '')
 
 useSeoMeta({
@@ -370,14 +370,6 @@ onUnmounted(() => {
 
 const qrCodeUrl = computed(() => transactionData.value?.qr_code_url || transactionData.value?.qr_code_data || 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=payment')
 const totalAmount = computed(() => transactionData.value?.total_amount || coursePrice.value)
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    minimumFractionDigits: 0
-  }).format(price)
-}
 </script>
 
 <template>
@@ -402,7 +394,7 @@ function formatPrice(price: number): string {
       class="flex justify-center items-center py-20"
     >
       <div class="text-center">
-        <p class="text-error mb-4">
+        <p class="mb-4 text-error">
           Có lỗi xảy ra khi tải dữ liệu
         </p>
         <UButton @click="refreshCourse()">
@@ -425,7 +417,7 @@ function formatPrice(price: number): string {
           <NuxtImg
             :src="course.image || '/images/course/course-placeholder.png'"
             :alt="course.title"
-            class="w-full h-auto object-cover"
+            class="object-cover w-full h-auto"
             quality="100"
             :placeholder="[50, 25]"
           />
@@ -528,7 +520,7 @@ function formatPrice(price: number): string {
       }"
     >
       <template #header>
-        <div class="flex items-center justify-center gap-3">
+        <div class="flex gap-3 justify-center items-center">
           <UIcon
             name="i-lucide-alert-circle"
             class="size-6 text-primary"
@@ -541,15 +533,15 @@ function formatPrice(price: number): string {
 
       <template #body>
         <div class="space-y-4">
-          <p class="text-base text-neutral-600 text-center">
+          <p class="text-base text-center text-neutral-600">
             Vui lòng kiểm tra lại thông tin đơn hàng trước khi thanh toán
           </p>
-          <div class="bg-neutral-50 rounded-lg p-4 space-y-3">
+          <div class="p-4 space-y-3 rounded-lg bg-neutral-50">
             <div>
-              <p class="font-semibold text-base mb-2">
+              <p class="mb-2 text-base font-semibold">
                 Khóa học
               </p>
-              <p class="text-base text-neutral-700 font-bold">
+              <p class="text-base font-bold text-neutral-700">
                 {{ course?.title }}
               </p>
             </div>
@@ -561,7 +553,7 @@ function formatPrice(price: number): string {
                 <span class="text-sm text-neutral-600">
                   Giá gốc:
                 </span>
-                <span class="text-sm font-medium text-neutral-700 line-through">
+                <span class="text-sm font-medium line-through text-neutral-700">
                   {{ formatPrice(originalPrice) }}
                 </span>
               </div>
@@ -584,7 +576,7 @@ function formatPrice(price: number): string {
             color="neutral"
             variant="outline"
             size="lg"
-            class="min-w-64 px-10 py-5 text-center justify-center"
+            class="justify-center px-10 py-5 text-center min-w-64"
             @click="confirmPaymentModalOpen = false"
           >
             Hủy bỏ
@@ -592,7 +584,7 @@ function formatPrice(price: number): string {
           <UButton
             color="primary"
             size="lg"
-            class="min-w-64 px-10 py-5 text-center justify-center"
+            class="justify-center px-10 py-5 text-center min-w-64"
             :loading="isCreatingTransaction"
             @click="confirmPayment"
           >
@@ -612,7 +604,7 @@ function formatPrice(price: number): string {
       }"
     >
       <template #header>
-        <div class="flex items-center justify-center gap-3">
+        <div class="flex gap-3 justify-center items-center">
           <UIcon
             name="i-lucide-check-circle"
             class="size-6 text-success"
@@ -625,11 +617,11 @@ function formatPrice(price: number): string {
 
       <template #body>
         <div class="space-y-4">
-          <p class="text-base text-neutral-600 text-center">
+          <p class="text-base text-center text-neutral-600">
             Vui lòng quét mã QR để tiến hành thanh toán
           </p>
 
-          <div class="flex items-center gap-2">
+          <div class="flex gap-2 items-center">
             <span class="text-sm font-medium text-neutral-700">
               Trạng thái:
             </span>
@@ -638,12 +630,12 @@ function formatPrice(price: number): string {
             </span>
             <UIcon
               name="i-lucide-loader-circle"
-              class="size-4 text-primary animate-spin"
+              class="animate-spin size-4 text-primary"
             />
           </div>
 
           <div class="flex justify-center">
-            <div class="bg-white rounded-lg p-4 border-2 border-neutral-200">
+            <div class="p-4 bg-white rounded-lg border-2 border-neutral-200">
               <NuxtImg
                 :src="qrCodeUrl"
                 alt="QR Code"
@@ -653,8 +645,8 @@ function formatPrice(price: number): string {
           </div>
 
           <!-- Total amount -->
-          <div class="bg-primary-50 rounded-lg p-4 border border-primary-200">
-            <p class="text-base font-semibold text-primary-700 text-center">
+          <div class="p-4 rounded-lg border bg-primary-50 border-primary-200">
+            <p class="text-base font-semibold text-center text-primary-700">
               Tổng thanh toán: {{ formatPrice(totalAmount) }}
             </p>
           </div>
@@ -666,7 +658,7 @@ function formatPrice(price: number): string {
           <UButton
             color="neutral"
             size="lg"
-            class="min-w-64 px-10 py-5 text-center justify-center"
+            class="justify-center px-10 py-5 text-center min-w-64"
             @click="paymentModalOpen = false; stopPolling()"
           >
             Đóng
