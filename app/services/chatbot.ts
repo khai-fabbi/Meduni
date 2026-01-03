@@ -1,15 +1,18 @@
 export interface Message {
-  answer: string // answer from chatbot type object string
-  conversation_id: string
-  created_at: number
+  event: string
+  task_id: string
+  id: string
   message_id: string
+  conversation_id: string
+  mode: string
+  answer: string
+  created_at: number
 }
 
 export const chatbotService = {
   sendMessage: async (payload: { message: string, conversationId?: string, transcript?: string }) => {
     const config = useRuntimeConfig()
     const beCesintelligentUrl = config.public.beCesintelligentUrl as string
-    const beCesintelligentApiKey = config.public.beCesintelligentApiKey as string
 
     const { transcript, message, conversationId } = payload
 
@@ -30,10 +33,10 @@ export const chatbotService = {
       body: JSON.stringify({
         ...defaultArgs,
         query: message,
-        conversation_id: conversationId
+        conversation_id: conversationId || null
       }),
       headers: new Headers({
-        'Authorization': `Bearer ${beCesintelligentApiKey}`,
+        'Authorization': `Bearer ${config.public.beCesintelligentChatbotKey}`,
         'Content-Type': 'application/json'
       })
     })

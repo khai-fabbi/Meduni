@@ -1,13 +1,4 @@
 <script setup lang="ts">
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  parts: Array<{
-    type: 'text'
-    text: string
-  }>
-}
-
 // Type cho UIMessage từ Nuxt UI ChatMessages actions
 interface UIMessage {
   id: string
@@ -20,77 +11,79 @@ interface UIMessage {
   [key: string]: unknown
 }
 
+const chatbotStore = useChatbotStore()
+const { messages, conversationId } = storeToRefs(chatbotStore)
+
 const isOpen = ref(false)
-const messages = ref<Message[]>([])
-const status = ref<'submitted' | 'streaming' | 'ready' | 'error'>('ready')
+const status = ref<'submitted' | 'ready' | 'error'>('ready')
 const input = ref('')
 const showWelcomeAlert = ref(false)
 
 const toast = useToast()
 const { copy: copyToClipboard } = useClipboard()
 
-// Khởi tạo với tin nhắn chào mừng
-onMounted(() => {
-  messages.value = [
-    {
-      id: crypto.randomUUID(),
-      role: 'assistant',
-      parts: [
-        {
-          type: 'text',
-          text: 'Xin chào! Tôi là chatbot hỗ trợ của MedUni.vn. Tôi có thể giúp gì cho bạn?'
-        }
-      ]
-    }
-  ]
+const { sendMessage: sendMessageToChatbot } = useChatbot()
 
-  // Hiển thị welcome alert sau 2 giây
+// Khởi tạo messages từ store
+onMounted(() => {
+  chatbotStore.initializeMessages()
+
+  // Hiển thị welcome alert sau 1 giây nếu chưa có messages từ user
   setTimeout(() => {
-    showWelcomeAlert.value = true
+    const hasUserMessages = messages.value.some(msg => msg.role === 'user')
+    if (!hasUserMessages) {
+      showWelcomeAlert.value = true
+    }
   }, 1000)
 })
 
 const sendMessage = async () => {
-  if (!input.value.trim() || status.value === 'submitted' || status.value === 'streaming') {
+  if (!input.value.trim() || status.value === 'submitted') {
     return
   }
 
-  const userMessage: Message = {
-    id: crypto.randomUUID(),
-    role: 'user',
-    parts: [
-      {
-        type: 'text',
-        text: input.value.trim()
-      }
-    ]
-  }
-
-  messages.value.push(userMessage)
   const messageText = input.value.trim()
   input.value = ''
+
+  // Add user message to store
+  chatbotStore.addUserMessage(messageText)
   status.value = 'submitted'
 
-  // Giả lập response từ API (bạn có thể thay thế bằng API call thực tế)
-  setTimeout(() => {
-    status.value = 'streaming'
+  try {
+    // Send message to chatbot API
+    const response = await sendMessageToChatbot(messageText, conversationId.value)
 
-    // Giả lập streaming response
+    // Update conversation ID if received from API
+    if (response.conversation_id) {
+      chatbotStore.setConversationId(response.conversation_id)
+    }
+
+    // Add assistant response to store
+    if (response.answer) {
+      chatbotStore.addAssistantMessage(response.answer)
+    } else {
+      chatbotStore.addAssistantMessage('Xin lỗi, tôi không thể xử lý câu hỏi này. Vui lòng thử lại.')
+    }
+
+    status.value = 'ready'
+  } catch (error) {
+    console.error('Error sending message:', error)
+    status.value = 'error'
+
+    // Add error message
+    chatbotStore.addAssistantMessage('Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.')
+
+    toast.add({
+      title: 'Lỗi',
+      description: 'Không thể gửi tin nhắn. Vui lòng thử lại.',
+      color: 'error'
+    })
+
+    // Reset status after error
     setTimeout(() => {
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        parts: [
-          {
-            type: 'text',
-            text: `Cảm ơn bạn đã hỏi về: "${messageText}". Tôi là chatbot demo của MedUni.vn. Tính năng này đang được phát triển để hỗ trợ bạn tốt hơn.`
-          }
-        ]
-      }
-      messages.value.push(assistantMessage)
       status.value = 'ready'
-    }, 1000)
-  }, 500)
+    }, 2000)
+  }
 }
 
 const handleSubmit = () => {
@@ -230,7 +223,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
               :should-auto-scroll="true"
               :should-scroll-to-bottom="true"
               auto-scroll-icon="i-lucide-chevron-down"
-              class="my-4 h-full"
+              class="py-4 h-full"
               :assistant="{
                 side: 'left',
                 variant: 'outline',
@@ -245,14 +238,25 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
                   }
                 ]
               }"
-            />
+            >
+              <template #indicator>
+                <UButton
+                  class="px-0"
+                  color="neutral"
+                  variant="link"
+                  loading
+                  loading-icon="i-lucide-loader"
+                  label="Thinking..."
+                />
+              </template>
+            </UChatMessages>
           </div>
 
           <!-- Input Area -->
           <div class="p-4 border-t border-neutral-200 dark:border-neutral-800">
             <UChatPrompt
               v-model="input"
-              :disabled="status === 'submitted' || status === 'streaming'"
+              :disabled="status === 'submitted'"
               placeholder="Nhập tin nhắn của bạn..."
               @submit="handleSubmit"
             >

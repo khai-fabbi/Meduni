@@ -49,7 +49,8 @@ export default defineNuxtConfig({
 
       // CES Intelligent
       beCesintelligentUrl: process.env.NUXT_PUBLIC_BE_CESINTELLIGENT_URL,
-      beCesintelligentApiKey: process.env.NUXT_PUBLIC_BE_CESINTELLIGENT_API_KEY
+      beCesintelligentApiKey: process.env.NUXT_PUBLIC_BE_CESINTELLIGENT_API_KEY,
+      beCesintelligentChatbotKey: process.env.NUXT_PUBLIC_BE_CESINTELLIGENT_CHATBOT_KEY
     }
   },
 
