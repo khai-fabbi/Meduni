@@ -1,8 +1,19 @@
 <script setup lang="ts">
 const items = [
-  'https://png.pngtree.com/png-clipart/20240612/original/pngtree-automation-in-medical-research-ai-robots-streamline-laboratory-processes-png-image_15312496.png',
-  'https://static.vecteezy.com/system/resources/previews/036/885/087/non_2x/ai-generated-ai-robot-cartoon-on-transparent-background-free-png.png',
-  'https://static.vecteezy.com/system/resources/previews/036/885/074/non_2x/ai-generated-ai-robot-cartoon-on-transparent-background-free-png.png'
+  {
+    no: 1,
+    name: 'Banner 1',
+    image: '/home/banner/hero-slide-1.png',
+    slogan: 'Nâng tầm học tập Chuẩn mực Y khoa',
+    description: 'Hệ thống đào tạo trực tuyến chuyên ngành Y học, nội dung chính thống, được thiết kế bởi đội ngũ chuyên gia và ứng dụng công nghệ số hiện đại.'
+  },
+  {
+    no: 2,
+    name: 'Banner 2',
+    image: '/home/banner/hero-slide-2.png',
+    slogan: 'Đào tạo Y khoa thời đại số',
+    description: 'MedUni.ai - Nền tảng LMS chuyên sâu cho lĩnh vực Y học – học mọi lúc, mọi nơi với lộ trình rõ ràng, nội dung chuẩn hóa và chứng chỉ uy tín.'
+  }
 ]
 </script>
 
@@ -13,6 +24,7 @@ const items = [
       dots
       loop
       arrows
+      autoplay
       auto-height
       :items="items"
       :prev="{
@@ -29,45 +41,86 @@ const items = [
         dot: 'w-4 h-1.5 data-[state=active]:bg-primary data-[state=active]:w-8 transition-all'
       }"
     >
-      <div class="bg-item-1 h-[550px] md:h-[650px]">
-        <UContainer class="flex items-center h-full">
-          <div class="flex-2 flex flex-col">
-            <AppLogo class="h-12 w-fit" />
-            <span class="mt-4.5 banner-text text-4xl md:text-6xl uppercase font-extrabold leading-normal select-none">
-              VỮNG SỰ NGHIỆP <br> CHẮC TƯƠNG LAI<br>
-            </span>
-            <span class="banner-text-gradient select-none uppercase text-5xl md:text-9xl leading-none font-extrabold">
-              <span class="text-4xl md:text-6xl leading-1">Cùng</span> AI
-            </span>
-            <NuxtLink to="/khoa-hoc">
-              <UButton
-                size="xl"
-                class="mt-8 min-h-15 bg-gradient-to-b from-secondary to-secondary-700 hover:from-secondary-700 hover:to-secondary min-w-[280px] text-2xl justify-center w-fit text-white font-bold rounded-full"
-                color="secondary"
-                trailing-icon="i-lucide-arrow-right"
-                :ui="{
-                  base: 'group',
-                  trailingIcon: 'group-hover:translate-x-1 transition-transform animation-pulse'
-                }"
-              >
-                Tìm hiểu ngay
-              </UButton>
-            </NuxtLink>
-          </div>
+      <template v-if="item.no === 1">
+        <div class="bg-item-1 h-[550px] md:h-[650px]">
+          <UContainer class="flex items-center h-full">
+            <div class="flex flex-col flex-2">
+              <span class="text-4xl font-extrabold leading-normal uppercase select-none mt-4.5 banner-text md:text-6xl">
+                {{ item.slogan }}
+              </span>
+              <p class="text-lg md:text-xl">
+                {{ item.description }}
+              </p>
+              <NuxtLink to="/khoa-hoc">
+                <UButton
+                  size="xl"
+                  class="mt-8 min-h-15 bg-gradient-to-b from-primary to-primary-700 hover:from-primary-700 hover:to-primary min-w-[350px] text-2xl justify-center w-fit text-white font-bold rounded-full"
+                  color="primary"
+                  trailing-icon="i-lucide-chevrons-right"
+                  :ui="{
+                    base: 'group',
+                    trailingIcon: 'group-hover:translate-x-1 transition-transform animation-pulse'
+                  }"
+                >
+                  KHÁM PHÁ KHOÁ HỌC
+                </UButton>
+              </NuxtLink>
+            </div>
 
-          <div class="hidden md:flex-3 md:flex items-center justify-center">
-            <NuxtImg
-              :src="item"
-              :alt="`Banner ${item}`"
-              class="rounded-lg size-full h-[550px] object-contain"
-              quality="100"
-              width="100%"
-              height="500"
-              :placeholder="[20, 5]"
-            />
-          </div>
-        </UContainer>
-      </div>
+            <div class="hidden justify-center items-center md:flex-3 md:flex">
+              <NuxtImg
+                :src="item.image"
+                :alt="item.name"
+                class="rounded-lg size-full h-[550px] object-contain"
+                quality="100"
+                width="100%"
+                height="550"
+              />
+            </div>
+          </UContainer>
+        </div>
+      </template>
+
+      <template v-if="item.no === 2">
+        <div class="bg-item-1 h-[550px] md:h-[650px]">
+          <UContainer class="flex items-center h-full">
+            <div class="flex flex-col flex-2">
+              <span class="text-4xl font-extrabold leading-normal uppercase select-none mt-4.5 banner-text md:text-6xl">
+                {{ item.slogan }}
+              </span>
+              <p class="text-lg md:text-xl">
+                {{ item.description }}
+              </p>
+              <NuxtLink to="/gioi-thieu">
+                <UButton
+                  size="xl"
+                  class="mt-8 md:min-h-15 bg-gradient-to-b from-secondary to-secondary-700 hover:from-secondary-700 hover:to-secondary min-w-[280px] text-2xl justify-center w-fit text-white font-bold rounded-full"
+                  color="secondary"
+                  trailing-icon="i-lucide-arrow-right"
+                  :ui="{
+                    base: 'group',
+                    trailingIcon: 'group-hover:translate-x-1 transition-transform animation-pulse'
+                  }"
+                >
+                  Tìm hiểu ngay
+                </UButton>
+              </NuxtLink>
+            </div>
+
+            <div class="hidden justify-center items-center md:flex-3 md:flex">
+              <NuxtImg
+                :src="item.image"
+                :alt="item.name"
+                class="rounded-lg size-full h-[550px] object-contain"
+                quality="100"
+                width="100%"
+                height="500"
+                :placeholder="[20, 5]"
+              />
+            </div>
+          </UContainer>
+        </div>
+      </template>
     </UCarousel>
   </div>
 </template>
