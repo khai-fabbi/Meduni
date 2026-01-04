@@ -25,6 +25,8 @@ interface Lesson {
   lesson_order: number
   lesson_type: number
   lesson_id: string
+  is_complete?: boolean
+  is_view?: boolean
 }
 
 interface Chapter {
@@ -49,6 +51,14 @@ if (!courseData.value) {
     fatal: true
   })
 }
+
+const myCourseId = computed(() => courseData.value?.data?.my_course_id)
+const {
+  data: myCourseData
+} = myCourseId.value
+  ? await services.courses.getMyCourseDetail(myCourseId.value)
+  : { data: ref(null) }
+
 const course = computed(() => {
   if (!courseData.value?.data) {
     return null
@@ -72,12 +82,50 @@ const chapters = computed<Chapter[]>(() => {
   if (!courseData.value?.data) {
     return []
   }
+
   const apiCourse = courseData.value.data as unknown as CourseDetail
-  if (!apiCourse.chapters || !Array.isArray(apiCourse.chapters)) {
+  let chaptersToUse = apiCourse.chapters || []
+
+  // Merge course_content from myCourseData to include is_complete and is_view
+  if (myCourseData.value?.data) {
+    const myCourse = myCourseData.value.data
+    if (myCourse.course_content && Array.isArray(myCourse.course_content) && apiCourse.chapters) {
+      chaptersToUse = apiCourse.chapters.map((apiChapter: ApiChapter) => {
+        // Find corresponding chapter in course_content
+        const myChapter = myCourse.course_content?.find((ch: ApiChapter) => ch.chapter_id === apiChapter.chapter_id)
+        if (myChapter && myChapter.lessons) {
+          // Merge lessons with is_complete, is_view from course_content
+          return {
+            ...apiChapter,
+            is_complete: myChapter.is_complete,
+            lessons: apiChapter.lessons.map((apiLesson: ApiLesson) => {
+              const myLesson = myChapter.lessons.find((l: ApiLesson) => l.lesson_id === apiLesson.lesson_id)
+              if (myLesson) {
+                return {
+                  ...apiLesson,
+                  is_complete: myLesson.is_complete,
+                  is_view: myLesson.is_view,
+                  complete_at: myLesson.complete_at,
+                  start_at: myLesson.start_at
+                }
+              }
+              return apiLesson
+            })
+          }
+        }
+        return apiChapter
+      })
+    } else if (myCourse.chapters && Array.isArray(myCourse.chapters)) {
+      // Fallback: use chapters if course_content is not available
+      chaptersToUse = myCourse.chapters
+    }
+  }
+
+  if (!chaptersToUse || !Array.isArray(chaptersToUse)) {
     return []
   }
 
-  return apiCourse.chapters.map((chapter: ApiChapter, index: number) => {
+  return chaptersToUse.map((chapter: ApiChapter, index: number) => {
     const chapterLessons = chapter.lessons || []
     const totalDuration = chapterLessons.reduce((sum: number, lesson: ApiLesson) => {
       return sum + (lesson.lesson_duration || 0)
@@ -93,7 +141,9 @@ const chapters = computed<Chapter[]>(() => {
         title: lesson.lesson_name,
         duration: formatDuration(lesson.lesson_duration || 0),
         lesson_order: lesson.lesson_order,
-        lesson_type: lesson.lesson_type
+        lesson_type: lesson.lesson_type,
+        is_complete: lesson.is_complete,
+        is_view: lesson.is_view
       }))
     }
   })
@@ -148,7 +198,57 @@ const courseInfo = computed(() => ({
 }))
 
 const isOwned = computed(() => !!courseData.value?.data?.my_course_id)
-const firstLessonId = computed(() => chapters.value[0]?.lessons[0]?.lesson_id?.toString() || '')
+const currentLessonId = computed(() => {
+  // Find the last lesson with is_complete = true and is_view = true
+  let foundChapterIndex = -1
+  let foundLessonIndex = -1
+
+  // Loop from the end to find the last matching lesson
+  for (let chapterIndex = chapters.value.length - 1; chapterIndex >= 0; chapterIndex--) {
+    const chapter = chapters.value[chapterIndex]
+    if (!chapter) continue
+
+    for (let lessonIndex = chapter.lessons.length - 1; lessonIndex >= 0; lessonIndex--) {
+      const lesson = chapter.lessons[lessonIndex]
+      if (lesson && lesson.is_complete === true && lesson.is_view === true) {
+        foundChapterIndex = chapterIndex
+        foundLessonIndex = lessonIndex
+        break
+      }
+    }
+    if (foundChapterIndex !== -1) break
+  }
+
+  // If found completed lesson, get the next lesson
+  if (foundChapterIndex !== -1 && foundLessonIndex !== -1) {
+    const foundChapter = chapters.value[foundChapterIndex]
+    if (!foundChapter) {
+      return chapters.value[0]?.lessons[0]?.lesson_id?.toString() || ''
+    }
+
+    // Check if there's a next lesson in the same chapter
+    if (foundLessonIndex < foundChapter.lessons.length - 1) {
+      const nextLesson = foundChapter.lessons[foundLessonIndex + 1]
+      if (nextLesson) {
+        return nextLesson.lesson_id?.toString() || ''
+      }
+    }
+
+    // If no next lesson in same chapter, check next chapter
+    if (foundChapterIndex < chapters.value.length - 1) {
+      const nextChapter = chapters.value[foundChapterIndex + 1]
+      if (nextChapter && nextChapter.lessons.length > 0) {
+        const nextLesson = nextChapter.lessons[0]
+        if (nextLesson) {
+          return nextLesson.lesson_id?.toString() || ''
+        }
+      }
+    }
+  }
+
+  // Fallback: return first lesson if no completed lesson found
+  return chapters.value[0]?.lessons[0]?.lesson_id?.toString() || ''
+})
 
 const toast = useToast()
 const authStore = useAuthStore()
@@ -438,7 +538,7 @@ const totalAmount = computed(() => transactionData.value?.total_amount || course
           <CourseDetails
             :course-info="courseInfo"
             :is-owned="isOwned"
-            :first-lesson-id="firstLessonId"
+            :first-lesson-id="currentLessonId"
             :is-loading="isAddingToCart"
             @add-to-cart="handleAddToCart"
             @buy-now="handleBuyNow"
