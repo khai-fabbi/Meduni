@@ -161,7 +161,7 @@ onUnmounted(() => {
         width="100%"
         height="100%"
         class="object-cover w-full h-full rounded-md aspect-video"
-        src="https://www.youtube.com/embed/xFONPDwW-lU?rel=0"
+        src="https://www.youtube.com/embed/KYS_IR-YqQE?rel=0"
         title="YouTube video player"
         frameborder="0"
         allow="autoplay; encrypted-media"

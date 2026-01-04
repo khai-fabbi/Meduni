@@ -129,17 +129,17 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
 </script>
 
 <template>
-  <div class="w-full space-y-6 h-full">
-    <div class="text-center space-y-4">
-      <AppLogo class="w-76 h-auto mx-auto" />
+  <div class="space-y-6 w-full h-full">
+    <div class="space-y-4 text-center">
+      <AppLogo class="mx-auto h-auto w-76" />
 
       <h1
-        class="mt-8 md:text-5xl text-4xl font-bold dark:text-white text-primary"
+        class="mt-8 text-4xl font-bold md:text-5xl dark:text-white text-primary"
       >
         Đăng ký
       </h1>
 
-      <p class="md:text-lg text-base text-default">
+      <p class="text-base md:text-lg text-default">
         Bạn hãy điền đầy đủ thông tin bên dưới để tiến hành đăng ký!
       </p>
     </div>
@@ -148,7 +148,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
       ref="form"
       :schema="signupSchema"
       :state="signupForm"
-      class="flex flex-col gap-3 flex-1"
+      class="flex flex-col flex-1 gap-3"
       :disabled="isLoading"
       autocomplete="off"
       @submit="onSubmit"
@@ -202,6 +202,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
         label="Mật khẩu"
         name="password"
         required
+        help="Mật khẩu phải có ít nhất 8 ký tự, 1 chữ thường và 1 số."
       >
         <SharedInputPassword
           v-model="signupForm.password"
@@ -209,6 +210,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
           size="xl"
           placeholder="Nhập mật khẩu"
           autocomplete="new-password"
+          maxlength="20"
         />
       </UFormField>
 
@@ -223,6 +225,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
           size="xl"
           placeholder="Nhập lại mật khẩu"
           autocomplete="new-password"
+          maxlength="20"
         />
       </UFormField>
 
@@ -243,7 +246,7 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
       <UButton
         type="submit"
         size="xl"
-        class="w-full min-h-14 text-lg mt-2"
+        class="mt-2 w-full text-lg min-h-14"
         block
         :disabled="isLoading"
         :loading="isLoading"
@@ -252,12 +255,12 @@ async function onSubmit(payload: FormSubmitEvent<SignupSchema>) {
       </UButton>
     </UForm>
 
-    <div class="text-center block md:hidden">
+    <div class="block text-center md:hidden">
       <p class="text-default">
         Đã có tài khoản?
         <ULink
           to="/login"
-          class="text-primary font-semibold animate-link-underline"
+          class="font-semibold text-primary animate-link-underline"
         >Đăng nhập</ULink>
       </p>
     </div>

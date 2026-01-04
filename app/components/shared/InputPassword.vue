@@ -4,7 +4,7 @@
     :type="show ? 'text' : 'password'"
     :autocomplete="autocomplete"
     :ui="{
-      base: 'h-12',
+      base: 'h-12'
     }"
   >
     <template #trailing>
@@ -17,23 +17,24 @@
         :aria-pressed="show"
         aria-controls="password"
         :ui="{
-          leadingIcon: 'size-5',
+          leadingIcon: 'size-5'
         }"
         @click="show = !show"
       />
     </template>
   </UInput>
 </template>
+
 <script setup lang="ts">
 const model = defineModel<string>({
-  required: true,
-});
+  required: true
+})
 
 defineProps<{
-  autocomplete?: string;
-}>();
+  autocomplete?: string
+}>()
 
-const show = ref(false);
+const show = ref(false)
 </script>
 
 <style scoped>

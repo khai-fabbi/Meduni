@@ -37,8 +37,7 @@ function checkStrength(str: string) {
   const requirements = [
     { regex: /.{8,}/, text: 'Ít nhất 8 ký tự' },
     { regex: /\d/, text: 'Ít nhất 1 số' },
-    { regex: /[a-z]/, text: 'Ít nhất 1 chữ thường' },
-    { regex: /[A-Z]/, text: 'Ít nhất 1 chữ hoa' }
+    { regex: /[a-z]/, text: 'Ít nhất 1 chữ thường' }
   ]
 
   return requirements.map(req => ({
@@ -53,8 +52,7 @@ const score = computed(() => strength.value.filter(req => req.met).length)
 const color = computed(() => {
   if (score.value === 0) return 'neutral'
   if (score.value <= 1) return 'error'
-  if (score.value <= 2) return 'warning'
-  if (score.value === 3) return 'warning'
+  if (score.value === 2) return 'warning'
   return 'success'
 })
 </script>
@@ -75,9 +73,9 @@ const color = computed(() => {
     description="Đổi mật khẩu"
   >
     <template #body>
-      <div class="ring-10 ring-primary/10 rounded-full mx-auto w-fit my-8">
+      <div class="mx-auto my-8 rounded-full ring-10 ring-primary/10 w-fit">
         <div
-          class="flex size-13 justify-center items-center rounded-full bg-primary/20"
+          class="flex justify-center items-center rounded-full size-13 bg-primary/20"
         >
           <IconLock class="size-8 animate-stroke-draw" />
         </div>
@@ -145,7 +143,7 @@ const color = computed(() => {
             <UProgress
               :color="color"
               :model-value="score"
-              :max="4"
+              :max="3"
               size="sm"
             />
             <p
@@ -161,7 +159,7 @@ const color = computed(() => {
               <li
                 v-for="(req, index) in strength"
                 :key="index"
-                class="flex items-center gap-0.5"
+                class="flex gap-0.5 items-center"
                 :class="req.met ? 'text-success' : 'text-neutral-600'"
               >
                 <UIcon
@@ -183,10 +181,10 @@ const color = computed(() => {
             </ul>
           </div>
 
-          <div class="space-x-4 mt-4 md:mt-8 flex">
+          <div class="flex mt-4 space-x-4 md:mt-8">
             <UButton
               variant="outline"
-              class="w-full min-h-14 text-lg"
+              class="w-full text-lg min-h-14"
               size="xl"
               block
               type="button"
@@ -198,7 +196,7 @@ const color = computed(() => {
             <UButton
               type="submit"
               size="xl"
-              class="w-full min-h-14 text-lg"
+              class="w-full text-lg min-h-14"
               block
               :disabled="loading"
               :loading="loading"
