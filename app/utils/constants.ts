@@ -34,3 +34,4 @@ export const profileMenuItems: NavigationMenuItem[] = [
 ]
 export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
 export const PAGE_DEFAULT = 10
+export const PROGRESS_LOG_INTERVAL = 30

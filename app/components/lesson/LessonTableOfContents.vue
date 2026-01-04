@@ -11,6 +11,8 @@ interface Lesson {
   statusText?: string
   document?: LessonResourceLink
   quiz?: LessonResourceLink
+  is_complete?: boolean
+  is_view?: boolean
 }
 
 interface Chapter {
@@ -25,9 +27,12 @@ interface Props {
   chapters: Chapter[]
   courseId: string
   currentLessonId: string
+  progress?: number
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  progress: 0
+})
 
 const accordionItems = shallowRef<AccordionItem[]>([])
 const activeChapter = ref<string[]>(['0'])
@@ -64,8 +69,6 @@ onMounted(() => {
     }
   }, 300)
 })
-
-const progress = 50
 </script>
 
 <template>
@@ -78,7 +81,7 @@ const progress = 50
         Video khoá học
       </Heading>
 
-      <SharedProcessLearning :progress="progress" />
+      <SharedProcessLearning :progress="props.progress" />
     </div>
     <div
       ref="scrollContainer"
@@ -108,10 +111,10 @@ const progress = 50
               <li
                 :id="`lesson-${lesson.id}`"
                 :class="[
-                  lesson.quiz?.done
-                    ? 'bg-learning-done'
-                    : lesson.id === currentLessonId
-                      ? 'bg-sky-100'
+                  lesson.id === currentLessonId
+                    ? 'bg-sky-100'
+                    : (lesson.quiz?.done || lesson.is_complete)
+                      ? 'bg-learning-done hover:bg-learning-done'
                       : ''
                 ]"
                 class="-scroll-mt-30"
@@ -120,19 +123,23 @@ const progress = 50
                   :to="`/khoa-hoc/${courseId}/bai-hoc/${lesson.id}`"
                   :class="[
                     'flex rounded-sm items-center gap-4 min-h-14 md:min-h-15 px-3 md:px-5 hover:bg-primary-50 hover:text-primary transition-colors',
-                    lesson.quiz?.done ? 'bg-learning-done hover:bg-learning-done' : (lesson.id === currentLessonId ? 'bg-sky-100' : '')
+                    lesson.id === currentLessonId
+                      ? 'bg-sky-100'
+                      : (lesson.quiz?.done || lesson.is_complete)
+                        ? 'bg-learning-done hover:bg-learning-done'
+                        : ''
                   ]"
                 >
                   <div
                     class="text-primary flex items-center gap-2"
                   >
-                    <LearningDoneIcon
-                      v-if="lesson.quiz?.done"
+                    <UIcon
+                      v-if="lesson.id === currentLessonId"
+                      name="i-lucide-circle-pause"
                       class="size-5"
                     />
-                    <UIcon
-                      v-else-if="lesson.id === currentLessonId"
-                      name="i-lucide-circle-pause"
+                    <LearningDoneIcon
+                      v-else-if="lesson.quiz?.done || lesson.is_complete"
                       class="size-5"
                     />
                     <UIcon

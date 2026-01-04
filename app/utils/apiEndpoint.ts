@@ -32,7 +32,12 @@ export const ApiEndpoint = {
     GetCertificates: `${prefix}/user/certificates`,
     GetCategories: `${prefix}/categories`,
     GetLessonDetail: (myCourseId: string, lessonId: string) =>
-      `${prefix}/user/courses/${myCourseId}/lessons/${lessonId}`
+      `${prefix}/user/courses/${myCourseId}/lessons/${lessonId}`,
+    GetMyCourseDetail: (myCourseId: string) => `${prefix}/user/courses/${myCourseId}?tab=true`,
+    CompleteLesson: (lessonId: string) => `${prefix}/lessons/${lessonId}/complete`,
+    SaveProgressLog: (lessonId: string) => `${prefix}/lessons/${lessonId}/progress-log`,
+    GetJoinLog: (myCourseId: string, lessonId: string) => `${prefix}/user/courses/${myCourseId}/lessons/${lessonId}/join-log`,
+    UpdateJoinLog: (myCourseId: string) => `${prefix}/user/courses/${myCourseId}/join-log`
   },
   User: {
     GetInfo: `${prefix}/user/info`,

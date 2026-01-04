@@ -14,6 +14,10 @@
         @can-play="onCanPlay"
         @volume-change="onVolumeChange"
         @play-fail="onPlayFail"
+        @time-update="onTimeUpdate"
+        @play="onPlay"
+        @pause="onPause"
+        @ended="onEnded"
       >
         <media-provider />
 
@@ -36,12 +40,19 @@ interface Props {
   type?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   type: 'video/mp4'
 })
 
+const emit = defineEmits<{
+  'time-update': [currentTime: number, duration: number]
+  'played-one-minute': [currentTime: number]
+  'finished-ninety-percent': []
+  'ended': []
+}>()
+
 const $player = ref()
-const videoTitle = ref('Sprite Fight')
+const videoTitle = ref('Video Lesson')
 const volume = useCookie('volume', {
   default: () => ({
     volume: 0.5,
@@ -49,8 +60,31 @@ const volume = useCookie('volume', {
   })
 })
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function onVolumeChange(event: any) {
+const hasPlayedOneMinute = ref(false)
+const hasFinishedNinetyPercent = ref(false)
+const isPlaying = ref(false)
+
+watch(() => props.src, () => {
+  hasPlayedOneMinute.value = false
+  hasFinishedNinetyPercent.value = false
+  isPlaying.value = false
+})
+
+interface VolumeChangeEvent {
+  detail: {
+    volume: number
+    muted: boolean
+  }
+}
+
+interface TimeUpdateEvent {
+  detail: {
+    currentTime: number
+    duration: number
+  }
+}
+
+function onVolumeChange(event: VolumeChangeEvent): void {
   volume.value = {
     volume: event.detail.volume,
     muted: event.detail.muted
@@ -67,6 +101,84 @@ function onCanPlay() {
 }
 
 function onPlayFail() {
-  console.warn('Autoplay was prevented by browser')
+  // Autoplay was prevented by browser
 }
+
+function onTimeUpdate(event: TimeUpdateEvent): void {
+  if (!$player.value) {
+    return
+  }
+
+  const currentTime = event.detail.currentTime || 0
+  // Get duration directly from player element instead of event
+  const duration = $player.value.duration || event.detail.duration || 0
+
+  if (duration === 0) {
+    return
+  }
+
+  emit('time-update', currentTime, duration)
+
+  if (isPlaying.value) {
+    checkProgress(currentTime, duration)
+  }
+}
+
+function checkProgress(currentTime: number, duration: number): void {
+  if (duration === 0 || currentTime === 0) {
+    return
+  }
+
+  if (currentTime >= 60 && !hasPlayedOneMinute.value) {
+    hasPlayedOneMinute.value = true
+    emit('played-one-minute', currentTime)
+  }
+
+  const progressPercent = (currentTime / duration) * 100
+  const ninetyPercentTime = duration * 0.9
+
+  if ((progressPercent >= 90 || currentTime >= ninetyPercentTime) && !hasFinishedNinetyPercent.value) {
+    hasFinishedNinetyPercent.value = true
+    emit('finished-ninety-percent')
+  }
+}
+
+function onPlay() {
+  isPlaying.value = true
+}
+
+function onPause() {
+  isPlaying.value = false
+}
+
+function onEnded() {
+  emit('ended')
+}
+
+defineExpose({
+  play: (time?: number) => {
+    if ($player.value) {
+      if (time !== undefined) {
+        $player.value.currentTime = time
+      }
+      $player.value.play()
+    }
+  },
+  pause: () => {
+    if ($player.value) {
+      $player.value.pause()
+    }
+  },
+  seek: (time: number) => {
+    if ($player.value) {
+      $player.value.currentTime = time
+    }
+  },
+  getCurrentTime: () => {
+    return $player.value?.currentTime || 0
+  },
+  getDuration: () => {
+    return $player.value?.duration || 0
+  }
+})
 </script>

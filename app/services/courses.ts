@@ -8,7 +8,8 @@ import type {
   MyCourse,
   LessonDetail,
   ContentByKeywordAiResponse,
-  DataContentByKeywordAiRequest
+  DataContentByKeywordAiRequest,
+  Chapter
 } from '~/types/course'
 import type { ApiResponse } from '~/types/common'
 import type { Ref } from 'vue'
@@ -107,6 +108,19 @@ export const coursesService = {
       }
     )
   },
+
+  /**
+   * Lấy chi tiết khóa học của tôi (có progress)
+   * @param myCourseId - ID khóa học của user (courses_users.id)
+   */
+  getMyCourseDetail: (myCourseId: string) => {
+    return useApiFetch<ApiResponse<MyCourse & { chapters?: Chapter[] }>>(
+      ApiEndpoint.Courses.GetMyCourseDetail(myCourseId),
+      {
+        method: 'GET'
+      }
+    )
+  },
   getContentByKeywordAi: (payload: DataContentByKeywordAiRequest) => {
     const config = useRuntimeConfig()
     const beCesintelligentUrl = config.public.beCesintelligentUrl as string
@@ -119,5 +133,90 @@ export const coursesService = {
         'Content-Type': 'application/json'
       })
     })
+  },
+
+  /**
+   * Hoàn thành bài học
+   * @param lessonId - ID bài học
+   * @param courseId - ID khóa học
+   * @param myCourseId - ID khóa học của user (courses_users.id)
+   */
+  completeLesson: (lessonId: string, courseId: string, myCourseId: string) => {
+    const { $api } = useNuxtApp()
+    type CompleteLessonResponse = {
+      progress: number
+      course_content?: CourseDetail['chapters']
+    }
+    return $api<ApiResponse<CompleteLessonResponse>>(
+      ApiEndpoint.Courses.CompleteLesson(lessonId),
+      {
+        method: 'POST',
+        body: {
+          course_id: courseId,
+          id: myCourseId,
+          lesson_id: lessonId
+        }
+      }
+    )
+  },
+
+  /**
+   * Lưu log tiến độ học
+   * @param lessonId - ID bài học
+   * @param position - Vị trí hiện tại đã xem (giây)
+   * @param duration - Tổng thời gian bài học (giây)
+   */
+  saveProgressLog: (lessonId: string, position: number, duration: number) => {
+    const { $api } = useNuxtApp()
+    return $api<ApiResponse<boolean>>(
+      ApiEndpoint.Courses.SaveProgressLog(lessonId),
+      {
+        method: 'PUT',
+        body: {
+          position,
+          duration
+        }
+      }
+    )
+  },
+
+  /**
+   * Lấy log tham gia bài học (lần đầu)
+   * @param myCourseId - ID khóa học của user
+   * @param lessonId - ID bài học
+   */
+  getJoinLog: (myCourseId: string, lessonId: string) => {
+    const { $api } = useNuxtApp()
+    type JoinLogResponse = {
+      history_id: string
+      duration: number
+      position: number
+    }
+    return $api<ApiResponse<JoinLogResponse>>(
+      ApiEndpoint.Courses.GetJoinLog(myCourseId, lessonId),
+      {
+        method: 'GET'
+      }
+    )
+  },
+
+  /**
+   * Cập nhật log tham gia bài học (lần thứ 2 trở đi)
+   * @param myCourseId - ID khóa học của user
+   * @param lessonId - ID bài học
+   * @param historyId - ID lịch sử từ lần gọi GET join-log
+   */
+  updateJoinLog: (myCourseId: string, lessonId: string, historyId: string) => {
+    const { $api } = useNuxtApp()
+    return $api<ApiResponse<boolean>>(
+      ApiEndpoint.Courses.UpdateJoinLog(myCourseId),
+      {
+        method: 'PUT',
+        body: {
+          lesson_id: lessonId,
+          history_id: historyId
+        }
+      }
+    )
   }
 }

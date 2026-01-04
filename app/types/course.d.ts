@@ -75,6 +75,7 @@ export interface CourseDetail {
 
   // if isOwned
   my_course_id?: string
+  progress?: number
 }
 
 export interface ChapterExercise {
@@ -89,6 +90,7 @@ export interface Chapter {
   chapter_name: string
   chapter_id: string
   lessons: Lesson[]
+  is_complete?: boolean
 }
 
 export type LessonExercise = ChapterExercise
@@ -99,6 +101,10 @@ export interface Lesson {
   lesson_type: number
   lesson_duration: number
   lesson_id: string
+  is_complete?: boolean
+  is_view?: boolean
+  complete_at?: number
+  start_at?: number
 }
 
 export interface CourseDetailInfo {
@@ -200,6 +206,8 @@ export interface MyCourse {
   last_time?: string
   expire_time?: number
   info?: MyCourseInfo
+  chapters?: Chapter[]
+  course_content?: Chapter[]
 }
 
 export interface MyCourseListResponse {
@@ -223,6 +231,7 @@ export interface LessonDetail {
   lesson_order: number
   is_locked: boolean
   lesson_material: unknown[]
+  is_completed?: boolean
 }
 
 export interface DataContentByKeywordAiRequest {
