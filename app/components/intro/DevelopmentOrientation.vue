@@ -35,7 +35,7 @@ const developmentOrientations = [
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-6 md:gap-7.5">
+  <div class="flex flex-col gap-6 items-center md:gap-7.5">
     <Heading>
       Định hướng phát triển
     </Heading>
@@ -45,15 +45,15 @@ const developmentOrientations = [
         :key="idx"
         class="w-full md:w-1/2 xl:w-1/3"
       >
-        <div class="h-[-webkit-fill-available] flex border border-primary rounded-lg m-3.5 bg-gradient-to-b from-primary-50 to-transparent">
-          <div class="flex items-center justify-center rounded-lg bg-primary p-2 size-16 md:size-20 relative top-[-1px] left-[-1px]">
+        <div class="h-auto md:h-[-webkit-fill-available] flex gap-4 md:gap-5 border border-primary rounded-lg m-3.5 bg-gradient-to-b from-primary-50 to-transparent p-4">
+          <div class="flex relative justify-center items-center p-2 rounded-lg bg-primary size-16 md:size-20">
             <component
               :is="orientation.icon"
               class="size-10 text-primary"
             />
           </div>
-          <div class="flex-1 flex flex-col gap-2 mx-4 md:mx-5 mt-2 mb-4">
-            <h3 class="text-xl md:text-2xl leading-tight font-bold">
+          <div class="flex flex-col flex-1 gap-2 mb-4">
+            <h3 class="text-xl font-bold leading-tight md:text-2xl">
               {{ orientation.title }}
             </h3>
             <p class="text-sm md:text-base">

@@ -14,7 +14,7 @@ useSeoMeta({
         <IntroDevelopmentOrientation />
         <IntroInstituteExecutiveBoard />
         <IntroCoreCompetencies />
-        <div class="flex flex-col gap-4 md:gap-7.5 md:flex-row">
+        <!-- <div class="flex flex-col gap-4 md:gap-7.5 md:flex-row">
           <div class="flex-1 space-y-4 md:space-y-6">
             <IntroExpert />
             <IntroAIForHealthcare />
@@ -22,7 +22,7 @@ useSeoMeta({
           <div class="flex-1">
             <IntroPublicHealth />
           </div>
-        </div>
+        </div> -->
         <IntroStudentFeedback />
       </div>
     </UContainer>

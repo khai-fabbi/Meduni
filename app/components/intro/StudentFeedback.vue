@@ -146,10 +146,10 @@ const testimonials: { user: UserProps, quote: string }[] = [
     <p class="mt-2 text-center">
       Nhân viên y tế nói gì về MedUni.ai
     </p>
-    <div class="mt-15 w-full">
+    <div class="w-full mt-15">
       <UMarquee
         pause-on-hover
-        :overlay="true"
+        :overlay="false"
         :ui="{ root: '[--gap:--spacing(6)] [--duration:40s]', content: 'w-auto py-2 animation-play-state:paused' }"
         :repeat="2"
       >
@@ -163,7 +163,7 @@ const testimonials: { user: UserProps, quote: string }[] = [
             root: 'bg-white h-full rounded-xl shadow-md ring-0',
             container: 'h-full'
           }"
-          class="w-full h-full max-w-sm shrink-0"
+          class="w-full max-w-sm h-full shrink-0"
         >
           <template
             #footer
@@ -179,7 +179,7 @@ const testimonials: { user: UserProps, quote: string }[] = [
                   description: 'line-clamp-2 text-base text-default'
                 }"
               />
-              <CommentIcon class="size-26 -mr-3" />
+              <CommentIcon class="-mr-3 size-26" />
             </div>
           </template>
         </UPageCard>
