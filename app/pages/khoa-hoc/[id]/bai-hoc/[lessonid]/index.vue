@@ -75,7 +75,7 @@ interface Lesson {
   summary: string
   statusText?: string
   document?: LessonResourceLink
-  quiz?: LessonResourceLink
+  quiz: LessonResourceLink[]
 }
 
 interface Chapter {
@@ -84,6 +84,7 @@ interface Chapter {
   lessons: Lesson[]
   totalLessons: number
   totalDuration: string
+  chapterQuiz?: LessonResourceLink[]
 }
 
 const course = computed(() => {
@@ -159,7 +160,7 @@ const currentLesson = computed<Lesson>(() => {
           icon: 'i-lucide-message-square-text'
         }
       : undefined,
-    quiz: undefined // Mock data nếu cần
+    quiz: []
   }
   return defaultLesson
 })
@@ -193,19 +194,45 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => [
 // Map chapters from API
 const chapters = computed<Chapter[]>(() => {
   if (!course.value?.chapters) return []
+  const myCourse = myCourseData.value?.data
   return course.value.chapters?.map((chapter: ApiChapter, chapterIndex: number) => {
     const chapterLessons = chapter.lessons || []
     const totalDuration = chapterLessons.reduce((sum: number, lesson: ApiLesson) => {
       return sum + (lesson.lesson_duration || 0)
     }, 0)
 
+    // Find corresponding chapter in myCourseData to get chapter_exercises with is_complete
+    const myChapter = myCourse?.course_content?.find((ch: ApiChapter) => ch.chapter_id === chapter.chapter_id)
+    const chapterExercises = myChapter?.chapter_exercises || chapter.chapter_exercises || []
+
+    // Map chapter exercises to quiz array
+    const chapterQuiz: LessonResourceLink[] = chapterExercises.map(exercise => ({
+      id: exercise.exercise_id,
+      title: exercise.exercise_name,
+      to: `/khoa-hoc/${courseId.value}/bai-hoc/${chapterLessons[0]?.lesson_id || ''}/quiz?exercise_id=${exercise.exercise_id}${myCourseId.value ? `&my_course_id=${myCourseId.value}` : ''}`,
+      done: (exercise as ApiChapter['chapter_exercises'][0] & { is_complete?: boolean }).is_complete === true,
+      is_complete: myChapter?.is_complete ?? null,
+      icon: 'i-lucide-clipboard-list',
+      metaText: 'Bài tập chương'
+    }))
+
     return {
       id: chapterIndex + 1,
       title: chapter.chapter_name,
       totalLessons: chapterLessons.length,
       totalDuration: formatDuration(totalDuration),
+      chapterQuiz: chapterQuiz.length > 0 ? chapterQuiz : undefined,
       lessons: chapterLessons.map((lesson: ApiLesson) => {
         const isCurrentLesson = lesson.lesson_id == lessonId.value
+        // Map all exercises to quiz array
+        const quiz: LessonResourceLink[] = (lesson.exercises || []).map(exercise => ({
+          id: exercise.exercise_id,
+          title: exercise.exercise_name,
+          to: `/khoa-hoc/${courseId.value}/bai-hoc/${lesson.lesson_id}/quiz?exercise_id=${exercise.exercise_id}`,
+          done: (exercise as ApiLesson['exercises'][0] & { is_complete?: boolean }).is_complete === true,
+          icon: 'i-lucide-clipboard-list'
+        }))
+
         return {
           id: lesson.lesson_id.toString(),
           title: lesson.lesson_name,
@@ -216,7 +243,7 @@ const chapters = computed<Chapter[]>(() => {
           summary: '',
           statusText: isCurrentLesson ? 'Đang phát' : undefined,
           document: undefined,
-          quiz: undefined,
+          quiz,
           is_complete: lesson.is_complete,
           is_view: lesson.is_view
         }

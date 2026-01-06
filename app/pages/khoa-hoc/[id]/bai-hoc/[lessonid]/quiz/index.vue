@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { motion } from 'motion-v'
 import { useIntervalFn } from '@vueuse/core'
+import { services } from '~/services'
 
 definePageMeta({
   middleware: 'auth'
@@ -12,159 +13,175 @@ const courseId = Array.isArray(route.params.id)
 const lessonId = Array.isArray(route.params.lessonid)
   ? route.params.lessonid[0]
   : String(route.params.lessonid || '1')
+const exerciseId = computed(() => {
+  const id = route.query.exercise_id
+  const exerciseIdValue = Array.isArray(id) ? id[0] : String(id || '')
+  // Remove /quiz if it exists at the end of exercise_id
+  return exerciseIdValue ? exerciseIdValue.replace(/\/quiz$/, '') : ''
+})
 
+// Get myCourseId from query params or course data
+const myCourseIdFromQuery = computed(() => {
+  const id = route.query.my_course_id
+  return Array.isArray(id) ? id[0] : String(id || '')
+})
+
+// Get myCourseId from course data if not in query
+if (!courseId) {
+  throw createError({
+    statusCode: HttpCode.NOT_FOUND,
+    statusMessage: 'Không tìm thấy khóa học',
+    fatal: true
+  })
+}
+const {
+  data: courseData
+} = await services.courses.getCourseById(courseId)
+const myCourseIdFromData = computed(() => courseData.value?.data?.my_course_id)
+
+// Use myCourseId from query if available, otherwise use from course data
+const myCourseId = computed(() => myCourseIdFromQuery.value || myCourseIdFromData.value)
+
+const exerciseIdValue = exerciseId.value
+if (!exerciseIdValue) {
+  throw createError({
+    statusCode: HttpCode.NOT_FOUND,
+    statusMessage: 'Không tìm thấy bài tập',
+    fatal: true
+  })
+}
+
+// Fetch exercise data
 const isLoading = ref(true)
+type ExerciseData = {
+  id: string
+  exercise_id: string
+  exercise_name: string
+  chapter_id?: string
+  course_id: string
+  lesson_id: string
+  my_course_id: string
+  exercise_type: number
+  file_uploads?: string[]
+  teacher_id?: string[]
+  questions: Array<{
+    id: number
+    question: string
+    question_type: number
+    multiple_choice_type: number
+    answers: Array<{
+      content: string
+      is_choose: boolean
+    }>
+  }>
+  time_remaining: number
+  is_complete?: boolean
+  submit_date?: string
+  submit_time?: number
+}
+
+const exerciseData = ref<ExerciseData | null>(null)
+const previousSubmission = ref<ExerciseData | null>(null)
+
+try {
+  if (!exerciseIdValue) {
+    throw new Error('Missing required parameters')
+  }
+  // Use myCourseId if available, otherwise use courseId
+  const courseIdForApi = myCourseId.value || courseId
+  const response = await services.courses.getExercise(courseIdForApi, exerciseIdValue)
+  const allSubmissions = response.data || []
+
+  // Phần tử 0 luôn là câu hỏi (chưa submit)
+  // Phần tử 1 là câu trả lời gần nhất (submission mới nhất)
+  if (allSubmissions.length > 1) {
+    // Có submissions cũ, lấy phần tử gần item 0 nhất (index 1) làm câu trả lời gần nhất
+    previousSubmission.value = allSubmissions[1] as ExerciseData
+  }
+
+  // Phần tử 0 là câu hỏi để làm bài
+  exerciseData.value = allSubmissions[0] as ExerciseData || null
+
+  // Nếu quiz đã hoàn thành (is_complete = true), redirect đến result page
+  if (exerciseData.value?.is_complete === true) {
+    const resultUrl = `/khoa-hoc/${courseId}/bai-hoc/${lessonId}/quiz/result?exercise_id=${exerciseIdValue}${myCourseId.value ? `&my_course_id=${myCourseId.value}` : ''}`
+    await navigateTo(resultUrl)
+  } else {
+    isLoading.value = false
+  }
+} catch {
+  isLoading.value = false
+  throw createError({
+    statusCode: HttpCode.NOT_FOUND,
+    statusMessage: 'Không tìm thấy bài tập',
+    fatal: true
+  })
+}
+
 const currentQuestion = ref(1)
-const totalQuestions = ref(10)
+const totalQuestions = computed(() => {
+  return exerciseData.value?.questions?.length || 0
+})
 const timeRemaining = ref(600)
 const selectedAnswer = ref<string | null>(null)
 const answeredQuestions = ref<Record<number, boolean>>({})
 const questionAnswers = ref<Record<number, string>>({})
 
-watch(currentQuestion, (newQuestion) => {
-  selectedAnswer.value = questionAnswers.value[newQuestion] || null
-})
+// Map exercise data to questions
+interface ApiQuestion {
+  id: number
+  question: string
+  question_type: number
+  multiple_choice_type: number
+  answers: Array<{
+    content: string
+    is_choose: boolean
+  }>
+}
 
 interface Question {
   id: number
+  questionId: string
   text: string
-  options: Array<{ id: string, text: string }>
-  correctAnswer: string
+  options: Array<{
+    id: string
+    answerId?: string
+    text: string
+  }>
 }
 
-const questions = ref<Question[]>([
-  {
-    id: 1,
-    text: 'Đâu là lý do quan trọng nhất để xây dựng prompt (lệnh/yêu cầu) rõ ràng và chi tiết khi làm việc với các mô hình AI?',
-    options: [
-      { id: 'A', text: 'Để tăng tốc độ xử lý của AI' },
-      { id: 'B', text: 'Để giảm chi phí sử dụng AI' },
-      {
-        id: 'C',
-        text: 'Để đảm bảo AI hiểu đúng ý định của người dùng và tạo ra đầu ra chính xác, giảm thiểu sự mơ hồ.'
-      },
-      { id: 'D', text: 'Để làm cho AI dễ sử dụng hơn' }
-    ],
-    correctAnswer: 'C'
-  },
-  {
-    id: 2,
-    text: 'Machine Learning là gì?',
-    options: [
-      { id: 'A', text: 'Một loại phần mềm máy tính' },
-      {
-        id: 'B',
-        text: 'Một phương pháp cho phép máy tính học từ dữ liệu mà không cần lập trình rõ ràng'
-      },
-      { id: 'C', text: 'Một ngôn ngữ lập trình mới' },
-      { id: 'D', text: 'Một loại phần cứng máy tính' }
-    ],
-    correctAnswer: 'B'
-  },
-  {
-    id: 3,
-    text: 'Deep Learning khác với Machine Learning truyền thống như thế nào?',
-    options: [
-      { id: 'A', text: 'Deep Learning chỉ hoạt động trên máy tính lớn' },
-      {
-        id: 'B',
-        text: 'Deep Learning sử dụng các mạng neural nhiều lớp để học các đặc trưng phức tạp'
-      },
-      { id: 'C', text: 'Deep Learning không cần dữ liệu để học' },
-      { id: 'D', text: 'Deep Learning chỉ dùng cho xử lý hình ảnh' }
-    ],
-    correctAnswer: 'B'
-  },
-  {
-    id: 4,
-    text: 'Natural Language Processing (NLP) được sử dụng chủ yếu để làm gì?',
-    options: [
-      { id: 'A', text: 'Xử lý và hiểu ngôn ngữ tự nhiên của con người' },
-      { id: 'B', text: 'Tạo ra phần mềm mới' },
-      { id: 'C', text: 'Quản lý cơ sở dữ liệu' },
-      { id: 'D', text: 'Thiết kế giao diện người dùng' }
-    ],
-    correctAnswer: 'A'
-  },
-  {
-    id: 5,
-    text: 'AI có thể thay thế hoàn toàn con người trong công việc không?',
-    options: [
-      { id: 'A', text: 'Có, AI có thể thay thế mọi công việc' },
-      { id: 'B', text: 'Không, AI là công cụ hỗ trợ và bổ sung cho con người' },
-      { id: 'C', text: 'Chỉ trong lĩnh vực công nghệ' },
-      { id: 'D', text: 'Chỉ trong tương lai xa' }
-    ],
-    correctAnswer: 'B'
-  },
-  {
-    id: 6,
-    text: 'Neural Network là gì?',
-    options: [
-      { id: 'A', text: 'Một mạng lưới máy tính kết nối với nhau' },
-      {
-        id: 'B',
-        text: 'Một mô hình toán học lấy cảm hứng từ cách hoạt động của não bộ con người'
-      },
-      { id: 'C', text: 'Một loại phần mềm quản lý mạng' },
-      { id: 'D', text: 'Một giao thức mạng internet' }
-    ],
-    correctAnswer: 'B'
-  },
-  {
-    id: 7,
-    text: 'Supervised Learning là gì?',
-    options: [
-      { id: 'A', text: 'Học từ dữ liệu không có nhãn' },
-      { id: 'B', text: 'Học từ dữ liệu có nhãn với sự giám sát' },
-      { id: 'C', text: 'Học mà không cần dữ liệu' },
-      { id: 'D', text: 'Học từ video trực tuyến' }
-    ],
-    correctAnswer: 'B'
-  },
-  {
-    id: 8,
-    text: 'Overfitting trong Machine Learning là gì?',
-    options: [
-      {
-        id: 'A',
-        text: 'Mô hình học quá tốt trên dữ liệu huấn luyện nhưng kém trên dữ liệu mới'
-      },
-      { id: 'B', text: 'Mô hình học quá chậm' },
-      { id: 'C', text: 'Mô hình không học được gì' },
-      { id: 'D', text: 'Mô hình học quá nhanh' }
-    ],
-    correctAnswer: 'A'
-  },
-  {
-    id: 9,
-    text: 'Computer Vision là gì?',
-    options: [
-      { id: 'A', text: 'Một loại màn hình máy tính' },
-      {
-        id: 'B',
-        text: 'Lĩnh vực AI giúp máy tính hiểu và xử lý hình ảnh, video'
-      },
-      { id: 'C', text: 'Một phần mềm chỉnh sửa ảnh' },
-      { id: 'D', text: 'Một loại camera đặc biệt' }
-    ],
-    correctAnswer: 'B'
-  },
-  {
-    id: 10,
-    text: 'Reinforcement Learning hoạt động như thế nào?',
-    options: [
-      {
-        id: 'A',
-        text: 'Học từ phản hồi tích cực và tiêu cực thông qua tương tác với môi trường'
-      },
-      { id: 'B', text: 'Học từ dữ liệu có nhãn' },
-      { id: 'C', text: 'Học từ dữ liệu không có nhãn' },
-      { id: 'D', text: 'Học từ sách giáo khoa' }
-    ],
-    correctAnswer: 'A'
+const questions = computed<Question[]>(() => {
+  if (!exerciseData.value?.questions) return []
+
+  return (exerciseData.value.questions as ApiQuestion[]).map((q: ApiQuestion, index: number) => ({
+    id: q.id || index + 1,
+    questionId: `question_${q.id || index + 1}`,
+    text: q.question,
+    options: q.answers.map((answer, ansIndex: number) => ({
+      id: String.fromCharCode(65 + ansIndex), // A, B, C, D...
+      answerId: `answer_${ansIndex}`,
+      text: answer.content
+    }))
+  }))
+})
+
+// Initialize time remaining from API
+watch(() => exerciseData.value?.time_remaining, (time) => {
+  if (time !== undefined && time > 0) {
+    timeRemaining.value = time
   }
-])
+}, { immediate: true })
+
+// Don't pre-fill answers when retaking quiz - let user start fresh
+// Previous answers are only displayed for reference, not auto-selected
+
+watch(currentQuestion, (newQuestion) => {
+  const currentQ = questions.value[newQuestion - 1]
+  const qId = currentQ?.id || newQuestion
+  selectedAnswer.value = questionAnswers.value[qId] || null
+})
+
+// Question interface is used in computed questions
 
 const goToQuestion = (questionNumber: number) => {
   if (selectedAnswer.value) {
@@ -197,51 +214,68 @@ const previousQuestion = () => {
   }
 }
 
-interface QuizResult {
-  submissionNumber: number
-  answers: Record<number, string>
-  correctCount: number
-  totalQuestions: number
-  timeSpent: number
-  submittedAt: number
-}
+const isSubmitting = ref(false)
+const submitQuiz = async () => {
+  if (isSubmitting.value) return
 
-const submitQuiz = () => {
-  // Calculate score
-  let correctCount = 0
-  for (let i = 1; i <= totalQuestions.value; i++) {
-    const userAnswer = questionAnswers.value[i]
-    const correctAnswer = questions.value[i - 1]?.correctAnswer
-    if (userAnswer === correctAnswer) {
-      correctCount++
+  isSubmitting.value = true
+  try {
+    const exercise = exerciseData.value
+    if (!exercise || !exerciseIdValue) {
+      throw new Error('Missing exercise data')
     }
+    // Use myCourseId if available, otherwise use courseId
+    const courseIdForApi = myCourseId.value || courseId
+
+    // Prepare questions with selected answers
+    const updatedQuestions = exercise.questions.map((q, index) => {
+      const selectedAnswerId = questionAnswers.value[q.id || index + 1]
+
+      // Update answers with is_choose based on selected option
+      const updatedAnswers = q.answers.map((answer, ansIndex) => {
+        const optionId = String.fromCharCode(65 + ansIndex)
+        return {
+          content: answer.content,
+          is_choose: optionId === selectedAnswerId
+        }
+      })
+
+      return {
+        id: q.id || index + 1,
+        question: q.question,
+        question_type: q.question_type,
+        multiple_choice_type: q.multiple_choice_type,
+        answers: updatedAnswers
+      }
+    })
+
+    // Prepare exercise data for submission
+    const submitData: ExerciseData = {
+      ...exercise,
+      questions: updatedQuestions,
+      time_remaining: 0,
+      file_uploads: exercise.file_uploads || []
+    }
+
+    // Submit exercise
+    await services.courses.submitExercise(
+      courseIdForApi,
+      exerciseIdValue,
+      submitData
+    )
+
+    // Navigate to result page with exercise_id
+    // Result page will fetch data from API, no need to save to cookie
+    navigateTo(`/khoa-hoc/${courseId}/bai-hoc/${lessonId}/quiz/result?exercise_id=${exerciseIdValue}`)
+  } catch {
+    isSubmitting.value = false
+    const toast = useToast()
+    toast.add({
+      title: 'Lỗi',
+      description: 'Không thể nộp bài. Vui lòng thử lại.',
+      color: 'error'
+    })
   }
-
-  // Get existing results
-  const storageKey = `quiz-results-${courseId}-${lessonId}`
-  const existingResults = useCookie<QuizResult[]>(storageKey, {
-    default: () => []
-  })
-  const results = existingResults.value || []
-
-  // Create new result
-  const initialTime = 600
-  const timeSpent = initialTime - timeRemaining.value
-  const newResult: QuizResult = {
-    submissionNumber: results.length + 1,
-    answers: { ...questionAnswers.value },
-    correctCount,
-    totalQuestions: totalQuestions.value,
-    timeSpent,
-    submittedAt: Date.now()
-  }
-
-  // Save result
-  results.push(newResult)
-  existingResults.value = results
-
-  // Navigate to result page
-  navigateTo(`/khoa-hoc/${courseId}/bai-hoc/${lessonId}/quiz/result`)
 }
 
 const goBack = () => {
@@ -266,9 +300,33 @@ const formatTime = (seconds: number) => {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}:00`
 }
 
+const formatDate = (dateString?: string) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  })
+}
+
+// Map previous submission questions for display
+const previousAnswers = computed(() => {
+  if (!previousSubmission.value?.questions) return []
+
+  return previousSubmission.value.questions.map((q, index) => ({
+    id: q.id || index + 1,
+    question: q.question,
+    answers: q.answers.map((answer, ansIndex) => ({
+      id: String.fromCharCode(65 + ansIndex), // A, B, C, D...
+      content: answer.content,
+      is_choose: answer.is_choose
+    }))
+  }))
+})
+
 const quizTitle = computed(() => {
-  const title = route.query.title || route.params.title
-  return title ? String(title) : 'Bài tập chương 1: Thử nghiệm'
+  return exerciseData.value?.exercise_name || route.query.title || 'Bài tập'
 })
 
 const allQuestionsAnswered = computed(() => {
@@ -282,15 +340,13 @@ const allQuestionsAnswered = computed(() => {
 
 const selectAnswer = (optionId: string) => {
   selectedAnswer.value = optionId
-  questionAnswers.value[currentQuestion.value] = optionId
-  answeredQuestions.value[currentQuestion.value] = true
+  const currentQId = questions.value[currentQuestion.value - 1]?.id || currentQuestion.value
+  questionAnswers.value[currentQId] = optionId
+  answeredQuestions.value[currentQId] = true
 }
 
 onMounted(() => {
-  // Simulate data loading
-  setTimeout(() => {
-    isLoading.value = false
-  }, 800)
+  // Data is already loaded from API
 })
 </script>
 
@@ -350,6 +406,46 @@ onMounted(() => {
               {{ questions[currentQuestion - 1]?.text }}
             </p>
 
+            <!-- Previous Answer Display -->
+            <div
+              v-if="previousSubmission && previousAnswers[currentQuestion - 1]"
+              class="mb-6"
+            >
+              <p class="mb-3 text-sm font-bold md:text-base">
+                Câu trả lời cũ - Nộp vào {{ formatDate(previousSubmission.submit_date) }}
+              </p>
+              <div class="space-y-2">
+                <div
+                  v-for="answer in (previousAnswers[currentQuestion - 1]?.answers || [])"
+                  :key="answer.id"
+                  :class="[
+                    'p-3 rounded-lg border-2',
+                    answer.is_choose
+                      ? 'border-primary bg-sky-100'
+                      : 'border-neutral-200 bg-white'
+                  ]"
+                >
+                  <div class="flex gap-3 items-start">
+                    <span class="font-semibold text-neutral-900">{{ answer.id }}.</span>
+                    <span class="flex-1 text-base md:text-lg text-neutral-700">{{ answer.content }}</span>
+                    <div
+                      v-if="answer.is_choose"
+                      class="flex justify-center items-center rounded-full size-6 bg-primary shrink-0"
+                    >
+                      <UIcon
+                        name="i-lucide-check"
+                        class="text-white size-4"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="mb-4 text-base font-semibold md:text-lg text-neutral-900">
+              Trả lời:
+            </p>
+
             <div class="mb-8 space-y-4">
               <div
                 v-for="option in questions[currentQuestion - 1]?.options"
@@ -398,9 +494,10 @@ onMounted(() => {
                 size="xl"
                 :class="currentQuestion === totalQuestions ? 'bg-submit-button-gradient' : ''"
                 :disabled="
-                  currentQuestion === totalQuestions ? !allQuestionsAnswered : !selectedAnswer
+                  currentQuestion === totalQuestions ? (!allQuestionsAnswered || isSubmitting) : !selectedAnswer
                 "
-                @click="nextQuestion"
+                :loading="currentQuestion === totalQuestions && isSubmitting"
+                @click="currentQuestion === totalQuestions ? submitQuiz() : nextQuestion()"
               >
                 {{ currentQuestion === totalQuestions ? 'Nộp bài' : 'Tiếp theo' }}
                 <template #trailing>
@@ -427,7 +524,8 @@ onMounted(() => {
               <UButton
                 size="xl"
                 class="bg-submit-button-gradient"
-                :disabled="!allQuestionsAnswered"
+                :disabled="!allQuestionsAnswered || isSubmitting"
+                :loading="isSubmitting"
                 @click="submitQuiz"
               >
                 Nộp bài

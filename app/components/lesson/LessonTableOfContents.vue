@@ -10,7 +10,7 @@ interface Lesson {
   duration: string
   statusText?: string
   document?: LessonResourceLink
-  quiz?: LessonResourceLink
+  quiz?: LessonResourceLink[]
   is_complete?: boolean
   is_view?: boolean
 }
@@ -21,6 +21,7 @@ interface Chapter {
   lessons: Lesson[]
   totalLessons: number
   totalDuration: string
+  chapterQuiz?: LessonResourceLink[]
 }
 
 interface Props {
@@ -81,7 +82,22 @@ onMounted(() => {
         Video khoá học
       </Heading>
 
-      <SharedProcessLearning :progress="props.progress" />
+      <SharedProcessLearning
+        v-if="props.progress < 100"
+        :progress="props.progress"
+      />
+      <div
+        v-else
+        class="flex items-center gap-2 shrink-0 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full"
+      >
+        <UIcon
+          name="i-lucide-check-circle"
+          class="size-4 text-emerald-600 shrink-0"
+        />
+        <span class="text-sm font-semibold text-emerald-700 whitespace-nowrap">
+          Đã hoàn thành
+        </span>
+      </div>
     </div>
     <div
       ref="scrollContainer"
@@ -113,7 +129,7 @@ onMounted(() => {
                 :class="[
                   lesson.id === currentLessonId
                     ? 'bg-sky-100'
-                    : (lesson.quiz?.done || lesson.is_complete)
+                    : (lesson.quiz && lesson.quiz.length > 0 ? lesson.quiz.every((q: LessonResourceLink) => q.done) : false) || lesson.is_complete
                       ? 'bg-learning-done hover:bg-learning-done'
                       : ''
                 ]"
@@ -125,7 +141,7 @@ onMounted(() => {
                     'flex rounded-sm items-center gap-4 min-h-14 md:min-h-15 px-3 md:px-5 hover:bg-primary-50 hover:text-primary transition-colors',
                     lesson.id === currentLessonId
                       ? 'bg-sky-100'
-                      : (lesson.quiz?.done || lesson.is_complete)
+                      : (lesson.quiz && lesson.quiz.length > 0 ? lesson.quiz.every((q: LessonResourceLink) => q.done) : false) || lesson.is_complete
                         ? 'bg-learning-done hover:bg-learning-done'
                         : ''
                   ]"
@@ -139,7 +155,7 @@ onMounted(() => {
                       class="size-5"
                     />
                     <LearningDoneIcon
-                      v-else-if="lesson.quiz?.done || lesson.is_complete"
+                      v-else-if="(lesson.quiz && lesson.quiz.length > 0 ? lesson.quiz.every((q: LessonResourceLink) => q.done) : false) || lesson.is_complete"
                       class="size-5"
                     />
                     <UIcon
@@ -157,15 +173,34 @@ onMounted(() => {
                 </NuxtLink>
 
                 <div
-                  v-if="lesson.document || lesson.quiz"
+                  v-if="lesson.document || (lesson.quiz && lesson.quiz.length > 0)"
                   class="px-3 md:px-5 pt-2"
                 >
                   <LessonResources
                     :document="lesson.document"
                     :quiz="lesson.quiz"
                     :is-active="lesson.id === currentLessonId"
+                    :is-lesson-completed="lesson.is_complete === true"
                   />
                 </div>
+              </li>
+            </template>
+            <!-- Chapter Quiz -->
+            <template
+              v-if="item.chapterQuiz && item.chapterQuiz.length > 0"
+            >
+              <li
+                v-for="quizItem in item.chapterQuiz"
+                :key="quizItem.id"
+                :class="[
+                  'px-3 md:px-5 pt-2',
+                  quizItem.done ? 'bg-learning-done hover:bg-learning-done' : ''
+                ]"
+              >
+                <LessonResources
+                  :quiz="[quizItem]"
+                  :is-lesson-completed="true"
+                />
               </li>
             </template>
           </ul>

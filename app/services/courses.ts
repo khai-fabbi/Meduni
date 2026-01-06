@@ -218,5 +218,137 @@ export const coursesService = {
         }
       }
     )
+  },
+
+  /**
+   * Lấy bài tập theo ID
+   * @param myCourseId - ID khóa học của user
+   * @param exerciseId - ID bài tập
+   */
+  getExercise: (myCourseId: string, exerciseId: string) => {
+    const { $api } = useNuxtApp()
+    type ExerciseQuestion = {
+      id: number
+      question: string
+      question_type: number
+      multiple_choice_type: number
+      answers: Array<{
+        content: string
+        is_choose: boolean
+      }>
+    }
+    type ExerciseResponse = {
+      id: string
+      exercise_id: string
+      exercise_name: string
+      chapter_id?: string
+      course_id: string
+      lesson_id: string
+      my_course_id: string
+      exercise_type: number
+      file_uploads?: string[]
+      teacher_id?: string[]
+      teacher_name?: string
+      questions: ExerciseQuestion[]
+      time_remaining: number
+      is_complete?: boolean
+      submit_date?: string
+      submit_time?: number
+      review_status?: number
+    }
+    return $api<ApiResponse<ExerciseResponse[]>>(
+      ApiEndpoint.Courses.GetExercise(myCourseId, exerciseId),
+      {
+        method: 'GET'
+      }
+    )
+  },
+
+  /**
+   * Nộp bài tập
+   * @param myCourseId - ID khóa học của user
+   * @param exerciseId - ID bài tập
+   * @param exerciseData - Toàn bộ dữ liệu bài tập để submit
+   */
+  submitExercise: (myCourseId: string, exerciseId: string, exerciseData: {
+    id: string
+    exercise_id: string
+    exercise_name: string
+    chapter_id?: string
+    course_id: string
+    lesson_id: string
+    my_course_id: string
+    exercise_type: number
+    file_uploads?: string[]
+    teacher_id?: string[]
+    questions: Array<{
+      id?: number
+      question_id?: string
+      question: string
+      question_type: number
+      multiple_choice_type: number
+      answers: Array<{
+        answer_id?: string
+        content: string
+        is_choose?: boolean
+        result?: boolean
+      }>
+    }>
+    time_remaining: number
+  }) => {
+    const { $api } = useNuxtApp()
+    type SubmitExerciseResponse = {
+      result_id: string
+      score: number
+      total_questions: number
+      correct_answers: number
+      passed: boolean
+    }
+    return $api<ApiResponse<SubmitExerciseResponse>>(
+      ApiEndpoint.Courses.SubmitExercise(myCourseId, exerciseId),
+      {
+        method: 'POST',
+        body: exerciseData
+      }
+    )
+  },
+
+  /**
+   * Cập nhật bài tập trong quá trình làm bài
+   * @param myCourseId - ID khóa học của user
+   * @param exerciseId - ID bài tập
+   * @param answers - Mảng câu trả lời
+   */
+  updateExercise: (myCourseId: string, exerciseId: string, answers: Array<{ question_id: string, selected_answers: string[] }>) => {
+    const { $api } = useNuxtApp()
+    return $api<ApiResponse<boolean>>(
+      ApiEndpoint.Courses.UpdateExercise(myCourseId, exerciseId),
+      {
+        method: 'PUT',
+        body: {
+          answers
+        }
+      }
+    )
+  },
+
+  /**
+   * Làm lại bài tập
+   * @param myCourseId - ID khóa học của user
+   * @param exerciseId - ID bài tập
+   */
+  retryExercise: (myCourseId: string, exerciseId: string) => {
+    const { $api } = useNuxtApp()
+    type RetryExerciseResponse = {
+      can_retry: boolean
+      remaining_attempts: number
+      reset_exercise: Record<string, unknown>
+    }
+    return $api<ApiResponse<RetryExerciseResponse>>(
+      ApiEndpoint.Courses.RetryExercise(myCourseId, exerciseId),
+      {
+        method: 'GET'
+      }
+    )
   }
 }
