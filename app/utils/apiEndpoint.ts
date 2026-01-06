@@ -37,7 +37,11 @@ export const ApiEndpoint = {
     CompleteLesson: (lessonId: string) => `${prefix}/lessons/${lessonId}/complete`,
     SaveProgressLog: (lessonId: string) => `${prefix}/lessons/${lessonId}/progress-log`,
     GetJoinLog: (myCourseId: string, lessonId: string) => `${prefix}/user/courses/${myCourseId}/lessons/${lessonId}/join-log`,
-    UpdateJoinLog: (myCourseId: string) => `${prefix}/user/courses/${myCourseId}/join-log`
+    UpdateJoinLog: (myCourseId: string) => `${prefix}/user/courses/${myCourseId}/join-log`,
+    GetExercise: (myCourseId: string, exerciseId: string) => `${prefix}/courses/${myCourseId}/exercises/${exerciseId}`,
+    SubmitExercise: (myCourseId: string, exerciseId: string) => `${prefix}/courses/${myCourseId}/exercises/${exerciseId}`,
+    UpdateExercise: (myCourseId: string, exerciseId: string) => `${prefix}/courses/${myCourseId}/exercises/${exerciseId}`,
+    RetryExercise: (myCourseId: string, exerciseId: string) => `${prefix}/courses/${myCourseId}/exercises/${exerciseId}/retry`
   },
   User: {
     GetInfo: `${prefix}/user/info`,
