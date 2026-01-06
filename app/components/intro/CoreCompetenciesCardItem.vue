@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="bg-competency transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl hover:-translate-y-1 h-[-webkit-fill-available] text-white p-6 rounded-lg overflow-hidden relative">
+  <div class="bg-competency transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl hover:-translate-y-1 h-auto md:h-[-webkit-fill-available] text-white p-6 rounded-lg overflow-hidden relative">
     <div class="space-y-2">
       <Heading
         variant="h6"

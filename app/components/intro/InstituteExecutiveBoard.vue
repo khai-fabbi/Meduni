@@ -51,7 +51,7 @@ const executiveBoard = [
         class="w-full md:w-1/2 xl:w-1/3"
       >
         <div
-          class="h-[-webkit-fill-available] relative flex flex-col gap-4 rounded-xl mx-3.5 my-10 md:my-12 bg-white shadow-lg p-6 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl"
+          class="h-auto md:h-[-webkit-fill-available] relative flex flex-col gap-4 rounded-xl mx-3.5 my-10 md:my-12 bg-white shadow-lg p-6 transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl"
         >
           <div class="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2 md:left-6 md:translate-x-0 md:-translate-y-1/3">
             <div
