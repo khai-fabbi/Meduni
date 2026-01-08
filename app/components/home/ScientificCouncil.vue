@@ -4,7 +4,7 @@ const scientificCouncilMembers = [
     id: 1,
     name: 'BSCKI. PHẠM LY',
     image: '/home/scientific/bscki-pham-ly.png',
-    description: 'CEO & Fouder của Le’Bali Skinlab'
+    description: 'CEO & Fouder của Le\'Bali Skinlab'
   },
   {
     id: 2,
@@ -23,20 +23,19 @@ const scientificCouncilMembers = [
     name: 'BSCKI. TRẦN GIA QUỐC BẢO',
     image: '/home/scientific/bscki-tran-gia-quoc-bao.png',
     description: 'Bác sĩ bệnh viện Y học cổ truyền'
-  },
-  {
-    id: 5,
-    name: 'BS. NGUYỄN THỊ MINH',
-    image: 'https://plus.unsplash.com/premium_photo-1658506671316-0b293df7c72b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    description: 'CEO & Fouder của Hoàn Mỹ Hospital'
-  },
-  {
-    id: 6,
-    name: 'BS. TRẦN THỊ NGỌC',
-    image: 'https://plus.unsplash.com/premium_photo-1658506671316-0b293df7c72b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-    description: 'Bác sĩ bệnh viện Y học cổ truyền'
   }
 ]
+const breakpoints = useBreakpoints({
+  xl: 1280
+})
+
+const isXlScreen = breakpoints.greaterOrEqual('xl')
+const shouldShowArrows = computed(() => {
+  if (isXlScreen.value && scientificCouncilMembers.length <= 4) {
+    return false
+  }
+  return true
+})
 </script>
 
 <template>
@@ -55,7 +54,7 @@ const scientificCouncilMembers = [
     <UCarousel
       v-slot="{ item }"
       :items="scientificCouncilMembers"
-      arrows
+      :arrows="shouldShowArrows"
       wheel-gestures
       :prev="{
         icon: 'i-lucide-chevron-left',
