@@ -224,6 +224,9 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
               :should-scroll-to-bottom="true"
               auto-scroll-icon="i-lucide-chevron-down"
               class="py-4 h-full"
+              :ui="{
+                indicator: '*:bg-neutral-500!'
+              }"
               :assistant="{
                 side: 'left',
                 variant: 'outline',
@@ -239,7 +242,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
                 ]
               }"
             >
-              <template #indicator>
+              <!-- <template #indicator>
                 <UButton
                   class="px-0"
                   color="neutral"
@@ -248,7 +251,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
                   loading-icon="i-lucide-loader"
                   label="Thinking..."
                 />
-              </template>
+              </template> -->
             </UChatMessages>
           </div>
 
