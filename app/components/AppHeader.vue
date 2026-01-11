@@ -129,10 +129,10 @@ const userAvatar = computed(() => {
     }"
   >
     <template #left>
-      <div class="flex items-center gap-3 md:gap-4 lg:gap-6 min-w-0">
+      <div class="flex gap-3 items-center min-w-0 md:gap-4 lg:gap-6">
         <NuxtLink
           to="/"
-          class="shrink-0 flex hover:opacity-80 transition-opacity"
+          class="flex transition-opacity shrink-0 hover:opacity-80"
         >
           <AppLogo class="w-[120px] h-auto md:w-[200px]" />
         </NuxtLink>
@@ -148,14 +148,14 @@ const userAvatar = computed(() => {
             }"
           />
           <template #fallback>
-            <div class="hidden lg:flex items-center gap-2 xl:gap-4">
+            <div class="hidden gap-2 items-center lg:flex xl:gap-4">
               <template
                 v-for="(item, index) in baseItems"
                 :key="index"
               >
                 <NuxtLink
                   :to="item.to"
-                  class="text-sm xl:text-base font-medium uppercase py-1 px-1 lg:px-1.5 text-default"
+                  class="px-1 py-1 text-sm font-medium uppercase xl:text-base lg:px-1.5 text-default"
                 >
                   {{ item.label }}
                 </NuxtLink>
@@ -167,32 +167,32 @@ const userAvatar = computed(() => {
     </template>
 
     <template #right>
-      <div class="flex items-center justify-end gap-2 md:gap-3 min-w-0 shrink">
+      <div class="flex gap-2 justify-end items-center pr-5 min-w-0 md:gap-3 shrink-0">
         <ClientOnly>
           <NuxtLink
             to="/carts"
-            class="relative flex items-center justify-center w-9 h-9 lg:w-10 lg:h-10 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
+            class="flex relative justify-center items-center w-9 h-9 rounded-md transition-colors lg:w-10 lg:h-10 hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0"
           >
             <CartIcon class="size-5 lg:size-6" />
             <span
               v-if="cartCount > 0"
-              class="absolute top-1 right-0.5 lg:top-0.5 lg:right-0 flex items-center justify-center size-3 lg:size-4 px-1 text-xs font-semibold text-white bg-cart-badge rounded-full"
+              class="flex absolute right-0.5 top-1 justify-center items-center px-1 text-xs font-semibold text-white rounded-full lg:top-0.5 lg:right-0 size-3 lg:size-4 bg-cart-badge"
             >
               {{ cartCount }}
             </span>
           </NuxtLink>
           <span class="hidden lg:block text-line-gray shrink-0">|</span>
-          <div class="flex items-center gap-2 md:gap-3 min-w-0">
+          <div class="flex gap-2 items-center min-w-0 md:gap-3">
             <template v-if="isLoggedIn">
-              <div class="hidden lg:flex items-center gap-2 xl:gap-3 min-w-0">
-                <span class="text-sm xl:text-base text-default whitespace-nowrap">
+              <div class="hidden gap-2 items-center min-w-0 lg:flex xl:gap-3">
+                <span class="text-sm whitespace-nowrap xl:text-base text-default">
                   Chào, <span class="font-bold">{{ userLastName }}</span>
                 </span>
                 <UDropdownMenu
                   :items="userMenuItems"
                   :popper="{ placement: 'bottom-end' }"
                 >
-                  <button class="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 border border-neutral-300 rounded-full bg-neutral-100 hover:bg-neutral-200 active:bg-neutral-200 transition-colors cursor-pointer shrink-0 overflow-hidden">
+                  <button class="flex overflow-hidden justify-center items-center w-10 h-10 rounded-full border transition-colors cursor-pointer lg:w-12 lg:h-12 border-neutral-300 bg-neutral-100 hover:bg-neutral-200 active:bg-neutral-200 shrink-0">
                     <UAvatar
                       :src="userAvatar"
                       :alt="user?.user_name || 'User'"
@@ -204,9 +204,9 @@ const userAvatar = computed(() => {
               <UDropdownMenu
                 :items="userMenuItems"
                 :popper="{ placement: 'bottom-end' }"
-                class="lg:hidden cursor-pointer hover:bg-gray-100"
+                class="cursor-pointer lg:hidden hover:bg-gray-100"
               >
-                <button class="flex items-center justify-center w-9 h-9 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer shrink-0 overflow-hidden">
+                <button class="flex overflow-hidden justify-center items-center w-9 h-9 rounded-md transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 shrink-0">
                   <UAvatar
                     :src="userAvatar"
                     :alt="user?.user_name || 'User'"
@@ -221,15 +221,15 @@ const userAvatar = computed(() => {
                 icon="i-lucide-log-in"
                 variant="ghost"
                 to="/login"
-                class="lg:hidden cursor-pointer"
+                class="cursor-pointer lg:hidden"
                 size="sm"
               />
 
-              <div class="hidden lg:flex items-center gap-2 md:gap-3">
+              <div class="hidden gap-2 items-center lg:flex md:gap-3">
                 <UButton
                   label="Đăng ký"
                   variant="subtle"
-                  class="min-h-10 lg:min-h-12 max-w-25 text-sm shrink-0"
+                  class="text-sm min-h-10 lg:min-h-12 max-w-25 shrink-0"
                   to="/signup"
                   size="xl"
                   block
@@ -238,7 +238,7 @@ const userAvatar = computed(() => {
                   label="Đăng nhập"
                   variant="solid"
                   to="/login"
-                  class="min-h-10 lg:min-h-12 max-w-25 text-sm shrink-0"
+                  class="text-sm min-h-10 lg:min-h-12 max-w-25 shrink-0"
                   size="xl"
                   block
                 />
@@ -257,7 +257,7 @@ const userAvatar = computed(() => {
         >
           <NuxtLink
             :to="item.to"
-            class="block text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+            class="block px-1.5 py-1 text-base font-medium uppercase transition-colors text-default hover:text-primary"
             :class="{ 'text-primary': item.active || route.path === item.to }"
           >
             {{ item.label }}
@@ -270,7 +270,7 @@ const userAvatar = computed(() => {
         class=""
       >
         <UButton
-          class="text-base font-medium uppercase px-2 w-full group"
+          class="px-2 w-full text-base font-medium uppercase group"
           label="Hồ sơ"
           color="neutral"
           variant="ghost"
@@ -283,7 +283,7 @@ const userAvatar = computed(() => {
 
         <!-- <template #trigger="{ toggle }">
           <button
-            class="w-full flex items-center justify-between text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+            class="flex justify-between items-center px-1.5 py-1 w-full text-base font-medium uppercase transition-colors text-default hover:text-primary"
             @click="toggle"
           >
             <span>Hồ sơ</span>
@@ -299,7 +299,7 @@ const userAvatar = computed(() => {
               v-for="subItem in profileMenuLinks"
               :key="String(subItem.to)"
               :to="subItem.to as string"
-              class="flex items-center gap-2 text-base font-medium uppercase py-1 px-1.5 text-default hover:text-primary transition-colors"
+              class="flex gap-2 items-center px-1.5 py-1 text-base font-medium uppercase transition-colors text-default hover:text-primary"
               :class="{ 'text-primary': route.path === subItem.to || (subItem.to !== '/profile' && route.path.startsWith(subItem.to)) }"
             >
               <UIcon

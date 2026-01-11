@@ -24,7 +24,6 @@ const items = [
       dots
       loop
       arrows
-      autoplay
       auto-height
       :items="items"
       :prev="{
@@ -42,9 +41,9 @@ const items = [
       }"
     >
       <template v-if="item.no === 1">
-        <div class="bg-item-1 h-[550px] md:h-[650px]">
+        <div class="bg-item-1 min-h-[500px] h-[550px] md:h-[calc(90vh-100px)]">
           <UContainer class="flex items-center h-full">
-            <div class="flex flex-col flex-2">
+            <div class="flex flex-col flex-[2.5]">
               <span class="text-4xl font-extrabold leading-normal uppercase select-none mt-4.5 banner-text md:text-6xl">
                 {{ item.slogan }}
               </span>
@@ -67,11 +66,11 @@ const items = [
               </NuxtLink>
             </div>
 
-            <div class="hidden justify-center items-center md:flex-3 md:flex">
+            <div class="hidden justify-end items-center md:flex-3 md:flex">
               <NuxtImg
                 :src="item.image"
                 :alt="item.name"
-                class="rounded-lg size-full h-[550px] object-contain"
+                class="object-contain rounded-lg size-full md:max-w-[90%]"
                 quality="100"
                 width="100%"
                 height="550"
@@ -82,7 +81,7 @@ const items = [
       </template>
 
       <template v-if="item.no === 2">
-        <div class="bg-item-1 h-[550px] md:h-[650px]">
+        <div class="bg-item-1 min-h-[500px] h-[550px] md:h-[calc(90vh-100px)]">
           <UContainer class="flex items-center h-full">
             <div class="flex flex-col flex-2">
               <span class="text-4xl font-extrabold leading-normal uppercase select-none mt-4.5 banner-text md:text-6xl">
@@ -107,11 +106,11 @@ const items = [
               </NuxtLink>
             </div>
 
-            <div class="hidden justify-center items-center md:flex-3 md:flex">
+            <div class="hidden justify-end items-center md:flex-3 md:flex">
               <NuxtImg
                 :src="item.image"
                 :alt="item.name"
-                class="rounded-lg size-full h-[550px] object-contain"
+                class="object-contain rounded-lg size-full md:max-w-4/5"
                 quality="100"
                 width="100%"
                 height="500"
