@@ -35,9 +35,9 @@ function handleClose() {
   <UModal
     v-model:open="open"
     :ui="{
-      content: 'sm:max-w-lg text-center',
+      content: 'sm:max-w-lg text-center z-[101]',
       header: 'hidden',
-      overlay: 'bg-black/40 backdrop-blur-[2px]'
+      overlay: 'bg-black/40 backdrop-blur-[2px] z-100'
     }"
     :close="{
       class: dismissible && !loading ? '' : 'hidden'
@@ -52,23 +52,23 @@ function handleClose() {
         <div class="flex justify-center">
           <div
             v-if="loading"
-            class="ring-10 ring-primary/10 rounded-full"
+            class="rounded-full ring-10 ring-primary/10"
           >
             <div
-              class="flex size-13 justify-center items-center rounded-full bg-primary/20"
+              class="flex justify-center items-center rounded-full size-13 bg-primary/20"
             >
               <UIcon
                 name="i-lucide-loader"
-                class="size-8 animate-spin text-primary"
+                class="animate-spin size-8 text-primary"
               />
             </div>
           </div>
           <div
             v-else
-            class="ring-10 ring-primary/10 rounded-full"
+            class="rounded-full ring-10 ring-primary/10"
           >
             <div
-              class="flex size-13 justify-center items-center rounded-full bg-primary/20"
+              class="flex justify-center items-center rounded-full size-13 bg-primary/20"
             >
               <UIcon
                 name="i-lucide-alert-circle"
@@ -91,17 +91,17 @@ function handleClose() {
           </p>
           <p
             v-if="loading"
-            class="text-primary font-medium"
+            class="font-medium text-primary"
           >
             Đang xử lý...
           </p>
         </div>
 
         <!-- Buttons -->
-        <div class="space-x-4 mt-6 md:mt-8 flex">
+        <div class="flex mt-6 space-x-4 md:mt-8">
           <UButton
             variant="outline"
-            class="w-full min-h-12 text-lg"
+            class="w-full text-lg min-h-12"
             size="xl"
             block
             type="button"
@@ -113,7 +113,7 @@ function handleClose() {
           <UButton
             type="button"
             size="xl"
-            class="w-full min-h-12 text-lg"
+            class="w-full text-lg min-h-12"
             block
             color="primary"
             :disabled="loading"

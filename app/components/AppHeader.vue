@@ -167,7 +167,10 @@ const userAvatar = computed(() => {
     </template>
 
     <template #right>
-      <div class="flex gap-2 justify-end items-center pr-5 min-w-0 md:gap-3 shrink-0">
+      <div
+        class="flex gap-2 justify-end items-center min-w-0 md:gap-3 shrink-0"
+        :class="{ 'md:pr-5': !isLoggedIn }"
+      >
         <ClientOnly>
           <NuxtLink
             to="/carts"
@@ -329,7 +332,7 @@ const userAvatar = computed(() => {
           variant="solid"
           to="/login"
           block
-          class="mb-3"
+          class="my-3"
         />
         <UButton
           label="Đăng ký"
