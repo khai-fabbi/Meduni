@@ -13,6 +13,8 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { sendChatbotMessage } = useChatbot()
+
 const contentByKeywordAi = ref<ContentByKeywordAiResponse | null>(null)
 const loading = ref(false)
 onMounted(async () => {
@@ -70,6 +72,10 @@ const contentByKeywordAiData = computed(() => {
     return []
   }
 })
+
+const handleClickKeyword = async (keyword: { question: string, describe: string }) => {
+  await sendChatbotMessage(keyword.describe, { autoOpen: true })
+}
 </script>
 
 <template>
@@ -95,6 +101,7 @@ const contentByKeywordAiData = computed(() => {
           size="xl"
           class="text-sm rounded-md md:text-base min-h-10 md:min-h-12"
           :icon="StarsIcon"
+          @click="handleClickKeyword(keyword)"
         >
           {{ keyword.question }}
         </UButton>

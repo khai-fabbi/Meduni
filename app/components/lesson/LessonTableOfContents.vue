@@ -101,7 +101,7 @@ onMounted(() => {
     </div>
     <div
       ref="scrollContainer"
-      class="max-h-[520px] overflow-y-auto"
+      class="md:h-[calc(80vh-200px)] min-h-[520px] overflow-y-auto"
     >
       <UAccordion
         v-model="activeChapter"

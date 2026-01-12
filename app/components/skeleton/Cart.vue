@@ -6,7 +6,7 @@
           <USkeleton class="size-5 rounded" />
           <USkeleton class="h-5 w-64" />
         </div>
-        <USkeleton class="h-5 w-20 px-4" />
+        <USkeleton class="h-5 w-20 mr-4" />
       </div>
 
       <div class="space-y-4 px-4">
@@ -42,4 +42,3 @@
     </div>
   </div>
 </template>
-

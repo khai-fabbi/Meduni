@@ -12,17 +12,14 @@ interface UIMessage {
 }
 
 const chatbotStore = useChatbotStore()
-const { messages, conversationId } = storeToRefs(chatbotStore)
-
-const isOpen = ref(false)
-const status = ref<'submitted' | 'ready' | 'error'>('ready')
+const { messages, isOpen, status } = storeToRefs(chatbotStore)
 const input = ref('')
 const showWelcomeAlert = ref(false)
 
 const toast = useToast()
 const { copy: copyToClipboard } = useClipboard()
 
-const { sendMessage: sendMessageToChatbot } = useChatbot()
+const { sendChatbotMessage } = useChatbot()
 
 // Khởi tạo messages từ store
 onMounted(() => {
@@ -45,45 +42,7 @@ const sendMessage = async () => {
   const messageText = input.value.trim()
   input.value = ''
 
-  // Add user message to store
-  chatbotStore.addUserMessage(messageText)
-  status.value = 'submitted'
-
-  try {
-    // Send message to chatbot API
-    const response = await sendMessageToChatbot(messageText, conversationId.value)
-
-    // Update conversation ID if received from API
-    if (response.conversation_id) {
-      chatbotStore.setConversationId(response.conversation_id)
-    }
-
-    // Add assistant response to store
-    if (response.answer) {
-      chatbotStore.addAssistantMessage(response.answer)
-    } else {
-      chatbotStore.addAssistantMessage('Xin lỗi, tôi không thể xử lý câu hỏi này. Vui lòng thử lại.')
-    }
-
-    status.value = 'ready'
-  } catch (error) {
-    console.error('Error sending message:', error)
-    status.value = 'error'
-
-    // Add error message
-    chatbotStore.addAssistantMessage('Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.')
-
-    toast.add({
-      title: 'Lỗi',
-      description: 'Không thể gửi tin nhắn. Vui lòng thử lại.',
-      color: 'error'
-    })
-
-    // Reset status after error
-    setTimeout(() => {
-      status.value = 'ready'
-    }, 2000)
-  }
+  await sendChatbotMessage(messageText)
 }
 
 const handleSubmit = () => {
@@ -138,13 +97,14 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
 <template>
   <div class="fixed right-3 bottom-3 z-50">
     <UPopover
-      v-model:open="isOpen"
+      :open="isOpen"
       :popper="{
         placement: 'top-end',
         strategy: 'fixed'
       }"
-
       :content="{ side: 'top', sideOffset: -120 }"
+
+      @update:open="chatbotStore.toggleChatbot()"
     >
       <div class="relative">
         <UTooltip text="Trợ lý AI MedUni">
@@ -222,6 +182,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
               :status="status"
               :should-auto-scroll="true"
               :should-scroll-to-bottom="true"
+              auto-scroll
               auto-scroll-icon="i-lucide-chevron-down"
               class="py-4 h-full"
               :ui="{
@@ -267,7 +228,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
                 :status="status"
                 icon="i-lucide-send"
                 submitted-icon="i-lucide-ban"
-                @stop="status = 'ready'"
+                @stop="chatbotStore.setReady()"
               />
             </UChatPrompt>
           </div>
