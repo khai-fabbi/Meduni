@@ -83,7 +83,7 @@ function copyPaymentContent() {
         </div>
 
         <div class="px-6 py-4 space-y-4">
-          <div class="bg-primary-50 rounded-lg px-4 py-3 border border-primary-200">
+          <div class="bg-primary-50 rounded-md px-4 py-2 border border-primary-200">
             <p class="text-base font-medium text-primary-700 text-center">
               Vui lòng quét mã QR để thanh toán
             </p>
@@ -94,7 +94,7 @@ function copyPaymentContent() {
               <NuxtImg
                 :src="qrCodeUrl"
                 alt="QR Code"
-                class="w-64 h-64"
+                class="size-60"
               />
             </div>
           </div>
@@ -117,7 +117,7 @@ function copyPaymentContent() {
             </p>
           </div>
 
-          <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+          <div class="bg-red-50 rounded-lg px-4 py-2 border border-red-200">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
               <label class="text-sm font-medium text-red-700 shrink-0">
                 Nội dung chuyển khoản:

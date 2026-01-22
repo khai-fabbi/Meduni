@@ -88,7 +88,7 @@ defineEmits<{
           block
           :loading="isLoading"
           :disabled="isLoading"
-          class="text-base text-white bg-gradient-to-b rounded-xl shadow-md transition-all min-h-12 md:min-h-14 from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 hover:shadow-lg"
+          class="text-base text-white bg-gradient-to-b rounded-full shadow-md transition-all min-h-12 md:min-h-14 from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 hover:shadow-lg"
           icon="i-lucide-shopping-cart"
           @click="$emit('add-to-cart', courseInfo.courseId)"
         />
@@ -97,7 +97,7 @@ defineEmits<{
           color="secondary"
           size="xl"
           block
-          class="text-base text-white bg-gradient-to-b rounded-xl shadow-md transition-all min-h-12 md:min-h-14 from-secondary-500 to-secondary-700 hover:from-secondary-600 hover:to-secondary-800 hover:shadow-lg"
+          class="text-base text-white bg-gradient-to-b rounded-full shadow-md transition-all min-h-12 md:min-h-14 from-secondary-500 to-secondary-700 hover:from-secondary-600 hover:to-secondary-800 hover:shadow-lg"
           icon="i-lucide-book-open"
           @click="$emit('buy-now', courseInfo.courseId)"
         />

@@ -15,6 +15,7 @@ import type { CartApiItem, SePayTransactionResponse } from '~/types/cart'
 import { PaymentStatus } from '~/types/cart'
 import { getLinkFromS3, formatDuration } from '~/utils/helpers'
 import { useAddToCart } from '~/composables/useAddToCart'
+import { useAuth } from '~/composables/useAuth'
 
 const route = useRoute()
 const courseId = route.params.id as string
@@ -253,6 +254,7 @@ const currentLessonId = computed(() => {
 const toast = useToast()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+const { withAuth } = useAuth()
 const { addToCart, isLoading } = useAddToCart()
 const isAddingToCart = computed(() => isLoading(courseId))
 const confettiRef = ref<InstanceType<typeof SharedConfettiEffect> | null>(null)
@@ -310,13 +312,13 @@ onMounted(async () => {
   }
 })
 
-async function handleAddToCart(courseId: string) {
+const handleAddToCart = withAuth(async (courseId: string) => {
   await addToCart(courseId)
-}
+})
 
-function handleBuyNow() {
+const handleBuyNow = withAuth(() => {
   confirmPaymentModalOpen.value = true
-}
+})
 
 async function confirmPayment() {
   try {

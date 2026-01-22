@@ -102,6 +102,7 @@ const handleCopyMessage = async (e: MouseEvent, message: UIMessage) => {
         placement: 'top-end',
         strategy: 'fixed'
       }"
+      :dismissible="false"
       :content="{ side: 'top', sideOffset: -120 }"
 
       @update:open="chatbotStore.toggleChatbot()"

@@ -14,6 +14,7 @@ useSeoMeta({
   ogDescription: 'Đăng nhập vào tài khoản của bạn để tiếp tục'
 })
 
+const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const authStore = useAuthStore()
@@ -43,7 +44,11 @@ async function onSubmitEmail(
       color: 'success'
     })
 
-    await router.push('/')
+    // Lấy redirect path từ query parameter
+    const redirectPath = route.query.redirect as string
+
+    // Redirect về trang trước đó hoặc trang chủ
+    await router.push(redirectPath || '/')
   } catch {
     toast.add({
       title: 'Đăng nhập thất bại',
